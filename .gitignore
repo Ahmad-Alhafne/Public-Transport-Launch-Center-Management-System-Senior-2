@@ -1,0 +1,36 @@
+# Ignore build artifacts
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Ignore Visual Studio temporary files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore package manager and build output
+node_modules/
+dist/
+*.vsix
+
+# Ignore local config and generated data
+profile.json
+token.json
+token.txt
+tripdata.json
+performance-test/results.json
+
+# Ignore generated logs
+*.log
+
+# Ignore IDE files
+*.db
+*.db-shm
+*.db-wal
+
+# Ignore system files
+.DS_Store
+Thumbs.db

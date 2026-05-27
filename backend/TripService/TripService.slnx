@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="TripService.Api/TripService.Api.csproj" />
+  <Project Path="TripService.Application/TripService.Application.csproj" />
+  <Project Path="TripService.Domain/TripService.Domain.csproj" />
+  <Project Path="TripService.Infrastructure/TripService.Infrastructure.csproj" />
+</Solution>

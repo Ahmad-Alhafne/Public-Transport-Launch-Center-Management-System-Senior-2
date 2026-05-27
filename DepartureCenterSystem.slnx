@@ -1,0 +1,48 @@
+<Solution>
+  <Folder Name="/backend/" />
+  <Folder Name="/backend/ApiGateway/">
+    <Project Path="backend/ApiGateway/ApiGateway/ApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/backend/AuthService/">
+    <Project Path="backend/AuthService/AuthService.Api/AuthService.Api.csproj" />
+    <Project Path="backend/AuthService/AuthService.Application/AuthService.Application.csproj" />
+    <Project Path="backend/AuthService/AuthService.Domain/AuthService.Domain.csproj" />
+    <Project Path="backend/AuthService/AuthService.Infrastructure/AuthService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/BookingService/">
+    <Project Path="backend/BookingService/BookingService.Api/BookingService.Api.csproj" />
+    <Project Path="backend/BookingService/BookingService.Application/BookingService.Application.csproj" />
+    <Project Path="backend/BookingService/BookingService.Domain/BookingService.Domain.csproj" />
+    <Project Path="backend/BookingService/BookingService.Infrastructure/BookingService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/ComplaintService/">
+    <Project Path="backend/ComplaintService/ComplaintService.Api/ComplaintService.Api.csproj" />
+    <Project Path="backend/ComplaintService/ComplaintService.Application/ComplaintService.Application.csproj" />
+    <Project Path="backend/ComplaintService/ComplaintService.Domain/ComplaintService.Domain.csproj" />
+    <Project Path="backend/ComplaintService/ComplaintService.Infrastructure/ComplaintService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/NotificationService/">
+    <Project Path="backend/NotificationService/NotificationService.Api/NotificationService.Api.csproj" />
+    <Project Path="backend/NotificationService/NotificationService.Application/NotificationService.Application.csproj" />
+    <Project Path="backend/NotificationService/NotificationService.Domain/NotificationService.Domain.csproj" />
+    <Project Path="backend/NotificationService/NotificationService.Infrastructure/NotificationService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/RouteService/">
+    <Project Path="backend/RouteService/RouteService.Api/RouteService.Api.csproj" />
+    <Project Path="backend/RouteService/RouteService.Application/RouteService.Application.csproj" />
+    <Project Path="backend/RouteService/RouteService.Domain/RouteService.Domain.csproj" />
+    <Project Path="backend/RouteService/RouteService.Infrastructure/RouteService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/VehicleService/">
+    <Project Path="backend/VehicleService/VehicleService.Api/VehicleService.Api.csproj" />
+    <Project Path="backend/VehicleService/VehicleService.Application/VehicleService.Application.csproj" />
+    <Project Path="backend/VehicleService/VehicleService.Domain/VehicleService.Domain.csproj" />
+    <Project Path="backend/VehicleService/VehicleService.Infrastructure/VehicleService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/TripService/">
+    <Project Path="backend/TripService/TripService.Api/TripService.Api.csproj" />
+    <Project Path="backend/TripService/TripService.Application/TripService.Application.csproj" />
+    <Project Path="backend/TripService/TripService.Domain/TripService.Domain.csproj" />
+    <Project Path="backend/TripService/TripService.Infrastructure/TripService.Infrastructure.csproj" />
+  </Folder>
+</Solution>

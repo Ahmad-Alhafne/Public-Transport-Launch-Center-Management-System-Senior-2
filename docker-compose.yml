@@ -1,0 +1,124 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Your_password123" -Q "SELECT 1" -C || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  authservice:
+    build: ./backend/AuthService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=AuthDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - ServiceUrls__TripService=http://tripservice:8080/
+    ports:
+      - "5001:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  routeservice:
+    build: ./backend/RouteService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=RouteDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+    ports:
+      - "5002:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  tripservice:
+    build: ./backend/TripService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=TripDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+    ports:
+      - "5003:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  bookingservice:
+    build: ./backend/BookingService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=BookingDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - ServiceUrls__TripService=http://tripservice:8080/
+    ports:
+      - "5004:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      tripservice:
+        condition: service_started
+
+  complaintservice:
+    build: ./backend/ComplaintService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ComplaintDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+    ports:
+      - "5005:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  notificationservice:
+    build: ./backend/NotificationService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=NotificationDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+    ports:
+      - "5006:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  vehicleservice:
+    build: ./backend/VehicleService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=VehicleDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - JwtOptions__Issuer=DepartureCenter
+      - JwtOptions__Audience=DepartureCenterUsers
+      - JwtOptions__SecretKey=THIS_IS_A_LONG_SHARED_SECRET_KEY_123456789
+    ports:
+      - "5007:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  apigateway:
+    build: ./backend/ApiGateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"
+    depends_on:
+      - authservice
+      - routeservice
+      - tripservice
+      - bookingservice
+      - complaintservice
+      - notificationservice
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - apigateway
+
+volumes:
+  sqlserver_data:

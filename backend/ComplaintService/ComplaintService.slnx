@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ComplaintService.Api/ComplaintService.Api.csproj" />
+  <Project Path="ComplaintService.Application/ComplaintService.Application.csproj" />
+  <Project Path="ComplaintService.Domain/ComplaintService.Domain.csproj" />
+  <Project Path="ComplaintService.Infrastructure/ComplaintService.Infrastructure.csproj" />
+</Solution>

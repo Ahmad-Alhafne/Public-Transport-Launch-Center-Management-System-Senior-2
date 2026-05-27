@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="RouteService.Api/RouteService.Api.csproj" />
+  <Project Path="RouteService.Application/RouteService.Application.csproj" />
+  <Project Path="RouteService.Domain/RouteService.Domain.csproj" />
+  <Project Path="RouteService.Infrastructure/RouteService.Infrastructure.csproj" />
+</Solution>
