@@ -1,8 +1,8 @@
 # Database Schema (Tables + Fields)
 
+> ⚠️ The schema below is inferred from the C# entity models and EF Core configurations (e.g., `OnModelCreating`). This document summarizes the database tables and fields used by each microservice in the Departure Center System. The project uses **Entity Framework Core** and each service defines its own `DbContext` and entity models.
 
-> ⚠️ The schema below is inferred from the C# entity models and EF Core configurations (e.g., `OnModelCreating`). TyThis document summarizes the database tables and fields used by each microservice in the Departure Center System. The project uses **Entity Framework Core** and each service defines its own `DbContext` and entity models.
-pes listed are the CLR types used by the models; EF Core maps them to the appropriate SQL types (e.g., `Guid` → `uniqueidentifier`, `string` → `nvarchar`).
+The listed types are the CLR types used by the models; EF Core maps them to the appropriate SQL types (e.g., `Guid` → `uniqueidentifier`, `string` → `nvarchar`).
 
 ---
 
@@ -12,7 +12,7 @@ pes listed are the CLR types used by the models; EF Core maps them to the approp
 
 | Column | Type | Nullable | Notes |
 |--------|------|----------|-------|
-| `Id`   | `Guid` | No | Primary Key |
+| `Id` | `Guid` | No | Primary Key |
 | `Email` | `string` | No | Unique; max length 150 |
 | `PasswordHash` | `string` | No | |
 | `Role` | `enum` | No | Stored as string; values from `AuthService.Domain.Enums.Role` |
@@ -37,7 +37,7 @@ pes listed are the CLR types used by the models; EF Core maps them to the approp
 | `CardIssueDate` | `DateTime` | Yes | |
 | `FaceColor` | `string` | Yes | max length 50 |
 | `EyeColor` | `string` | Yes | max length 50 |
-| `FullName` | `string` | No | legacy/compatibility, stored as string |
+| `FullName` | `string` | No | Required; max length 150 |
 | `CreatedAt` | `DateTime` | No | |
 
 ### Indexes/Constraints
@@ -77,12 +77,16 @@ pes listed are the CLR types used by the models; EF Core maps them to the approp
 | `Id` | `Guid` | No | Primary Key |
 | `RouteId` | `Guid` | No | Indexed |
 | `DriverId` | `Guid` | No | Indexed |
+| `VehicleId` | `Guid` | No | Indexed; logical reference to `VehicleService.Vehicles.Id` |
 | `BusNumber` | `string` | No | max length 50 |
 | `DepartureTime` | `DateTime` | No | |
 | `ArrivalTime` | `DateTime` | Yes | |
-| `TotalSeats` | `int` | No | |
 | `AvailableSeats` | `int` | No | |
+| `TotalSeats` | `int` | No | |
 | `Status` | `enum` | No | Stored as string; values from `TripService.Domain.Enums.TripStatus` |
+| `AdminContact` | `string` | Yes | Optional admin contact details |
+| `DelayMinutes` | `int` | Yes | Optional delay duration |
+| `DelayReason` | `string` | Yes | Optional delay reason |
 | `CreatedAt` | `DateTime` | No | |
 
 ### Table: `DriverProfiles`
@@ -163,14 +167,35 @@ pes listed are the CLR types used by the models; EF Core maps them to the approp
 | `UserId` | `Guid` | No | Indexed |
 | `Title` | `string` | No | |
 | `Message` | `string` | No | |
-| `Type` | `enum` | No | Stored as string; values from `NotificationService.Domain.Enums.NotificationType` |
+| `Type` | `enum` | No | Stored as int; values from `NotificationService.Domain.Enums.NotificationType` |
+| `TargetRole` | `string` | Yes | Optional target role for role-based notifications |
 | `IsRead` | `bool` | No | |
 | `CreatedAt` | `DateTime` | No | |
 
 ---
 
+## 🚘 Vehicle Service (`VehicleService`)
+
+### Table: `Vehicles`
+
+| Column | Type | Nullable | Notes |
+|--------|------|----------|-------|
+| `Id` | `Guid` | No | Primary Key |
+| `Name` | `string` | No | max length 150 |
+| `PlateNumber` | `string` | No | Unique; max length 50 |
+| `Type` | `string` | No | max length 100 |
+| `Capacity` | `int` | No | |
+| `Status` | `string` | No | |
+| `CreatedAt` | `DateTime` | No | |
+
+### Indexes/Constraints
+
+- Unique index on `PlateNumber`
+
+---
+
 ## 📌 Notes
 
-- The schema is currently modeled in code (Code-First EF Core). Changes should be made by updating the domain entities and migration scripts.
+- The schema is modeled with code-first EF Core. Changes are defined in each service’s `DbContext`/entity classes and migration scripts.
 - Each service runs its own database context and may use separate databases depending on configuration.
-- For quick reference, you can also inspect EF Core migrations under each service’s `Infrastructure/Migrations/` folder.
+- EF Core maps CLR types to SQL types (e.g., `Guid` → `uniqueidentifier`, `string` → `nvarchar`).

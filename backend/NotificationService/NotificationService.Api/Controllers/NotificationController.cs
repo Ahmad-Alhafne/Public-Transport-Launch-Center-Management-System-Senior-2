@@ -43,12 +43,30 @@ public class NotificationController : ControllerBase
         return Ok(notification);
     }
 
+    [HttpGet("unread-count")]
+    [Authorize]
+    public async Task<IActionResult> GetUnreadCount()
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var role = User.FindFirstValue(ClaimTypes.Role);
+        var unreadCount = await _notificationService.GetUnreadCountAsync(userId, role);
+        return Ok(new UnreadCountDto { UnreadCount = unreadCount });
+    }
+
     [HttpPatch("read-all")]
     [Authorize]
     public async Task<IActionResult> MarkAllAsRead()
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         await _notificationService.MarkAllAsReadAsync(userId);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        await _notificationService.DeleteNotificationAsync(id);
         return NoContent();
     }
 

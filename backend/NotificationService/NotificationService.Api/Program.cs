@@ -1,3 +1,8 @@
+using NotificationService.Api.BackgroundServices;
+using NotificationService.Api.Channels;
+using NotificationService.Api.Handlers;
+using NotificationService.Api.Hubs;
+using NotificationService.Api.Messaging;
 using NotificationService.Api.Middleware;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.Services;
@@ -11,7 +16,11 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// RabbitMQ configuration
+var rabbitMqOptions = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqOptions>() ?? new RabbitMqOptions();
+builder.Services.AddSingleton(rabbitMqOptions);
+builder.Services.AddSingleton<IRabbitMqConnection, RabbitMqConnection>();
+builder.Services.AddSingleton<IRabbitMqEventPublisher, RabbitMqEventPublisher>();
 
 // Infrastructure
 builder.Services.AddDbContext<NotificationDbContext>(options =>
@@ -22,6 +31,17 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Application
 builder.Services.AddScoped<INotificationManagementService, NotificationManagementService>();
+builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
+builder.Services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
+
+// Channels
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<INotificationChannel, InAppNotificationChannel>();
+
+// Hosted services
+builder.Services.AddScoped<NotificationIntegrationEventHandler>();
+builder.Services.AddHostedService<RabbitMqEventConsumerHostedService>();
+builder.Services.AddHostedService<TripReminderBackgroundService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -76,5 +96,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

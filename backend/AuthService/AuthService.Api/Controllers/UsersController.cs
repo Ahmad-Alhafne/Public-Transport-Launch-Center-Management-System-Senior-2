@@ -43,7 +43,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("drivers/{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles= "Admin")]
     public async Task<IActionResult> UpdateDriver(Guid id, [FromBody] UpdateDriverDto dto)
     {
         var result = await _driverManagementService.UpdateDriverAsync(id, dto);
