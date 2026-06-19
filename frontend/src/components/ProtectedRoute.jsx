@@ -6,8 +6,14 @@ export default function ProtectedRoute({ children, roles }) {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <div className="fixed inset-0 flex items-center justify-center bg-white/80 z-[9999]">
+                <div
+                    className="animate-spin rounded-full h-12 w-12 border-4 border-transparent"
+                    style={{
+                        borderTopColor: 'var(--forest)',
+                        borderRightColor: 'var(--forest)',
+                    }}
+                />
             </div>
         );
     }
@@ -24,6 +30,6 @@ export default function ProtectedRoute({ children, roles }) {
 }
 
 function getRoleName(role) {
-    const map = { 0: 'Admin', 1: 'Driver', 2: 'Citizen' };
+    const map = { 0: 'Admin', 1: 'Driver', 2: 'Citizen', 3: 'Auditor', 4: 'QueueOrganizer', 5: 'Dispatcher' };
     return map[role] || role;
 }

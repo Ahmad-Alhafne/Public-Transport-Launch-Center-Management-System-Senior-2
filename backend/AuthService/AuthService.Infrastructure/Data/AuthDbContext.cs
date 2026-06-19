@@ -50,6 +50,7 @@ public class AuthDbContext : DbContext
             entity.Property(e => e.CardIssueDate);
             entity.Property(e => e.FaceColor).HasMaxLength(50);
             entity.Property(e => e.EyeColor).HasMaxLength(50);
+            entity.Property(e => e.LanguagePreference).HasMaxLength(2).HasDefaultValue("ar");
         });
     }
 }

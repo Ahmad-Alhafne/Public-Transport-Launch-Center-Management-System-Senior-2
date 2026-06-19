@@ -22,6 +22,7 @@ public class UserSummaryDto
     public DateTime? CardIssueDate { get; set; }
     public string? FaceColor { get; set; }
     public string? EyeColor { get; set; }
+    public string? LanguagePreference { get; set; }
 
     public string Role { get; set; } = string.Empty;
     public string AccountStatus { get; set; } = string.Empty;

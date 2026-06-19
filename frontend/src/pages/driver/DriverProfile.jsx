@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import LanguageSelector from '../../components/LanguageSelector';
 import { getMyDriverProfile, updateMyProfile } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 export default function DriverProfile() {
+    const { t } = useTranslation();
     const { user, loginUser } = useAuth();
     const [driverProfile, setDriverProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -12,6 +15,13 @@ export default function DriverProfile() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const getErrorMessage = (error) => {
+        const responseData = error?.response?.data;
+        if (!responseData) return t('generated.pages_driver_DriverProfile_jsx_24_813849fe');
+        if (typeof responseData === 'string') return responseData;
+        return responseData?.Detailed || responseData?.message || responseData?.title || JSON.stringify(responseData);
+    };
+
     const fetchProfile = async () => {
         setLoading(true);
         setError('');
@@ -19,7 +29,7 @@ export default function DriverProfile() {
             const { data } = await getMyDriverProfile();
             setDriverProfile(data);
         } catch (err) {
-            setError(err.response?.data?.Detailed || err.response?.data || 'Failed to load profile');
+            setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
@@ -54,7 +64,7 @@ export default function DriverProfile() {
 
             const { data } = await updateMyProfile(payload);
 
-            setSuccess('Profile updated successfully.');
+            setSuccess(t('generated.pages_driver_DriverProfile_jsx_59_03d89f70'));
             setEditing(false);
             setPassword('');
 
@@ -63,7 +73,7 @@ export default function DriverProfile() {
                 loginUser({ ...user, ...data, token });
             }
         } catch (err) {
-            setError(err.response?.data?.Detailed || err.response?.data || 'Failed to update profile');
+            setError(getErrorMessage(err) || t('generated.pages_driver_DriverProfile_jsx_68_7d3c6b35'));
         }
     };
 
@@ -78,137 +88,171 @@ export default function DriverProfile() {
         }
     };
 
-    if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>;
+    if (loading) {
+        return (
+            <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--forest)]"></div>
+            </div>
+        );
+    }
 
-    if (!user) return <div className="text-center py-10 text-red-400">Unable to load user data.</div>;
+    if (!user) {
+        return (
+            <div className="text-center py-10 font-medium text-[var(--umber)]">
+                {t('generated.pages_driver_DriverProfile_jsx_84_7d1faade')}
+            </div>
+        );
+    }
 
     return (
-        <div>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <h1 className="text-2xl font-bold">My Driver Profile</h1>
+        <div className="max-w-4xl mx-auto px-4 py-6">
+            {/* Header Toolbar */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <h1 className="text-3xl font-bold tracking-tight text-[var(--charcoal)]"  style={{margin:'10px 0'}}>
+                    {t('generated.pages_driver_DriverProfile_jsx_89_5db8f62a')}
+                </h1>
                 {!editing ? (
                     <button
                         onClick={() => setEditing(true)}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm transition-colors"
+                        className="px-5 py-2.5 bg-[var(--forest)] hover:bg-[var(--forest-dark)] text-white rounded-[var(--radius-sm)] text-sm font-semibold shadow-sm transition-all duration-200"
                     >
-                        Edit Profile
+                        {t('generated.pages_driver_DriverProfile_jsx_96_79180a70')}
                     </button>
                 ) : (
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         <button
                             onClick={handleSave}
-                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm transition-colors"
+                            className="px-5 py-2.5 bg-[var(--forest)] hover:bg-[var(--forest-dark)] text-white rounded-[var(--radius-sm)] text-sm font-semibold shadow-sm transition-all duration-200"
                         >
-                            Save Changes
+                            {t('common.saveChanges')}
                         </button>
                         <button
                             onClick={handleCancel}
-                            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm transition-colors"
+                            className="px-5 py-2.5 bg-[var(--surface)] hover:bg-[var(--background-subtle)] border border-[var(--border-subtle)] text-[var(--charcoal)] rounded-[var(--radius-sm)] text-sm font-medium shadow-sm transition-all duration-200"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                     </div>
                 )}
             </div>
 
-            {error && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                    {error}
-                </div>
-            )}
-            {success && (
-                <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">
-                    {success}
-                </div>
-            )}
+            {/* Language Selection Bar */}
+            <div className="mb-6 max-w-xs"> 
+                <LanguageSelector />
+            </div>
 
-            {/* Profile Info */}
-            <section className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 mb-6">
-                <h2 className="text-lg font-semibold mb-4">Profile Info</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">Full Name</span>
+            {/* Notification Center */}
+            {error && <div className="alert alert-error mb-4 text-sm font-medium shadow-sm">{error}</div>}
+            {success && <div className="alert alert-success mb-4 text-sm font-medium shadow-sm">{success}</div>}
+
+            {/* Section 1: Account Profile Metadata */}
+            <section className="card p-6 mb-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--border-subtle)] transition-all duration-200">
+                <h2 className="text-lg font-bold mb-4 pb-1.5 border-b border-[var(--border-light)] text-[var(--forest-dark)]">
+                    {t('generated.pages_driver_DriverProfile_jsx_132_f29bae9a')}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <label className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                            {t('generated.pages_driver_DriverProfile_jsx_135_64346b48')}
+                        </span>
                         <input
+                            type="text"
                             value={form.fullName}
                             onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                             disabled={!editing}
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            className="input-field w-full focus:ring-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         />
                     </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">Email</span>
+                    <label className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                            {t('generated.pages_driver_DriverProfile_jsx_144_84add5b2')}
+                        </span>
                         <input
+                            type="email"
                             value={user.email || ''}
                             disabled
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 text-slate-400"
+                            className="input-field w-full bg-[var(--background-subtle)] text-[var(--text-muted)] border-[var(--border-light)] cursor-not-allowed"
                         />
                     </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">Phone Number</span>
+                    <label className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                            {t('generated.pages_driver_DriverProfile_jsx_152_ab25d61b')}
+                        </span>
                         <input
+                            type="text"
                             value={form.phoneNumber}
                             onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
                             disabled={!editing}
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            className="input-field w-full focus:ring-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         />
                     </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">New Password</span>
+                    <label className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                            {t('generated.pages_driver_DriverProfile_jsx_161_4894cb39')}
+                        </span>
                         <input
+                            type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Leave blank to keep current password"
-                            type="password"
+                            placeholder={editing ? t('generated.pages_driver_DriverProfile_jsx_165_efaed3a1') : '••••••••'}
                             disabled={!editing}
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            className="input-field w-full focus:ring-2 disabled:opacity-70 disabled:cursor-not-allowed placeholder-[var(--text-muted)]"
                         />
                     </label>
                 </div>
             </section>
 
-            {/* License Info */}
-            <section className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 mb-6">
-                <h2 className="text-lg font-semibold mb-4">License Info</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <span className="text-sm text-slate-300">License Number</span>
-                        <p className="mt-1 text-white font-mono">{driverProfile?.licenseNumber || '—'}</p>
-                    </div>
-                    <div>
-                        <span className="text-sm text-slate-300">License Category</span>
-                        <p className="mt-1 text-white">{driverProfile?.licenseCategory || '—'}</p>
-                    </div>
-                    <div>
-                        <span className="text-sm text-slate-300">Issuing Authority</span>
-                        <p className="mt-1 text-white">{driverProfile?.issuingAuthority || '—'}</p>
-                    </div>
-                    <div>
-                        <span className="text-sm text-slate-300">License Expiry</span>
-                        <p className="mt-1 text-white">{driverProfile?.licenseExpiryDate ? new Date(driverProfile.licenseExpiryDate).toLocaleDateString() : '—'}</p>
-                    </div>
+            {/* Section 2: Administrative License Data */}
+            <section className="card p-6 mb-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--border-subtle)] transition-all duration-200">
+                <h2 className="text-lg font-bold mb-4 pb-1.5 border-b border-[var(--border-light)] text-[var(--forest-dark)]">
+                    {t('generated.pages_driver_DriverProfile_jsx_176_57b0387e')}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {[
+                        { label: t('generated.pages_driver_DriverProfile_jsx_179_1d5971eb'), val: driverProfile?.licenseNumber, isMono: true },
+                        { label: t('generated.pages_driver_DriverProfile_jsx_183_d6917986'), val: driverProfile?.licenseCategory },
+                        { label: t('generated.pages_driver_DriverProfile_jsx_187_fa01e893'), val: driverProfile?.issuingAuthority },
+                        { 
+                            label: t('generated.pages_driver_DriverProfile_jsx_191_a3135958'), 
+                            val: driverProfile?.licenseExpiryDate ? new Date(driverProfile.licenseExpiryDate).toLocaleDateString() : null 
+                        }
+                    ].map((item, idx) => (
+                        <div key={idx}>
+                            <span className="block text-xs font-semibold uppercase tracking-wider mb-1 text-[var(--text-muted)]">
+                                {item.label}
+                            </span>
+                            <p className={`text-base font-medium text-[var(--charcoal)] ${item.isMono ? 'font-mono text-sm tracking-wide' : ''}`}>
+                                {item.val || '—'}
+                            </p>
+                        </div>
+                    ))}
                 </div>
             </section>
 
-            {/* Vehicle Info */}
-            <section className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50">
-                <h2 className="text-lg font-semibold mb-4">Vehicle Info</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <span className="text-sm text-slate-300">Vehicle Plate</span>
-                        <p className="mt-1 text-white font-mono">{driverProfile?.vehiclePlateNumber || '—'}</p>
-                    </div>
-                    <div>
-                        <span className="text-sm text-slate-300">Vehicle Model</span>
-                        <p className="mt-1 text-white">{driverProfile?.vehicleModel || '—'}</p>
-                    </div>
-                    <div>
-                        <span className="text-sm text-slate-300">Vehicle Color</span>
-                        <p className="mt-1 text-white">{driverProfile?.vehicleColor || '—'}</p>
-                    </div>
-                    <div>
-                        <span className="text-sm text-slate-300">Registration Expiry</span>
-                        <p className="mt-1 text-white">{driverProfile?.registrationExpiryDate ? new Date(driverProfile.registrationExpiryDate).toLocaleDateString() : '—'}</p>
-                    </div>
+            {/* Section 3: Operational Vehicle Assignment */}
+            <section className="card p-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--border-subtle)] transition-all duration-200">
+                <h2 className="text-lg font-bold mb-4 pb-1.5 border-b border-[var(--border-light)] text-[var(--forest-dark)]">
+                    {t('generated.pages_driver_DriverProfile_jsx_199_3350f51f')}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {[
+                        { label: t('generated.pages_driver_DriverProfile_jsx_202_ef6eab67'), val: driverProfile?.vehiclePlateNumber, isMono: true },
+                        { label: t('generated.pages_driver_DriverProfile_jsx_206_699ff44e'), val: driverProfile?.vehicleModel },
+                        { label: t('generated.pages_driver_DriverProfile_jsx_210_a6081371'), val: driverProfile?.vehicleColor },
+                        { 
+                            label: t('generated.pages_driver_DriverProfile_jsx_214_803ef608'), 
+                            val: driverProfile?.registrationExpiryDate ? new Date(driverProfile.registrationExpiryDate).toLocaleDateString() : null 
+                        }
+                    ].map((item, idx) => (
+                        <div key={idx}>
+                            <span className="block text-xs font-semibold uppercase tracking-wider mb-1 text-[var(--text-muted)]">
+                                {item.label}
+                            </span>
+                            <p className={`text-base font-medium text-[var(--charcoal)] ${item.isMono ? 'font-mono text-sm tracking-wide' : ''}`}>
+                                {item.val || '—'}
+                            </p>
+                        </div>
+                    ))}
                 </div>
             </section>
         </div>

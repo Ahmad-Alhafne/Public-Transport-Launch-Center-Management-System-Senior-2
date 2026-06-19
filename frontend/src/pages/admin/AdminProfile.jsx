@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getMyProfile, updateMyProfile } from '../../services/api';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import LanguageSelector from '../../components/LanguageSelector';
 
 export default function AdminProfile() {
     const [profile, setProfile] = useState(null);
@@ -23,6 +25,7 @@ export default function AdminProfile() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [confirmingUpdate, setConfirmingUpdate] = useState(false);
+    const { t } = useTranslation();
 
     const formatDateForInput = (value) => {
         if (!value) return '';
@@ -57,7 +60,7 @@ export default function AdminProfile() {
                 adminLevel: data.adminLevel || '',
             });
         } catch {
-            setError('Failed to load profile');
+            setError(t('admin.profile.loadFailed'));
         } finally {
             setLoading(false);
         }
@@ -71,7 +74,6 @@ export default function AdminProfile() {
         e.preventDefault();
         setError('');
         setSuccess('');
-
         setConfirmingUpdate(true);
     };
 
@@ -81,108 +83,80 @@ export default function AdminProfile() {
         setSuccess('');
 
         try {
-            const { data } = await updateMyProfile({
-                fullName: form.fullName,
-                email: form.email,
-                phoneNumber: form.phoneNumber,
-                firstName: form.firstName,
-                lastName: form.lastName,
-                gender: form.gender,
-                dateOfBirth: form.dateOfBirth,
-                nationalIdNumber: form.nationalIdNumber,
-                city: form.city,
-                region: form.region,
-                accountStatus: form.accountStatus,
-                adminLevel: form.adminLevel,
-            });
+            const { data } = await updateMyProfile({ ...form });
             setProfile(data);
             setEditing(false);
-            setSuccess('Profile updated successfully.');
+            setSuccess(t('admin.profile.successUpdate'));
         } catch (err) {
-            setError(err.response?.data?.Detailed || 'Update failed');
+            setError(err.response?.data?.Detailed || t('admin.profile.updateFailed'));
         }
     };
 
     if (loading) {
         return (
             <div className="flex justify-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--forest)]"></div>
             </div>
         );
     }
 
     if (!profile) {
-        return <div className="text-center py-10 text-red-400">Profile not found. Please contact support.</div>;
+        return (
+            <div className="text-center py-10 font-medium text-[var(--umber)]">
+                {t('admin.profile.profileNotFound')}
+            </div>
+        );
     }
 
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-6">My Profile</h1>
+        <div className="max-w-4xl mx-auto px-4 py-6">
+            <h1 className="text-3xl font-bold tracking-tight mb-6 text-[var(--charcoal)]">
+                {t('admin.profile.title')}
+            </h1>
 
-            {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>}
-            {success && <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">{success}</div>}
+            <div className="mb-6 max-w-sm">
+                <LanguageSelector />
+            </div>
 
-            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 mb-6">
-                <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Full Name</label>
-                        <p className="text-white">{profile.fullName || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Email</label>
-                        <p className="text-white">{profile.email || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Role</label>
-                        <p className="text-white">{profile.role || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Phone</label>
-                        <p className="text-white">{profile.phoneNumber || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">First name</label>
-                        <p className="text-white">{profile.firstName || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Last name</label>
-                        <p className="text-white">{profile.lastName || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Gender</label>
-                        <p className="text-white">{profile.gender || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Date of birth</label>
-                        <p className="text-white">{formatDateForDisplay(profile.dateOfBirth)}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">National ID</label>
-                        <p className="text-white">{profile.nationalIdNumber || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">City</label>
-                        <p className="text-white">{profile.city || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Region</label>
-                        <p className="text-white">{profile.region || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Account status</label>
-                        <p className="text-white">{profile.accountStatus || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Admin level</label>
-                        <p className="text-white">{profile.adminLevel || '-'}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Created</label>
-                        <p className="text-white">{formatDateForDisplay(profile.accountCreationDate)}</p>
-                    </div>
-                    <div>
-                        <label className="block text-sm text-slate-400 mb-1">Last updated</label>
-                        <p className="text-white">{formatDateForDisplay(profile.lastProfileUpdate)}</p>
+            {/* Notification Stack */}
+            {error && <div className="alert alert-error mb-4 text-sm font-medium shadow-sm">{error}</div>}
+            {success && <div className="alert alert-success mb-4 text-sm font-medium shadow-sm">{success}</div>}
+
+            {/* Read-Only Profile View Panel */}
+            <div className="card p-6 mb-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--border-subtle)] transition-all duration-200">
+                <div className="grid gap-5 md:grid-cols-2">
+                    {[
+                        { label: t('admin.profile.fullName'), val: profile.fullName },
+                        { label: t('admin.profile.email'), val: profile.email },
+                        { label: t('admin.profile.role'), val: profile.role },
+                        { label: t('admin.profile.phone'), val: profile.phoneNumber },
+                        { label: t('admin.profile.firstName'), val: profile.firstName },
+                        { label: t('admin.profile.lastName'), val: profile.lastName },
+                        { label: t('admin.profile.gender'), val: profile.gender },
+                        { label: t('admin.profile.dateOfBirth'), val: formatDateForDisplay(profile.dateOfBirth) },
+                        { label: t('admin.profile.nationalId'), val: profile.nationalIdNumber, isMono: true },
+                        { label: t('admin.profile.city'), val: profile.city },
+                        { label: t('admin.profile.region'), val: profile.region },
+                        { label: t('admin.profile.accountStatus'), val: profile.accountStatus },
+                        { label: t('admin.profile.adminLevel'), val: profile.adminLevel },
+                        { label: t('admin.profile.created'), val: formatDateForDisplay(profile.accountCreationDate) }
+                    ].map((item, idx) => (
+                        <div key={idx}>
+                            <label className="block text-xs font-semibold uppercase tracking-wider mb-1 text-[var(--text-muted)]">
+                                {item.label}
+                            </label>
+                            <p className={`text-base font-medium text-[var(--charcoal)] ${item.isMono ? 'font-mono text-sm' : ''}`}>
+                                {item.val || '-'}
+                            </p>
+                        </div>
+                    ))}
+                    <div className="md:col-span-2">
+                        <label className="block text-xs font-semibold uppercase tracking-wider mb-1 text-[var(--text-muted)]">
+                            {t('admin.profile.lastUpdated')}
+                        </label>
+                        <p className="text-base font-medium text-[var(--charcoal)]">
+                            {formatDateForDisplay(profile.lastProfileUpdate)}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -190,169 +164,182 @@ export default function AdminProfile() {
             {!editing ? (
                 <button
                     onClick={() => setEditing(true)}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-medium transition-colors"
+                    className="primary-button px-6 py-3 text-sm font-semibold shadow-sm rounded-[var(--radius-sm)] transition-all duration-200"
                 >
-                    Edit Profile
+                    {t('admin.profile.editProfile')}
                 </button>
             ) : (
-                <form onSubmit={handleSubmit} className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 grid gap-6">
+                /* Interactive Form Panel */
+                <form onSubmit={handleSubmit} className="card p-6 grid gap-6 rounded-[var(--radius)] bg-[var(--surface)] border border-[var(--border-subtle)] transition-all duration-300">
+                    
+                    {/* Basic Section */}
                     <div>
-                        <h2 className="text-lg font-semibold mb-3">Basic Information</h2>
+                        <h2 className="text-lg font-bold mb-4 pb-1.5 border-b border-[var(--border-light)] text-[var(--forest-dark)]">
+                            {t('admin.profile.basicInformation')}
+                        </h2>
                         <div className="grid gap-4 md:grid-cols-2">
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Full Name</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.fullName')}</span>
                                 <input
                                     type="text"
-                                    value={form.fullName || ''}
+                                    value={form.fullName}
                                     onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                     required
                                 />
                             </label>
-
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Email</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.email')}</span>
                                 <input
                                     type="email"
-                                    value={form.email || ''}
+                                    value={form.email}
                                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                     required
                                 />
                             </label>
-
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Phone Number</span>
+                            <label className="flex flex-col gap-1.5 md:col-span-2">
+                                <span className="form-label !mb-0">{t('admin.profile.phone')}</span>
                                 <input
                                     type="text"
-                                    value={form.phoneNumber || ''}
+                                    value={form.phoneNumber}
                                     onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 />
                             </label>
                         </div>
                     </div>
 
+                    {/* Personal Section */}
                     <div>
-                        <h2 className="text-lg font-semibold mb-3">Personal Information</h2>
+                        <h2 className="text-lg font-bold mb-4 pb-1.5 border-b border-[var(--border-light)] text-[var(--forest-dark)]">
+                            {t('admin.profile.personalInformation')}
+                        </h2>
                         <div className="grid gap-4 md:grid-cols-2">
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">First Name</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.firstName')}</span>
                                 <input
                                     type="text"
-                                    value={form.firstName || ''}
+                                    value={form.firstName}
                                     onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 />
                             </label>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Last Name</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.lastName')}</span>
                                 <input
                                     type="text"
-                                    value={form.lastName || ''}
+                                    value={form.lastName}
                                     onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 />
                             </label>
-
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Gender</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.gender')}</span>
                                 <select
-                                    value={form.gender || ''}
+                                    value={form.gender}
                                     onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 >
-                                    <option value="">-- Pick gender --</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
+                                    <option value="">{t('admin.profile.selectGender')}</option>
+                                    <option value="Male">{t('admin.profile.genderMale')}</option>
+                                    <option value="Female">{t('admin.profile.genderFemale')}</option>
                                 </select>
                             </label>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Date of Birth</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.dateOfBirth')}</span>
                                 <input
                                     type="date"
-                                    value={form.dateOfBirth || ''}
+                                    value={form.dateOfBirth}
                                     onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 />
                             </label>
                         </div>
                     </div>
 
+                    {/* Location Section */}
                     <div>
-                        <h2 className="text-lg font-semibold mb-3">Location</h2>
+                        <h2 className="text-lg font-bold mb-4 pb-1.5 border-b border-[var(--border-light)] text-[var(--forest-dark)]">
+                            {t('admin.profile.location')}
+                        </h2>
                         <div className="grid gap-4 md:grid-cols-2">
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">City</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.city')}</span>
                                 <input
                                     type="text"
-                                    value={form.city || ''}
+                                    value={form.city}
                                     onChange={(e) => setForm({ ...form, city: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 />
                             </label>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Region</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.region')}</span>
                                 <input
                                     type="text"
-                                    value={form.region || ''}
+                                    value={form.region}
                                     onChange={(e) => setForm({ ...form, region: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 />
                             </label>
                         </div>
                     </div>
 
+                    {/* Settings Section */}
                     <div>
-                        <h2 className="text-lg font-semibold mb-3">Admin Settings</h2>
+                        <h2 className="text-lg font-bold mb-4 pb-1.5 border-b border-[var(--border-light)] text-[var(--forest-dark)]">
+                            {t('admin.profile.adminSettings')}
+                        </h2>
                         <div className="grid gap-4 md:grid-cols-2">
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Account Status</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.accountStatus')}</span>
                                 <select
-                                    value={form.accountStatus || ''}
+                                    value={form.accountStatus}
                                     onChange={(e) => setForm({ ...form, accountStatus: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 >
-                                    <option value="">-- Pick status --</option>
-                                    <option value="Active">Active</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Suspended">Suspended</option>
+                                    <option value="">{t('admin.profile.selectStatus')}</option>
+                                    <option value="Active">{t('admin.profile.statusActive')}</option>
+                                    <option value="Pending">{t('admin.profile.statusPending')}</option>
+                                    <option value="Suspended">{t('admin.profile.statusSuspended')}</option>
                                 </select>
                             </label>
-                            <label className="flex flex-col gap-1">
-                                <span className="text-sm text-slate-300">Admin Level</span>
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.profile.adminLevel')}</span>
                                 <select
-                                    value={form.adminLevel || ''}
+                                    value={form.adminLevel}
                                     onChange={(e) => setForm({ ...form, adminLevel: e.target.value })}
-                                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                                    className="input-field w-full focus:ring-2"
                                 >
-                                    <option value="">-- Pick level --</option>
-                                    <option value="SuperAdmin">SuperAdmin</option>
-                                    <option value="Admin">Admin</option>
+                                    <option value="">{t('admin.profile.selectAdminLevel')}</option>
+                                    <option value="SuperAdmin">{t('admin.profile.superAdmin')}</option>
+                                    <option value="Admin">{t('admin.profile.admin')}</option>
                                 </select>
                             </label>
                         </div>
-
                         <div className="mt-4">
-                            <label className="block text-sm text-slate-400 mb-2">National ID Number</label>
+                            <label className="form-label block text-sm font-semibold mb-1.5">{t('admin.profile.nationalIdNumber')}</label>
                             <input
                                 type="text"
-                                value={form.nationalIdNumber || ''}
+                                value={form.nationalIdNumber}
                                 onChange={(e) => setForm({ ...form, nationalIdNumber: e.target.value })}
-                                className="w-full px-4 py-2 bg-slate-900/40 border border-slate-700/70 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                className="input-field w-full focus:ring-2"
                             />
                         </div>
                     </div>
 
-                    <div className="flex gap-3 mt-4">
-                        <button type="submit" className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition-colors">Save</button>
+                    {/* Form Controls */}
+                    <div className="flex gap-3 pt-2">
+                        <button type="submit" className="primary-button px-6 py-2.5 text-sm font-semibold shadow-sm rounded-[var(--radius-sm)]">
+                            {t('admin.profile.save')}
+                        </button>
                         <button
                             type="button"
                             onClick={() => {
                                 setEditing(false);
                                 setForm({
-                                    fullName: profile.fullName,
-                                    email: profile.email,
+                                    fullName: profile.fullName || '',
+                                    email: profile.email || '',
                                     phoneNumber: profile.phoneNumber || '',
                                     firstName: profile.firstName || '',
                                     lastName: profile.lastName || '',
@@ -365,9 +352,9 @@ export default function AdminProfile() {
                                     adminLevel: profile.adminLevel || '',
                                 });
                             }}
-                            className="px-6 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg font-medium transition-colors"
+                            className="danger-button px-6 py-2.5 text-sm font-medium shadow-sm rounded-[var(--radius-sm)]"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                     </div>
                 </form>
@@ -375,10 +362,10 @@ export default function AdminProfile() {
 
             <ConfirmationModal
                 open={confirmingUpdate}
-                title="Confirm Update"
-                message="Are you sure you want to update your profile information?"
-                confirmText="Update Profile"
-                cancelText="Cancel"
+                title={t('admin.profile.confirmUpdateTitle')}
+                message={t('admin.profile.confirmUpdateMessage')}
+                confirmText={t('admin.profile.confirmUpdateAction')}
+                cancelText={t('common.cancel')}
                 onConfirm={confirmProfileUpdate}
                 onCancel={() => setConfirmingUpdate(false)}
             />

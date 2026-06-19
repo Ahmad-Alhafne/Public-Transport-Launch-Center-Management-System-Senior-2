@@ -85,6 +85,7 @@ public class AuthenticationService : IAuthenticationService
             FullName = user.FullName,
             Email = user.Email,
             Role = user.Role,
+            LanguagePreference = user.LanguagePreference,
             Token = token
         };
     
@@ -107,6 +108,7 @@ public class AuthenticationService : IAuthenticationService
             FullName = user.FullName,
             Email = user.Email,
             Role = user.Role,
+            LanguagePreference = user.LanguagePreference,
             Token = token
         };
     }

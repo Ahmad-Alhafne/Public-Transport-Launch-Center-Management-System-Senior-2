@@ -36,6 +36,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUserQueryService, UserQueryService>();
 builder.Services.AddScoped<IDriverManagementService, DriverManagementService>();
+builder.Services.AddScoped<IAuditorManagementService, AuditorManagementService>();
+builder.Services.AddScoped<IQueueOrganizerManagementService, QueueOrganizerManagementService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 builder.Services.AddControllers()

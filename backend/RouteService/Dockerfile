@@ -6,7 +6,8 @@ COPY ["RouteService.Api/RouteService.Api.csproj", "RouteService.Api/"]
 COPY ["RouteService.Application/RouteService.Application.csproj", "RouteService.Application/"]
 COPY ["RouteService.Domain/RouteService.Domain.csproj", "RouteService.Domain/"]
 COPY ["RouteService.Infrastructure/RouteService.Infrastructure.csproj", "RouteService.Infrastructure/"]
-RUN dotnet restore "RouteService.Api/RouteService.Api.csproj" \
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet restore "RouteService.Api/RouteService.Api.csproj" \
     --disable-parallel \
     --verbosity minimal
 COPY . .

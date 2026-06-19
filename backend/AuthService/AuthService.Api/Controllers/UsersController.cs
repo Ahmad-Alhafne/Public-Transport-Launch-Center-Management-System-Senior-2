@@ -13,16 +13,22 @@ public class UsersController : ControllerBase
 {
     private readonly IUserQueryService _userQueryService;
     private readonly IDriverManagementService _driverManagementService;
+    private readonly IAuditorManagementService _auditorManagementService;
+    private readonly IQueueOrganizerManagementService _queueOrganizerManagementService;
     private readonly IUserManagementService _userManagementService;
 
     public UsersController(
         IUserQueryService userQueryService,
         IDriverManagementService driverManagementService,
-        IUserManagementService userManagementService)
+        IAuditorManagementService auditorManagementService,
+        IUserManagementService userManagementService,
+        IQueueOrganizerManagementService queueOrganizerManagementService)
     {
         _userQueryService = userQueryService;
         _driverManagementService = driverManagementService;
+        _auditorManagementService = auditorManagementService;
         _userManagementService = userManagementService;
+        _queueOrganizerManagementService = queueOrganizerManagementService;
     }
 
     // Driver management
@@ -55,6 +61,71 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteDriver(Guid id)
     {
         await _driverManagementService.DeleteDriverAsync(id);
+        return NoContent();
+    }
+
+    // Auditor management
+    [HttpGet("auditors")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAuditors()
+    {
+        var auditors = await _userQueryService.GetAuditorsAsync();
+        return Ok(auditors);
+    }
+
+    [HttpGet("organizers")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetOrganizers()
+    {
+        var organizers = await _userManagementService.GetUsersByRoleAsync(Role.QueueOrganizer);
+        return Ok(organizers);
+    }
+
+    [HttpPost("auditors")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateAuditor([FromBody] CreateAuditorDto dto)
+    {
+        var result = await _auditorManagementService.CreateAuditorAsync(dto);
+        return CreatedAtAction(nameof(GetAuditors), new { id = result.Id }, result);
+    }
+
+    [HttpPost("organizers")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateOrganizer([FromBody] CreateAuditorDto dto)
+    {
+        var result = await _queueOrganizerManagementService.CreateQueueOrganizerAsync(dto);
+        return CreatedAtAction(nameof(GetOrganizers), new { id = result.Id }, result);
+    }
+
+    [HttpPut("auditors/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateAuditor(Guid id, [FromBody] UpdateUserDto dto)
+    {
+        var result = await _auditorManagementService.UpdateAuditorAsync(id, dto);
+        return Ok(result);
+    }
+
+    [HttpPut("organizers/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateOrganizer(Guid id, [FromBody] UpdateUserDto dto)
+    {
+        var result = await _queueOrganizerManagementService.UpdateQueueOrganizerAsync(id, dto);
+        return Ok(result);
+    }
+
+    [HttpDelete("auditors/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteAuditor(Guid id)
+    {
+        await _auditorManagementService.DeleteAuditorAsync(id);
+        return NoContent();
+    }
+
+    [HttpDelete("organizers/{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteOrganizer(Guid id)
+    {
+        await _queueOrganizerManagementService.DeleteQueueOrganizerAsync(id);
         return NoContent();
     }
 
@@ -137,6 +208,39 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> UpdateUserPassword(Guid id, [FromBody] UpdatePasswordDto dto)
     {
         var result = await _driverManagementService.UpdateUserPasswordAsync(id, dto.NewPassword);
+        return Ok(result);
+    }
+
+    // Auditor-specific phone/password management
+    [HttpPatch("auditors/{id:guid}/phone")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateAuditorPhone(Guid id, [FromBody] UpdatePhoneDto dto)
+    {
+        var result = await _auditorManagementService.UpdateAuditorPhoneAsync(id, dto.PhoneNumber);
+        return Ok(result);
+    }
+
+    [HttpPatch("organizers/{id:guid}/phone")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateOrganizerPhone(Guid id, [FromBody] UpdatePhoneDto dto)
+    {
+        var result = await _queueOrganizerManagementService.UpdateQueueOrganizerPhoneAsync(id, dto.PhoneNumber);
+        return Ok(result);
+    }
+
+    [HttpPatch("auditors/{id:guid}/password")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateAuditorPassword(Guid id, [FromBody] UpdatePasswordDto dto)
+    {
+        var result = await _auditorManagementService.UpdateAuditorPasswordAsync(id, dto.NewPassword);
+        return Ok(result);
+    }
+
+    [HttpPatch("organizers/{id:guid}/password")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateOrganizerPassword(Guid id, [FromBody] UpdatePasswordDto dto)
+    {
+        var result = await _queueOrganizerManagementService.UpdateQueueOrganizerPasswordAsync(id, dto.NewPassword);
         return Ok(result);
     }
 

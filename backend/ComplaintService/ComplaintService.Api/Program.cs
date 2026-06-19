@@ -15,7 +15,10 @@ builder.Services.AddDbContext<ComplaintDbContext>(options =>
         sqlOptions.EnableRetryOnFailure()));
 
 builder.Services.AddScoped<IComplaintRepository, ComplaintRepository>();
-builder.Services.AddHttpClient<IComplaintService, ComplaintManagementService>();
+builder.Services.AddHttpClient<IComplaintService, ComplaintManagementService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ServiceUrls:NotificationService"] ?? "http://notificationservice:8080");
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

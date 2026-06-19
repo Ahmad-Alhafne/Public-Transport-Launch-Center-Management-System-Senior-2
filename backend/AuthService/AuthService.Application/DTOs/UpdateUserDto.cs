@@ -17,6 +17,7 @@ public class UpdateUserDto
     public string? Region { get; set; }
     public string? DisabilityStatus { get; set; }
     public string? NationalIdNumber { get; set; }
+    public string? LanguagePreference { get; set; }
 
     // Role and status
     public string? Role { get; set; }

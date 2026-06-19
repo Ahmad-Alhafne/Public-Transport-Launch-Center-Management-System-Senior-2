@@ -33,15 +33,33 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationManagementService, NotificationManagementService>();
 builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
 builder.Services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
+builder.Services.AddScoped<IReminderService, ReminderService>();
 
 // Channels
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<INotificationChannel, InAppNotificationChannel>();
+// Push sender selection: prefer FCM if configured, otherwise use Expo
+var fcmKey = builder.Configuration["Fcm:ServerKey"];
+if (!string.IsNullOrEmpty(fcmKey))
+{
+    // Use FCM as default sender
+    builder.Services.AddHttpClient<NotificationService.Application.Interfaces.INotificationSender, NotificationService.Api.Channels.FcmNotificationSender>();
+    // Also register Expo sender as a concrete type if needed
+    builder.Services.AddHttpClient<NotificationService.Api.Channels.ExpoNotificationSender>();
+}
+else
+{
+    // Default to Expo sender
+    builder.Services.AddHttpClient<NotificationService.Application.Interfaces.INotificationSender, NotificationService.Api.Channels.ExpoNotificationSender>();
+    builder.Services.AddHttpClient<NotificationService.Api.Channels.FcmNotificationSender>();
+}
 
 // Hosted services
 builder.Services.AddScoped<NotificationIntegrationEventHandler>();
 builder.Services.AddHostedService<RabbitMqEventConsumerHostedService>();
 builder.Services.AddHostedService<TripReminderBackgroundService>();
+// Poll provider receipts (e.g., Expo) and reconcile PushDelivery records
+builder.Services.AddHostedService<PushReceiptPollingService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

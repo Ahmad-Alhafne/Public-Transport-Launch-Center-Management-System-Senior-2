@@ -1,70 +1,88 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import logo from '../../imgs/Syrian_logo_icon_gold.svg';
 import { login } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const { loginUser } = useAuth();
-    const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { loginUser } = useAuth();
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-        try {
-            const { data } = await login({ email, password });
-            loginUser(data);
-            navigate('/');
-        } catch (err) {
-            console.error('Login error:', err);
-            const response = err.response?.data;
-            const message =
-                typeof response === 'string'
-                    ? response
-                    : response?.Detailed ?? response?.Message ?? response?.message ?? err.message ?? 'Login failed';
-            setError(message);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const { data } = await login({ email, password });
+      loginUser(data);
+      navigate('/');
+    } catch (err) {
+      const response = err.response?.data;
+      const message =
+        typeof response === 'string'
+          ? response
+          : response?.Detailed ?? response?.Message ?? response?.message ?? err.message ?? 'Login failed';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="min-h-screen flex items-center justify-center px-4">
-            <div className="w-full max-w-md">
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                        🚌 Departure Center
-                    </h1>
-                    <p className="mt-2 text-slate-400">Public Transportation Management</p>
-                </div>
-                <form onSubmit={handleSubmit} className="bg-slate-800/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50 shadow-2xl">
-                    <h2 className="text-2xl font-semibold mb-6 text-center">Sign In</h2>
-                    {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>}
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm text-slate-400 mb-1">Email</label>
-                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500 transition-colors" />
-                        </div>
-                        <div>
-                            <label className="block text-sm text-slate-400 mb-1">Password</label>
-                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-                                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500 transition-colors" />
-                        </div>
-                    </div>
-                    <button type="submit" disabled={loading}
-                        className="w-full mt-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-xl font-medium transition-all duration-200 disabled:opacity-50">
-                        {loading ? 'Signing in...' : 'Sign In'}
-                    </button>
-                    <p className="mt-4 text-center text-sm text-slate-400">
-                        Don't have an account? <Link to="/register" className="text-blue-400 hover:text-blue-300">Register</Link>
-                    </p>
-                </form>
-            </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 page-shell">
+      <div className="w-full max-w-md">
+        <div className="flex flex-col items-center justify-center text-center mb-8">
+          <img src={logo} alt="Departure Center Logo" className="h-20 w-20 rounded-full shadow-card" />
+          <p className="mt-4 text-muted">{t('auth.publicTransport')}</p>
         </div>
-    );
+
+        <form onSubmit={handleSubmit} className="auth-card">
+          <h2 className="text-2xl font-semibold mb-6 text-center">{t('auth.login')}</h2>
+          {error && <div className="mb-4 alert alert-error text-sm">{error}</div>}
+          <div className="space-y-4">
+            <div>
+              <label className="form-label">{t('auth.email')}</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="input-field w-full"
+              />
+            </div>
+            <div>
+              <label className="form-label">{t('auth.password')}</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="input-field w-full"
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="primary-button w-full mt-6 py-3 font-medium transition-all duration-200 disabled:opacity-50"
+            style={{marginTop:'10px'}}
+          >
+            {loading ? t('auth.signingIn') : t('auth.login')}
+          </button>
+          <p className="mt-4 text-center text-sm text-muted">
+            {t('auth.noAccount')}{' '}
+            <Link to="/register" className="text-forest hover:text-forest-dark">
+              {t('auth.register')}
+            </Link>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
 }

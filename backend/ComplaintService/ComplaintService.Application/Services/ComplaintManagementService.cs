@@ -5,16 +5,19 @@ using ComplaintService.Application.Interfaces;
 using ComplaintService.Domain.Entities;
 using ComplaintService.Domain.Enums;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 public class ComplaintManagementService : IComplaintService
 {
     private readonly IComplaintRepository _repository;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<ComplaintManagementService> _logger;
 
-    public ComplaintManagementService(IComplaintRepository repository, HttpClient httpClient)
+    public ComplaintManagementService(IComplaintRepository repository, HttpClient httpClient, ILogger<ComplaintManagementService> logger)
     {
         _repository = repository;
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<ComplaintDto>> GetAllComplaintsAsync()
@@ -101,18 +104,18 @@ public class ComplaintManagementService : IComplaintService
                 "application/json"
             );
 
-            var response = await _httpClient.PostAsync("http://notificationservice:5010/api/notification", content);
-            // Optionally log if notification creation fails, but don't fail the complaint response
+            var response = await _httpClient.PostAsync("api/notification", content);
+            // Log if notification creation fails, but don't fail the complaint response
             if (!response.IsSuccessStatusCode)
             {
-                // Log warning but don't throw
-                System.Diagnostics.Debug.WriteLine($"Failed to create notification: {response.StatusCode}");
+                var respContent = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Failed to create notification. Status: {StatusCode}, Response: {Response}", response.StatusCode, respContent);
             }
         }
         catch (Exception ex)
         {
             // Log but don't fail the complaint response
-            System.Diagnostics.Debug.WriteLine($"Error creating notification: {ex.Message}");
+            _logger.LogError(ex, "Error creating notification for complaint {ComplaintId}", complaint.Id);
         }
     }
 

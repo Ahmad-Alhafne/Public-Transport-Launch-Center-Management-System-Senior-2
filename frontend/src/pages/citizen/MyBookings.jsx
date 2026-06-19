@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { getMyActiveBookings, getMyBookingHistory, cancelBooking } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 export default function MyBookings() {
+    const { t } = useTranslation();
     const [activeBookings, setActiveBookings] = useState([]);
     const [historyBookings, setHistoryBookings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -25,7 +27,7 @@ export default function MyBookings() {
             setActiveBookings(activeResponse.data);
             setHistoryBookings(historyResponse.data);
         } catch {
-            setError('Failed to load bookings');
+            setError(t('generated.pages_citizen_MyBookings_jsx_20_11e66235'));
         } finally {
             setLoading(false);
         }
@@ -43,10 +45,12 @@ export default function MyBookings() {
         setError(''); setSuccess('');
         try {
             await cancelBooking({ cancellationCode: cancelCode });
-            setSuccess('Booking cancelled successfully.');
+            setSuccess(t('generated.pages_citizen_MyBookings_jsx_47_72cb6b26'));
             setCancelCode('');
             fetchBookings();
-        } catch (err) { setError(err.response?.data?.Detailed || 'Cancellation failed'); }
+        } catch (err) { 
+            setError(err.response?.data?.Detailed || t('generated.pages_citizen_MyBookings_jsx_51_7d4ac1e7')); 
+        }
     };
 
     const renderBookingCard = (booking, showCancellationCode = true) => {
@@ -55,36 +59,54 @@ export default function MyBookings() {
         const baseDeparture = new Date(booking.tripDepartureTimeUtc);
         const adjustedDeparture = new Date(baseDeparture.getTime() + delayMinutes * 60000);
 
+        // Map trip status badges accurately to custom style guide layout tokens
         const statusColors = {
-            Scheduled: 'text-blue-400 bg-blue-500/10',
-            Started: 'text-emerald-400 bg-emerald-500/10',
-            Delayed: 'text-yellow-400 bg-yellow-500/10',
-            Finished: 'text-slate-400 bg-slate-500/10',
-            Cancelled: 'text-red-400 bg-red-500/10'
+            Scheduled: 'bg-[var(--wheat-light)] text-[var(--wheat-dark)] border border-[rgba(185,167,121,0.25)]',
+            Started: 'bg-[var(--forest-100)] text-[var(--forest-dark)] border border-[rgba(66,129,119,0.2)]',
+            Delayed: 'bg-[var(--wheat-light)] text-[var(--wheat-dark)] border border-[rgba(185,167,121,0.4)]',
+            Finished: 'bg-[var(--surface-muted)] text-[#525050] border border-[rgba(66,129,119,0.08)]',
+            Cancelled: 'bg-[rgba(107,31,42,0.08)] text-[var(--umber-dark)] border border-[rgba(107,31,42,0.2)]'
         };
 
         return (
-            <div key={booking.id} className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50">
+            <div key={booking.id} className="card p-6 border border-[rgba(66,129,119,0.1)]">
                 <div className="flex items-start justify-between gap-4">
-                    <div>
-                        <p className="font-semibold">{booking.passengerName}</p>
-                        <p className="text-sm text-slate-400 mt-1">Booked: {new Date(booking.bookedAt).toLocaleString()}</p>
-                        <p className="text-sm text-slate-400 mt-1">
-                            Departure: {adjustedDeparture.toLocaleString()}
+                    <div className="space-y-1.5">
+                        <p className="font-bold text-base text-[var(--charcoal)]">{booking.passengerName}</p>
+                        <p className="text-sm text-muted">
+                            {t('generated.pages_citizen_MyBookings_jsx_71_5825bc2c')}: {new Date(booking.bookedAt).toLocaleString()}
+                        </p>
+                        <p className="text-sm font-medium text-[var(--charcoal-medium)]">
+                            {t('generated.pages_citizen_MyBookings_jsx_75_b5f97c79')}: {adjustedDeparture.toLocaleString()}
                             {delayMinutes > 0 && (
-                                <span className="text-xs text-yellow-300 ml-2">(+{delayMinutes} min)</span>
+                                <span className="text-xs text-[var(--umber-dark)] font-semibold ml-2 bg-[rgba(107,31,42,0.08)] px-2 py-0.5 rounded">
+                                    (+{delayMinutes} min)
+                                </span>
                             )}
                         </p>
-                        <p className="text-xs text-slate-500 mt-1">Seats: <span className="text-slate-300 font-mono">{booking.seatCount ?? 1}</span></p>
+                        <p className="text-xs text-muted">
+                            {t('generated.pages_citizen_MyBookings_jsx_78_70d30f84')} 
+                            <span className="text-[var(--charcoal-medium)] font-mono font-semibold ml-1">{booking.seatCount ?? 1}</span>
+                        </p>
                         {showCancellationCode && (
-                            <p className="text-xs text-slate-500 mt-1">Code: <span className="text-blue-400 font-mono">{booking.cancellationCode}</span></p>
+                            <p className="text-xs text-muted">
+                                {t('generated.pages_citizen_MyBookings_jsx_80_ca567dda')} 
+                                <span className="text-[var(--forest-dark)] font-mono font-bold ml-1">{booking.cancellationCode}</span>
+                            </p>
                         )}
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                        <span className={`px-3 py-1 rounded-full text-xs ${booking.status === 'Confirmed' || booking.status === 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                            {booking.status === 0 ? 'Confirmed' : booking.status === 1 ? 'Cancelled' : booking.status}
+                    <div className="flex flex-col items-end gap-2.5">
+                        {/* Booking State Badge */}
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase ${
+                            booking.status === 'Confirmed' || booking.status === 0 
+                                ? 'bg-[var(--forest-100)] text-[var(--forest-dark)]' 
+                                : 'bg-[rgba(107,31,42,0.08)] text-[var(--umber-dark)]'
+                        }`}>
+                            {booking.status === 0 ? t('generated.pages_citizen_MyBookings_status_confirmed') : booking.status === 1 ? t('generated.pages_citizen_MyBookings_status_cancelled') : booking.status}
                         </span>
-                        <span className={`px-3 py-1 rounded-full text-xs ${statusColors[tripStatus] || 'bg-slate-500/10 text-slate-300'}`}>
+                        
+                        {/* Vehicle Transit State Badge */}
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase ${statusColors[tripStatus] || 'bg-[var(--surface-muted)] text-muted'}`}>
                             {tripStatus}
                         </span>
                     </div>
@@ -93,7 +115,13 @@ export default function MyBookings() {
         );
     };
 
-    if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>;
+    if (loading) {
+        return (
+            <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--forest)]"></div>
+            </div>
+        );
+    }
 
     const currentBookings = activeTab === 'active' ? activeBookings : historyBookings;
 
@@ -105,85 +133,88 @@ export default function MyBookings() {
     });
 
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-6">My Bookings</h1>
-
-            {/* Tab Navigation */}
-            <div className="flex gap-1 mb-6 bg-slate-800/30 p-1 rounded-xl">
+        <div className="content-wrapper py-6">
+            {/* Tab Navigation Controls */}
+            <div className="flex gap-1 mb-6 bg-[var(--surface-muted)] p-1 rounded-xl border border-[rgba(66,129,119,0.08)]">
                 <button
                     onClick={() => setActiveTab('active')}
-                    className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                    className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-150 ${
                         activeTab === 'active'
-                            ? 'bg-blue-600 text-white'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                            ? 'bg-[var(--forest)] text-white shadow-sm'
+                            : 'text-[var(--charcoal-medium)] hover:text-[var(--charcoal)] hover:bg-[var(--surface-soft)]'
                     }`}
                 >
-                    Active Bookings ({activeBookings.length})
+                    {t('generated.pages_citizen_MyBookings_jsx_119_312b5688', { count: activeBookings.length })}
                 </button>
                 <button
                     onClick={() => setActiveTab('history')}
-                    className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                    className={`flex-1 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-150 ${
                         activeTab === 'history'
-                            ? 'bg-blue-600 text-white'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                            ? 'bg-[var(--forest)] text-white shadow-sm'
+                            : 'text-[var(--charcoal-medium)] hover:text-[var(--charcoal)] hover:bg-[var(--surface-soft)]'
                     }`}
                 >
-                    History ({historyBookings.length})
+                    {t('generated.pages_citizen_MyBookings_jsx_127_8abd2d99', { count: historyBookings.length })}
                 </button>
             </div>
 
-            {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>}
-            {success && <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">{success}</div>}
+            {/* Custom Banner Error & Success Prompts */}
+            {error && <div className="alert alert-error mb-6">{error}</div>}
+            {success && <div className="alert alert-success mb-6">{success}</div>}
 
-            {/* Filters */}
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* Parameter Search Filters */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input
                     type="text"
-                    placeholder="Filter by booked date"
+                    placeholder={t('generated.pages_citizen_MyBookings_jsx_142_671acdb2')}
                     value={filters.bookedDate}
                     onChange={(e) => setFilters({ ...filters, bookedDate: e.target.value })}
-                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="input-field"
                 />
                 <input
                     type="text"
-                    placeholder="Filter by departure date"
+                    placeholder={t('generated.pages_citizen_MyBookings_jsx_149_8473a6fd')}
                     value={filters.departureDate}
                     onChange={(e) => setFilters({ ...filters, departureDate: e.target.value })}
-                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="input-field"
                 />
                 <input
                     type="number"
-                    placeholder="Filter by seats"
+                    placeholder={t('generated.pages_citizen_MyBookings_jsx_156_79e9aab1')}
                     value={filters.seatCount}
                     onChange={(e) => setFilters({ ...filters, seatCount: e.target.value })}
-                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="input-field"
                 />
             </div>
 
-            {/* Cancellation Form - Only for Active Bookings */}
+            {/* Cancellation Form Header Action */}
             {activeTab === 'active' && (
-                <form onSubmit={handleCancel} className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 mb-6 flex gap-3">
+                <form onSubmit={handleCancel} className="card p-5 border border-[rgba(107,31,42,0.15)] mb-6 flex flex-col sm:flex-row gap-3">
                     <input
-                        placeholder="Enter cancellation code"
+                        placeholder={t('generated.pages_citizen_MyBookings_jsx_167_d7832054')}
                         value={cancelCode}
                         onChange={e => setCancelCode(e.target.value)}
                         required
-                        className="flex-1 px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
+                        className="input-field flex-1"
                     />
-                    <button type="submit" className="px-6 py-3 bg-red-600 hover:bg-red-500 rounded-xl font-medium transition-colors">
-                        Cancel Booking
+                    <button 
+                        type="submit" 
+                        className="danger-button px-6 py-3 text-sm font-medium whitespace-nowrap"
+                    >
+                        {t('generated.pages_citizen_MyBookings_jsx_179_b3e7c0ad')}
                     </button>
                 </form>
             )}
 
-            {/* Bookings List */}
+            {/* Main Dynamic Result Grid Content */}
             <div className="grid gap-4">
                 {filteredBookings.map(booking => renderBookingCard(booking, activeTab === 'active'))}
+                
                 {filteredBookings.length === 0 && (
-                    <p className="text-center text-slate-500 py-10">
+                    <p className="text-center text-muted py-12 card bg-surface-muted">
                         {currentBookings.length === 0 
-                            ? (activeTab === 'active' ? 'No active bookings found.' : 'No booking history found.')
-                            : 'No bookings match your filters.'
+                            ? (activeTab === 'active' ? t('generated.pages_citizen_MyBookings_jsx_183_5fcbc5e3') : t('generated.pages_citizen_MyBookings_jsx_183_5fcbc5e3_history'))
+                            : t('generated.pages_citizen_MyBookings_jsx_185_0b1fa2a4')
                         }
                     </p>
                 )}

@@ -5,7 +5,8 @@ COPY ["NotificationService.Api/NotificationService.Api.csproj", "NotificationSer
 COPY ["NotificationService.Application/NotificationService.Application.csproj", "NotificationService.Application/"]
 COPY ["NotificationService.Domain/NotificationService.Domain.csproj", "NotificationService.Domain/"]
 COPY ["NotificationService.Infrastructure/NotificationService.Infrastructure.csproj", "NotificationService.Infrastructure/"]
-RUN dotnet restore "NotificationService.Api/NotificationService.Api.csproj" \
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet restore "NotificationService.Api/NotificationService.Api.csproj" \
     --disable-parallel \
     --verbosity minimal
 

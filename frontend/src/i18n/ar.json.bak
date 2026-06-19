@@ -1,0 +1,360 @@
+{
+  "citizen": {
+    "trips": {
+      "title": "الرحلات المتاحة",
+      "selectRoute": "اختر المسار",
+      "selectDeparture": "اختر المغادرة"
+    },
+    "bookButton": "احجز الآن",
+    "selectRouteLabel": "اختر مسارًا",
+    "selectDestinationLabel": "اختر وجهة",
+    "departureLabel": "وقت المغادرة",
+    "arrivalLabel": "وقت الوصول",
+    "seatsAvailable": "المقاعد المتاحة",
+    "favoriteTrips": {
+      "title": "الرحلات المفضلة لدي",
+      "loadFailed": "فشل في تحميل الرحلات المفضلة.",
+      "tripNotFound": "الرحلة غير موجودة.",
+      "seatCountMin": "يجب أن يكون عدد المقاعد على الأقل 1.",
+      "notEnoughSeats": "لا توجد مقاعد كافية لهذه الرحلة.",
+      "bookingConfirmed": "تم تأكيد الحجز! رمز الإلغاء: {{code}}",
+      "bookingFailed": "فشل الحجز.",
+      "removeFailed": "فشل في إزالة المفضلة.",
+      "filterByStart": "التصفية حسب نقطة البداية",
+      "filterByDestination": "التصفية حسب الوجهة",
+      "filterByDepartureDate": "التصفية حسب تاريخ المغادرة",
+      "filterByAvailableSeats": "التصفية حسب المقاعد المتاحة",
+      "fromLabel": "من",
+      "toLabel": "إلى",
+      "departureLabel": "وقت المغادرة",
+      "notAvailable": "غير متوفر",
+      "seatsLabel": "المقاعد",
+      "remove": "إزالة",
+      "reserve": "حجز",
+      "yourFullName": "اسمك الكامل",
+      "seatsPlaceholder": "المقاعد",
+      "confirmBooking": "تأكيد",
+      "noFavoritesYet": "لا توجد رحلات مفضلة بعد. أضف بعضًا من صفحة الرحلات!",
+      "noMatches": "لا توجد رحلات مفضلة تطابق عوامل التصفية.",
+      "confirmRemoveTitle": "تأكيد إزالة المفضلة",
+      "confirmRemoveMessage": "هل أنت متأكد أنك تريد إزالة هذه الرحلة من المفضلات؟"
+    }
+  },
+  "profile": {
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "routes": "المسارات",
+    "trips": "الرحلات",
+    "vehicles": "المركبات",
+    "drivers": "السائقون",
+    "users": "المستخدمون",
+    "notifications": "الإشعارات",
+    "settings": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "complaints": "الشكاوى",
+    "favorites": "المفضلات",
+    "bookings": "الحجوزات",
+    "logout": "تسجيل الخروج"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "requiredField": "هذه الخانة مطلوبة.",
+    "emailInvalid": "الرجاء إدخال عنوان بريد إلكتروني صالح."
+    ,"publicTransport": "وسائل النقل العام"
+    ,"signingIn": "جاري تسجيل الدخول..."
+    ,"createAccount": "أنشئ حسابك"
+    ,"creatingAccount": "جاري إنشاء الحساب..."
+    ,"createAccountButton": "إنشاء حساب"
+    ,"noAccount": "ليس لديك حساب؟"
+    ,"alreadyHaveAccount": "هل لديك حساب بالفعل؟"
+    ,"firstName": "الاسم الأول"
+    ,"lastName": "اسم العائلة"
+    ,"gender": "الجنس"
+    ,"selectGender": "اختر الجنس"
+    ,"male": "ذكر"
+    ,"female": "أنثى"
+    ,"dateOfBirth": "تاريخ الميلاد"
+    ,"city": "المدينة"
+    ,"region": "المنطقة"
+    ,"currentAddress": "العنوان الحالي"
+    ,"phoneNumber": "رقم الهاتف"
+    ,"disabilityStatus": "حالة الإعاقة"
+    ,"selectStatus": "اختر الحالة"
+    ,"statusNone": "لا يوجد"
+    ,"statusWheelchair": "كرسي متحرك"
+    ,"statusBlind": "كفيف"
+    ,"statusDeaf": "صمم"
+    ,"fatherName": "اسم الأب"
+    ,"motherName": "اسم الأم"
+    ,"birthPlace": "مكان الميلاد"
+    ,"nationalIdNumber": "رقم الهوية الوطنية"
+    ,"fullName": "الاسم الكامل"
+  },
+  "profile": {
+    "language": "اللغة",
+    "selectLanguage": "اختر اللغة",
+    "save": "حفظ",
+    "languageSaved": "تم حفظ تفضيل اللغة.",
+    "editProfile": "تعديل الملف الشخصي"
+  },
+  "settings": {
+    "languageSettings": "إعدادات اللغة",
+    "arabic": "العربية",
+    "english": "English"
+  },
+  "roles": {
+    "admin": "المسؤول",
+    "driver": "السائق",
+    "citizen": "المواطن"
+  },
+  "admin": {
+    "trips": {
+      "title": "إدارة الرحلات",
+      "newTrip": "رحلة جديدة",
+      "createTrip": "إنشاء رحلة",
+      "updateTrip": "تحديث الرحلة",
+      "searchBusNumber": "البحث برقم الحافلة",
+      "searchRouteId": "البحث برقم المسار",
+      "searchDeparture": "البحث حسب المغادرة",
+      "searchAvailableSeats": "البحث حسب المقاعد المتاحة",
+      "selectRoute": "اختر المسار",
+      "selectDriver": "اختر السائق",
+      "selectVehicle": "اختر المركبة",
+      "noVehiclesAvailable": "لا توجد مركبات متاحة",
+      "busNumber": "رقم الحافلة",
+      "departureTime": "وقت المغادرة",
+      "arrivalTime": "وقت الوصول",
+      "totalSeats": "عدد المقاعد",
+      "confirmUpdateTitle": "تأكيد التحديث",
+      "confirmUpdateMessage": "هل أنت متأكد أنك تريد تحديث هذه الرحلة؟",
+      "confirmDeleteTitle": "تأكيد الحذف",
+      "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف هذه الرحلة؟"
+    },
+    "routes": {
+      "title": "إدارة المسارات",
+      "newRoute": "مسار جديد",
+      "searchName": "البحث بالاسم",
+      "searchStart": "البحث حسب نقطة البداية",
+      "searchEnd": "البحث حسب الوجهة",
+      "searchDistance": "البحث حسب المسافة",
+      "searchDuration": "البحث حسب الوقت",
+      "routeName": "اسم المسار",
+      "startLocation": "مكان البداية",
+      "endLocation": "الوجهة",
+      "distanceKm": "المسافة (كم)",
+      "estimatedDurationMins": "المدة (دقائق)",
+      "confirmUpdateTitle": "تأكيد التحديث",
+      "confirmUpdateMessage": "هل أنت متأكد أنك تريد تحديث هذا المسار؟",
+      "confirmDeleteTitle": "تأكيد الحذف",
+      "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف هذا المسار؟"
+    },
+    "vehicles": {
+      "title": "إدارة المركبات",
+      "newVehicle": "مركبة جديدة",
+      "createVehicle": "إنشاء مركبة",
+      "updateVehicle": "تحديث المركبة",
+      "searchName": "البحث بالاسم",
+      "searchType": "البحث بالنوع",
+      "searchPlate": "البحث برقم اللوحة",
+      "searchStatus": "البحث بالحالة",
+      "name": "الاسم",
+      "type": "النوع",
+      "capacity": "السعة",
+      "plateNumber": "رقم اللوحة",
+      "status": "الحالة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "noVehiclesFound": "لم يتم العثور على مركبات.",
+      "confirmUpdateTitle": "تأكيد التحديث",
+      "confirmUpdateMessage": "هل أنت متأكد أنك تريد تحديث هذه المركبة؟",
+      "confirmDeleteTitle": "تأكيد الحذف",
+      "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف هذه المركبة؟"
+    },
+    "complaints": {
+      "title": "الشكاوى",
+      "respond": "الرد",
+      "respondToTitle": "الرد على الشكوى: {{subject}}",
+      "status": "الحالة",
+      "adminResponseLabel": "رد المسؤول",
+      "responsePlaceholder": "أدخل ردك...",
+      "sendResponse": "إرسال الرد",
+      "noComplaints": "لم يتم العثور على شكاوى.",
+      "pending": "قيد الانتظار",
+      "inReview": "قيد المراجعة",
+      "resolved": "تم حلها",
+      "rejected": "مرفوضة"
+    },
+    "vehicles": {
+      "title": "إدارة المركبات",
+      "newVehicle": "مركبة جديدة",
+      "createVehicle": "إنشاء مركبة",
+      "updateVehicle": "تحديث المركبة",
+      "searchName": "البحث بالاسم",
+      "searchType": "البحث بالنوع",
+      "searchPlate": "البحث برقم اللوحة",
+      "searchStatus": "البحث بالحالة",
+      "name": "الاسم",
+      "type": "النوع",
+      "capacity": "السعة",
+      "plateNumber": "رقم اللوحة",
+      "status": "الحالة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "noVehiclesFound": "لم يتم العثور على مركبات.",
+      "confirmUpdateTitle": "تأكيد التحديث",
+      "confirmUpdateMessage": "هل أنت متأكد أنك تريد تحديث هذه المركبة؟",
+      "confirmDeleteTitle": "تأكيد الحذف",
+      "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف هذه المركبة؟"
+    }
+    ,
+    "citizen": {
+      "trips": {
+        "title": "الرحلات المتاحة",
+        "selectRoute": "اختر المسار",
+        "selectDeparture": "اختر المغادرة"
+      },
+      "bookButton": "احجز الآن",
+      "selectRouteLabel": "اختر مسارًا",
+      "selectDestinationLabel": "اختر وجهة",
+      "departureLabel": "وقت المغادرة",
+      "arrivalLabel": "وقت الوصول",
+      "seatsAvailable": "المقاعد المتاحة",
+      "favoriteTrips": {
+        "title": "الرحلات المفضلة لدي",
+        "loadFailed": "فشل في تحميل الرحلات المفضلة.",
+        "tripNotFound": "الرحلة غير موجودة.",
+        "seatCountMin": "يجب أن يكون عدد المقاعد على الأقل 1.",
+        "notEnoughSeats": "لا توجد مقاعد كافية لهذه الرحلة.",
+        "bookingConfirmed": "تم تأكيد الحجز! رمز الإلغاء: {{code}}",
+        "bookingFailed": "فشل الحجز.",
+        "removeFailed": "فشل في إزالة المفضلة.",
+        "filterByStart": "التصفية حسب نقطة البداية",
+        "filterByDestination": "التصفية حسب الوجهة",
+        "filterByDepartureDate": "التصفية حسب تاريخ المغادرة",
+        "filterByAvailableSeats": "التصفية حسب المقاعد المتاحة",
+        "fromLabel": "من",
+        "toLabel": "إلى",
+        "departureLabel": "وقت المغادرة",
+        "notAvailable": "غير متوفر",
+        "seatsLabel": "المقاعد",
+        "remove": "إزالة",
+        "reserve": "حجز",
+        "yourFullName": "اسمك الكامل",
+        "seatsPlaceholder": "المقاعد",
+        "confirmBooking": "تأكيد",
+        "noFavoritesYet": "لا توجد رحلات مفضلة بعد. أضف بعضًا من صفحة الرحلات!",
+        "noMatches": "لا توجد رحلات مفضلة تطابق عوامل التصفية.",
+        "confirmRemoveTitle": "تأكيد إزالة المفضلة",
+        "confirmRemoveMessage": "هل أنت متأكد أنك تريد إزالة هذه الرحلة من المفضلات؟"
+      }
+    }
+  },
+  "profile": {
+      "title": "ملفي الشخصي",
+      "loadFailed": "فشل في تحميل الملف الشخصي.",
+      "successUpdate": "تم تحديث الملف الشخصي بنجاح.",
+      "updateFailed": "فشل التحديث.",
+      "profileNotFound": "لم يتم العثور على الملف الشخصي. يرجى الاتصال بالدعم.",
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "phone": "الهاتف",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "gender": "الجنس",
+      "dateOfBirth": "تاريخ الميلاد",
+      "nationalId": "الهوية الوطنية",
+      "city": "المدينة",
+      "region": "المنطقة",
+      "accountStatus": "حالة الحساب",
+      "adminLevel": "مستوى المسؤول",
+      "created": "تاريخ الإنشاء",
+      "lastUpdated": "آخر تحديث",
+      "editProfile": "تعديل الملف الشخصي",
+      "basicInformation": "معلومات أساسية",
+      "personalInformation": "المعلومات الشخصية",
+      "location": "الموقع",
+      "adminSettings": "إعدادات المسؤول",
+      "selectGender": "-- اختر الجنس --",
+      "genderMale": "ذكر",
+      "genderFemale": "أنثى",
+      "selectStatus": "-- اختر الحالة --",
+      "statusActive": "نشط",
+      "statusPending": "قيد الانتظار",
+      "statusSuspended": "معلق",
+      "selectAdminLevel": "-- اختر المستوى --",
+      "superAdmin": "مشرف عام",
+      "admin": "مسؤول",
+      "nationalIdNumber": "رقم الهوية الوطنية",
+      "save": "حفظ",
+      "confirmUpdateTitle": "تأكيد التحديث",
+      "confirmUpdateMessage": "هل أنت متأكد أنك تريد تحديث معلومات ملفك الشخصي؟",
+      "confirmUpdateAction": "تحديث الملف الشخصي"
+    },
+    "driverRequests": {
+      "title": "طلبات تغيير السائق",
+      "loadFailed": "فشل في تحميل الطلبات.",
+      "requestApproved": "تمت الموافقة على الطلب.",
+      "requestRejected": "تم رفض الطلب.",
+      "approvalFailed": "فشل في الموافقة.",
+      "rejectionFailed": "فشل في الرفض.",
+      "enterRejectionReason": "أدخل سبب الرفض:",
+      "pendingRequests": "الطلبات قيد الانتظار",
+      "resolvedRequests": "الطلبات المحلولة",
+      "submitted": "تاريخ الإرسال",
+      "current": "الحالي",
+      "requested": "المطلوب",
+      "reason": "السبب",
+      "noPendingRequests": "لا توجد طلبات قيد الانتظار.",
+      "resolvedLabel": "تم الحل",
+      "adminNotes": "ملاحظات المسؤول",
+      "approve": "الموافقة",
+      "reject": "الرفض",
+      "phoneNumber": "رقم الهاتف",
+      "password": "كلمة المرور",
+      "routeAssignment": "تعيين المسار",
+      "profileData": "بيانات الملف الشخصي",
+      "pending": "قيد الانتظار",
+      "approved": "تمت الموافقة",
+      "rejected": "مرفوض"
+    }
+  },
+  "confirmation": {
+    "logoutTitle": "تأكيد تسجيل الخروج",
+    "logoutMessage": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "logout": "تسجيل الخروج"
+  },
+  "dashboard": {
+    "welcome": "مرحبًا، {{name}}",
+    "selectOption": "اختر خيارًا من شريط التنقل."
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "markAll": "وضع علامة تم القراءة على الكل",
+    "empty": "لا توجد إشعارات بعد",
+    "viewAll": "عرض جميع الإشعارات"
+  },
+  "common": {
+    "saveChanges": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "search": "بحث",
+    "actions": "الإجراءات",
+    "yes": "نعم",
+    "no": "لا",
+    "update": "تحديث",
+    "delete": "حذف",
+    "create": "إنشاء",
+    "refresh": "تحديث",
+    "viewDetails": "عرض التفاصيل",
+    "edit": "تعديل",
+    "remove": "إزالة",
+    "submit": "إرسال"
+  }
+}

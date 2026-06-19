@@ -1,3 +1,4 @@
+using System.Threading;
 using RabbitMQ.Client;
 
 namespace NotificationService.Api.Messaging;
@@ -28,8 +29,28 @@ public class RabbitMqConnection : IRabbitMqConnection
             DispatchConsumersAsync = true
         };
 
-        _connection = factory.CreateConnection();
-        return _connection;
+        const int maxAttempts = 5;
+        const int delayMilliseconds = 2000;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                _connection = factory.CreateConnection();
+                return _connection;
+            }
+            catch
+            {
+                if (attempt == maxAttempts)
+                {
+                    throw;
+                }
+
+                Thread.Sleep(delayMilliseconds);
+            }
+        }
+
+        throw new InvalidOperationException("Unable to create RabbitMQ connection after retries.");
     }
 
     public void Dispose()

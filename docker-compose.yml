@@ -9,11 +9,28 @@ services:
     volumes:
       - sqlserver_data:/var/opt/mssql
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Your_password123" -Q "SELECT 1" -C || exit 1
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1,1433 -U sa -P \"Your_password123\" -Q \"SELECT 1\" -b -C || exit 1"]
       interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      timeout: 30s
+      retries: 30
+      start_period: 240s
+
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics ping"]
+      interval: 10s
+      timeout: 60s
+      retries: 20
+      start_period: 120s
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
   authservice:
     build: ./backend/AuthService
@@ -63,6 +80,24 @@ services:
       tripservice:
         condition: service_started
 
+  auditservice:
+    build: ./backend/AuditService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=AuditDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - ServiceUrls__BookingService=http://bookingservice:8080/
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__VirtualHost=/
+    ports:
+      - "5008:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      bookingservice:
+        condition: service_started
+
   complaintservice:
     build: ./backend/ComplaintService
     environment:
@@ -79,10 +114,16 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=NotificationDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__VirtualHost=/
     ports:
       - "5006:8080"
     depends_on:
       sqlserver:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
   vehicleservice:
@@ -99,6 +140,26 @@ services:
       sqlserver:
         condition: service_healthy
 
+  livetrackingservice:
+    build: ./backend/LiveTrackingService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=LiveTrackingDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__VirtualHost=/
+      - JwtOptions__Issuer=DepartureCenter
+      - JwtOptions__Audience=DepartureCenterUsers
+      - JwtOptions__SecretKey=THIS_IS_A_LONG_SHARED_SECRET_KEY_123456789
+    ports:
+      - "5010:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
   apigateway:
     build: ./backend/ApiGateway
     environment:
@@ -110,6 +171,7 @@ services:
       - routeservice
       - tripservice
       - bookingservice
+      - auditservice
       - complaintservice
       - notificationservice
 
@@ -122,3 +184,4 @@ services:
 
 volumes:
   sqlserver_data:
+  rabbitmq_data:

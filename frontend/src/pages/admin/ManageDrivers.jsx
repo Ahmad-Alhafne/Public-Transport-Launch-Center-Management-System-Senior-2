@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getDrivers, getDriverProfile, createDriver, updateDriver, deleteDriver } from '../../services/api';
 import ConfirmationModal from '../../components/ConfirmationModal';
 
 export default function ManageDrivers() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [drivers, setDrivers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ export default function ManageDrivers() {
             const { data } = await getDrivers();
             setDrivers(data);
         } catch {
-            setError('Failed to load drivers');
+            setError(t('admin.drivers.loadFailed'));
         } finally {
             setLoading(false);
         }
@@ -106,12 +108,12 @@ export default function ManageDrivers() {
                 email: form.email,
                 password: form.password
             });
-            setSuccess('Driver created successfully.');
+            setSuccess(t('admin.drivers.createSuccess'));
             setShowForm(false);
             resetForm();
             fetchDrivers();
         } catch (err) {
-            setError(err.response?.data?.Detailed || err.response?.data || 'Operation failed');
+            setError(err.response?.data?.Detailed || err.response?.data || t('common.operationFailed'));
         }
     };
 
@@ -124,12 +126,12 @@ export default function ManageDrivers() {
         try {
             const payload = buildPayload();
             await updateDriver(editId, payload);
-            setSuccess('Driver updated successfully.');
+            setSuccess(t('admin.drivers.updateSuccess'));
             setShowForm(false);
             resetForm();
             fetchDrivers();
         } catch (err) {
-            setError(err.response?.data?.Detailed || err.response?.data || 'Operation failed');
+            setError(err.response?.data?.Detailed || err.response?.data || t('common.operationFailed'));
         }
     };
 
@@ -192,10 +194,10 @@ export default function ManageDrivers() {
 
         try {
             await deleteDriver(id);
-            setSuccess('Driver deleted successfully.');
+            setSuccess(t('admin.drivers.deleteSuccess'));
             fetchDrivers();
         } catch (err) {
-            setError(err.response?.data?.Detailed || err.response?.data || 'Delete failed');
+            setError(err.response?.data?.Detailed || err.response?.data || t('common.deleteFailed'));
         }
     };
 
@@ -226,15 +228,23 @@ export default function ManageDrivers() {
     if (loading) {
         return (
             <div className="flex justify-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--forest)' }}></div>
             </div>
         );
     }
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">Manage Drivers</h1>
+        <div className="max-w-6xl mx-auto px-4 py-6">
+            {/* Header Area Section */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)' }}>
+                        {t('admin.drivers.title')}
+                    </h1>
+                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
+                        {t('generated.pages_admin_ManageDriversDetails_jsx_71_a98a97b10')}
+                    </p>
+                </div>
                 <button
                     onClick={() => {
                         if (showForm) {
@@ -242,218 +252,307 @@ export default function ManageDrivers() {
                         }
                         setShowForm(!showForm);
                     }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm transition-colors"
+                    className={showForm ? "danger-button px-5 py-2.5 font-medium text-sm shadow-sm transition-all duration-200" : "primary-button px-5 py-2.5 font-medium text-sm shadow-sm transition-all duration-200"}
+                    style={{ borderRadius: 'var(--radius-sm)' }}
                 >
-                    {showForm ? 'Cancel' : '+ New Driver'}
+                    {showForm ? t('common.cancel') : `+ ${t('admin.drivers.newDriver')}`}
                 </button>
             </div>
 
+            {/* Alert Logs Hub */}
             {error && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                <div className="alert alert-error mb-4 text-sm font-medium shadow-sm">
                     {error}
                 </div>
             )}
             {success && (
-                <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">
+                <div className="alert alert-success mb-4 text-sm font-medium shadow-sm">
                     {success}
                 </div>
             )}
 
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* Hub Filters Interactive Panel */}
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-2xl border" style={{ backgroundColor: 'var(--surface-muted)', borderColor: 'rgba(66, 129, 119, 0.08)' }}>
                 <input
-                    placeholder="Search by name"
+                    placeholder={t('admin.drivers.searchName')}
                     value={filters.fullName}
                     onChange={(e) => setFilters({ ...filters, fullName: e.target.value })}
-                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="input-field !bg-white"
                 />
                 <input
-                    placeholder="Search by email"
+                    placeholder={t('admin.drivers.searchEmail')}
                     value={filters.email}
                     onChange={(e) => setFilters({ ...filters, email: e.target.value })}
-                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="input-field !bg-white"
                 />
                 <input
-                    placeholder="Search by plate"
+                    placeholder={t('admin.drivers.searchPlate')}
                     value={filters.vehiclePlateNumber}
                     onChange={(e) => setFilters({ ...filters, vehiclePlateNumber: e.target.value })}
-                    className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                    className="input-field !bg-white"
                 />
             </div>
 
+            {/* Modals Gateway */}
             <ConfirmationModal
                 open={confirmingUpdate}
-                title="Confirm Update"
-                message="Are you sure you want to update this driver?"
-                confirmText="Update"
-                cancelText="Cancel"
+                title={t('admin.drivers.confirmUpdateTitle')}
+                message={t('admin.drivers.confirmUpdateMessage')}
+                confirmText={t('common.update')}
+                cancelText={t('common.cancel')}
                 onConfirm={confirmUpdate}
                 onCancel={() => setConfirmingUpdate(false)}
             />
             <ConfirmationModal
                 open={!!confirmingDeleteId}
-                title="Confirm Delete"
-                message="Are you sure you want to delete this driver?"
-                confirmText="Delete"
-                cancelText="Cancel"
+                title={t('admin.drivers.confirmDeleteTitle')}
+                message={t('admin.drivers.confirmDeleteMessage')}
+                confirmText={t('common.delete')}
+                cancelText={t('common.cancel')}
                 danger
                 onConfirm={confirmDelete}
                 onCancel={() => setConfirmingDeleteId(null)}
             />
 
+            {/* Form Section Dropdown Panel */}
             {showForm && (
-                <form
-                    onSubmit={handleSubmit}
-                    className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4"
-                >
-                    <input
-                        placeholder="Username"
-                        value={form.fullName}
-                        onChange={e => setForm({ ...form, fullName: e.target.value })}
-                        required
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <input
-                        placeholder="Email"
-                        type="email"
-                        value={form.email}
-                        onChange={e => setForm({ ...form, email: e.target.value })}
-                        required={!editId}
-                        disabled={!!editId}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500 disabled:opacity-60"
-                    />
-                    <input
-                        placeholder="Phone Number"
-                        value={form.phoneNumber}
-                        onChange={e => setForm({ ...form, phoneNumber: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <input
-                        placeholder="License Number"
-                        value={form.licenseNumber}
-                        onChange={e => setForm({ ...form, licenseNumber: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <input
-                        placeholder="Issuing Authority"
-                        value={form.issuingAuthority}
-                        onChange={e => setForm({ ...form, issuingAuthority: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <input
-                        placeholder="Vehicle Plate Number"
-                        value={form.vehiclePlateNumber}
-                        onChange={e => setForm({ ...form, vehiclePlateNumber: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <input
-                        placeholder="Vehicle Model"
-                        value={form.vehicleModel}
-                        onChange={e => setForm({ ...form, vehicleModel: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <input
-                        placeholder="Vehicle Color"
-                        value={form.vehicleColor}
-                        onChange={e => setForm({ ...form, vehicleColor: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <label className="block text-slate-400 text-xs">License Expiry Date</label>
-                    <input
-                        type="date"
-                        value={form.licenseExpiryDate}
-                        onChange={e => setForm({ ...form, licenseExpiryDate: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <label className="block text-slate-400 text-xs">Registration Expiry Date</label>
-                    <input
-                        type="date"
-                        value={form.registrationExpiryDate}
-                        onChange={e => setForm({ ...form, registrationExpiryDate: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    />
-                    <select
-                        value={form.licenseCategory}
-                        onChange={e => setForm({ ...form, licenseCategory: e.target.value })}
-                        className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                    >
-                        <option value="">License Category</option>
-                        <option value="Motorcycle">Motorcycle</option>
-                        <option value="Car">Car</option>
-                        <option value="Truck">Truck</option>
-                        <option value="Bus">Bus</option>
-                    </select>
-                    {!editId && (
-                        <input
-                            placeholder="Initial Password"
-                            type="password"
-                            value={form.password}
-                            onChange={e => setForm({ ...form, password: e.target.value })}
-                            required
-                            className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-blue-500"
-                        />
-                    )}
-                    <button
-                        type="submit"
-                        className="md:col-span-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-medium transition-colors"
-                    >
-                        {editId ? 'Update Driver' : 'Create Driver'}
-                    </button>
-                </form>
+                <div className="card mb-8 p-6 transition-all duration-300" style={{ backgroundColor: 'var(--surface)', borderColor: 'rgba(66, 129, 119, 0.12)' }}>
+                    <h2 className="text-xl font-bold mb-6 pb-2 border-b" style={{ color: 'var(--forest-dark)', borderColor: 'rgba(66, 129, 119, 0.08)' }}>
+                        {editId ? t('admin.drivers.updateDriver') : t('admin.drivers.createDriver')}
+                    </h2>
+                    
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.drivers.username')}</span>
+                            <input
+                                placeholder={t('admin.drivers.username')}
+                                value={form.fullName}
+                                onChange={e => setForm({ ...form, fullName: e.target.value })}
+                                required
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('auth.email')}</span>
+                            <input
+                                placeholder={t('auth.email')}
+                                type="email"
+                                value={form.email}
+                                onChange={e => setForm({ ...form, email: e.target.value })}
+                                required={!editId}
+                                disabled={!!editId}
+                                className="input-field disabled:opacity-60"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.drivers.phoneNumber')}</span>
+                            <input
+                                placeholder={t('admin.drivers.phoneNumber')}
+                                value={form.phoneNumber}
+                                onChange={e => setForm({ ...form, phoneNumber: e.target.value })}
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.drivers.licenseNumber')}</span>
+                            <input
+                                placeholder={t('admin.drivers.licenseNumber')}
+                                value={form.licenseNumber}
+                                onChange={e => setForm({ ...form, licenseNumber: e.target.value })}
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.drivers.issuingAuthority')}</span>
+                            <input
+                                placeholder={t('admin.drivers.issuingAuthority')}
+                                value={form.issuingAuthority}
+                                onChange={e => setForm({ ...form, issuingAuthority: e.target.value })}
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.drivers.vehiclePlateNumber')}</span>
+                            <input
+                                placeholder={t('admin.drivers.vehiclePlateNumber')}
+                                value={form.vehiclePlateNumber}
+                                onChange={e => setForm({ ...form, vehiclePlateNumber: e.target.value })}
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.drivers.vehicleModel')}</span>
+                            <input
+                                placeholder={t('admin.drivers.vehicleModel')}
+                                value={form.vehicleModel}
+                                onChange={e => setForm({ ...form, vehicleModel: e.target.value })}
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.drivers.vehicleColor')}</span>
+                            <input
+                                placeholder={t('admin.drivers.vehicleColor')}
+                                value={form.vehicleColor}
+                                onChange={e => setForm({ ...form, vehicleColor: e.target.value })}
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0" style={{ color: 'var(--wheat-dark)' }}>{t('admin.drivers.licenseExpiryDate')}</span>
+                            <input
+                                type="date"
+                                value={form.licenseExpiryDate}
+                                onChange={e => setForm({ ...form, licenseExpiryDate: e.target.value })}
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0" style={{ color: 'var(--wheat-dark)' }}>{t('admin.drivers.registrationExpiryDate')}</span>
+                            <input
+                                type="date"
+                                value={form.registrationExpiryDate}
+                                onChange={e => setForm({ ...form, registrationExpiryDate: e.target.value })}
+                                className="input-field"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.drivers.licenseCategory')}</span>
+                            <select
+                                value={form.licenseCategory}
+                                onChange={e => setForm({ ...form, licenseCategory: e.target.value })}
+                                className="input-field"
+                            >
+                                <option value="">{t('admin.drivers.licenseCategory')}</option>
+                                <option value="Motorcycle">{t('admin.drivers.motorcycle')}</option>
+                                <option value="Car">{t('admin.drivers.car')}</option>
+                                <option value="Truck">{t('admin.drivers.truck')}</option>
+                                <option value="Bus">{t('admin.drivers.bus')}</option>
+                            </select>
+                        </label>
+
+                        {!editId && (
+                            <label className="flex flex-col gap-1.5">
+                                <span className="form-label !mb-0">{t('admin.drivers.initialPassword')}</span>
+                                <input
+                                    placeholder={t('admin.drivers.initialPassword')}
+                                    type="password"
+                                    value={form.password}
+                                    onChange={e => setForm({ ...form, password: e.target.value })}
+                                    required
+                                    className="input-field"
+                                />
+                            </label>
+                        )}
+
+                        <div className="md:col-span-2 pt-2">
+                            <button
+                                type="submit"
+                                className="primary-button w-full py-3 text-sm font-semibold shadow-sm"
+                                style={{ borderRadius: 'var(--radius-sm)' }}
+                            >
+                                {editId ? t('admin.drivers.updateDriver') : t('admin.drivers.createDriver')}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             )}
 
+            {/* Drivers Profile Dashboard List Container */}
             <div className="grid gap-4">
                 {paginatedDrivers.map(driver => (
                     <div
                         key={driver.id}
-                        className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 hover:border-slate-600/50 transition-colors"
+                        className="card p-5 transition-all duration-200"
+                        style={{ 
+                            backgroundColor: 'var(--surface)', 
+                            borderColor: 'rgba(66, 129, 119, 0.08)',
+                            borderRadius: 'var(--radius)'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(66, 129, 119, 0.2)'}
+                        onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(66, 129, 119, 0.08)'}
                     >
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="font-semibold text-lg">{driver.fullName}</h3>
-                                <p className="text-slate-400 text-sm">{driver.email}</p>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="space-y-1">
+                                <h3 className="font-bold text-lg" style={{ color: 'var(--charcoal)' }}>{driver.fullName}</h3>
+                                <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>{driver.email}</p>
                                 {driver.phoneNumber && (
-                                    <p className="text-slate-500 text-xs mt-1">📞 {driver.phoneNumber}</p>
+                                    <p className="text-sm" style={{ color: 'var(--charcoal-medium)' }}>📞 {driver.phoneNumber}</p>
                                 )}
-                                <p className="text-slate-500 text-xs mt-1">
+                                <p className="text-xs mt-2 font-medium" style={{ color: 'var(--wheat-dark)' }}>
                                     Joined {new Date(driver.createdAt).toLocaleDateString()}
                                 </p>
                             </div>
-                            <div className="flex gap-2">
+                            
+                            {/* Functional Operations Triggers */}
+                            <div className="flex flex-wrap gap-2 sm:self-center">
                                 <button
                                     onClick={() => handleShowDetails(driver.id)}
-                                    className="px-3 py-1.5 bg-slate-600/20 text-slate-200 rounded-lg text-sm hover:bg-slate-600/30 transition-colors"
+                                    className="outline-button px-3.5 py-1.5 text-sm font-medium"
+                                    style={{ borderRadius: 'var(--radius-sm)' }}
                                 >
-                                    Show Details
+                                    {t('common.showDetails')}
                                 </button>
                                 <button
                                     onClick={() => handleEdit(driver)}
-                                    className="px-3 py-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-sm hover:bg-blue-600/30 transition-colors"
+                                    className="px-3.5 py-1.5 text-sm font-medium transition-colors"
+                                    style={{ 
+                                        backgroundColor: 'rgba(66, 129, 119, 0.12)', 
+                                        color: 'var(--forest-dark)',
+                                        borderRadius: 'var(--radius-sm)'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(66, 129, 119, 0.2)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(66, 129, 119, 0.12)'}
                                 >
-                                    Edit
+                                    {t('common.edit')}
                                 </button>
                                 <button
                                     onClick={() => handleDelete(driver.id)}
-                                    className="px-3 py-1.5 bg-red-600/20 text-red-400 rounded-lg text-sm hover:bg-red-600/30 transition-colors"
+                                    className="px-3.5 py-1.5 text-sm font-medium transition-colors"
+                                    style={{ 
+                                        backgroundColor: 'rgba(107, 31, 42, 0.08)', 
+                                        color: 'var(--umber)',
+                                        borderRadius: 'var(--radius-sm)'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(107, 31, 42, 0.14)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(107, 31, 42, 0.08)'}
                                 >
-                                    Delete
+                                    {t('common.delete')}
                                 </button>
                             </div>
                         </div>
                     </div>
                 ))}
+                
                 {filteredDrivers.length === 0 && (
-                    <p className="text-center text-slate-500 py-10">No drivers found.</p>
+                    <div className="text-center py-12 card" style={{ backgroundColor: 'var(--surface)' }}>
+                        <p className="text-base font-medium" style={{ color: 'var(--charcoal-medium)' }}>
+                            {t('generated.pages_admin_ManageDrivers_jsx_447_9ced879d')}
+                        </p>
+                    </div>
                 )}
             </div>
 
+            {/* Pagination Controls Footer Deck */}
             {pageCount > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-6">
+                <div className="flex items-center justify-center gap-1.5 mt-8">
                     <button
                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
-                        className="px-3 py-1.5 bg-slate-700/50 text-slate-200 rounded-lg text-sm hover:bg-slate-700 transition-colors disabled:opacity-50"
+                        className="px-3.5 py-1.5 font-medium rounded-lg text-sm transition-all duration-200 disabled:opacity-40"
+                        style={{ backgroundColor: 'var(--surface-muted)', color: 'var(--charcoal-medium)' }}
                     >
-                        Previous
+                        {t('common.previous')}
                     </button>
                     {[...Array(pageCount)].map((_, index) => {
                         const page = index + 1;
@@ -461,7 +560,15 @@ export default function ManageDrivers() {
                             <button
                                 key={page}
                                 onClick={() => setCurrentPage(page)}
-                                className={`px-3 py-1.5 rounded-lg text-sm ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-slate-700/50 text-slate-200 hover:bg-slate-700'}`}
+                                className="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200"
+                                style={currentPage === page ? {
+                                    backgroundColor: 'var(--forest)',
+                                    color: 'var(--surface)',
+                                    boxShadow: '0 4px 12px rgba(66, 129, 119, 0.15)'
+                                } : {
+                                    backgroundColor: 'var(--surface-muted)',
+                                    color: 'var(--charcoal-medium)'
+                                }}
                             >
                                 {page}
                             </button>
@@ -470,13 +577,13 @@ export default function ManageDrivers() {
                     <button
                         onClick={() => setCurrentPage((p) => Math.min(pageCount, p + 1))}
                         disabled={currentPage === pageCount}
-                        className="px-3 py-1.5 bg-slate-700/50 text-slate-200 rounded-lg text-sm hover:bg-slate-700 transition-colors disabled:opacity-50"
+                        className="px-3.5 py-1.5 font-medium rounded-lg text-sm transition-all duration-200 disabled:opacity-40"
+                        style={{ backgroundColor: 'var(--surface-muted)', color: 'var(--charcoal-medium)' }}
                     >
-                        Next
+                        {t('common.next')}
                     </button>
                 </div>
             )}
         </div>
     );
 }
-

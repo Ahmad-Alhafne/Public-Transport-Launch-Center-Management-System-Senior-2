@@ -71,7 +71,7 @@ public class NotificationController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> Create(CreateNotificationDto request)
     {
         var notification = await _notificationService.CreateNotificationAsync(request);

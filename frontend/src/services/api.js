@@ -64,6 +64,13 @@ export const deleteVehicle = (id) => api.delete(`/vehicle/${id}`);
 export const getDriverTrips = (driverId) => api.get(`/trip/driver/${driverId}`);
 export const getTripsByRoute = (routeId) => api.get(`/trip/route/${routeId}`);
 export const getActiveTips = () => api.get('/trip/active');
+// Live Tracking APIs
+export const startDriverTracking = (data) => api.post('/driver/tracking/start', data);
+export const stopDriverTracking = (data) => api.post('/driver/tracking/stop', data);
+export const updateDriverLocation = (data) => api.post('/driver/tracking/update', data);
+
+export const getActiveTrackings = () => api.get('/tracking/active');
+export const getTrackingHistory = (tripId, limit = 100) => api.get(`/tracking/${tripId}/history?limit=${limit}`);
 export const getTripHistory = (daysBack = 7) => api.get(`/trip/history?days=${daysBack}`);
 export const getDriverTripHistory = (driverId, daysBack = 7) => api.get(`/trip/driver/${driverId}/history?days=${daysBack}`);
 export const createTrip = (data) => api.post('/trip', data);
@@ -84,6 +91,17 @@ export const getDrivers = () => api.get('/users/drivers');
 export const createDriver = (data) => api.post('/users/drivers', data);
 export const updateDriver = (id, data) => api.put(`/users/drivers/${id}`, data);
 export const deleteDriver = (id) => api.delete(`/users/drivers/${id}`);
+// Auditors
+export const getAuditors = () => api.get('/users/auditors');
+export const createAuditor = (data) => api.post('/users/auditors', data);
+export const updateAuditor = (id, data) => api.put(`/users/auditors/${id}`, data);
+export const deleteAuditor = (id) => api.delete(`/users/auditors/${id}`);
+
+// Organizers
+export const getOrganizers = () => api.get('/users/organizers');
+export const createOrganizer = (data) => api.post('/users/organizers', data);
+export const updateOrganizer = (id, data) => api.put(`/users/organizers/${id}`, data);
+export const deleteOrganizer = (id) => api.delete(`/users/organizers/${id}`);
 
 // Bookings
 export const getBookings = () => api.get('/booking');
@@ -105,6 +123,18 @@ export const getMyNotifications = () => api.get('/notification/my');
 export const getNotification = (id) => api.get(`/notification/${id}`);
 export const markNotificationAsRead = (id) => api.patch(`/notification/${id}/read`);
 export const markAllNotificationsAsRead = () => api.patch('/notification/read-all');
+// Scheduled reminders per trip
+export const getScheduledReminder = async (tripId) => {
+    try {
+        return await api.get(`/notification/reminders/${tripId}`);
+    } catch (err) {
+        // Treat 404 as "no reminder" and return null payload to avoid noisy console errors
+        if (err?.response?.status === 404) return { data: null };
+        throw err;
+    }
+};
+export const createScheduledReminder = (data) => api.post('/notification/reminders', data);
+export const deleteScheduledReminder = (tripId) => api.delete(`/notification/reminders/${tripId}`);
 
 // Driver Profile
 export const getMyDriverProfile = () => api.get('/driver/profile/me');
@@ -158,6 +188,15 @@ export const updateChangeRequestStatus = (requestId, data) => api.patch(`/driver
 // Admin Trip Details
 export const getTripDetails = (tripId) => api.get(`/admin/trips/${tripId}/details`);
 
+// AuditService (Auditor)
+export const getAvailableAuditTrips = () => api.get('/audit/available-trips');
+export const pickAuditTrip = (tripId) => api.post(`/audit/pick-trip?tripId=${tripId}`);
+export const getAssignedAuditTrip = () => api.get('/audit/assigned-trip');
+export const validateQr = (token) => api.post('/audit/validate', { token });
+export const recordScan = (data) => api.post('/audit/scan', data);
+export const getAuditHistory = (query) => api.get(`/audit/history${query ? `?${query}` : ''}`);
+export const getAuditStats = (query) => api.get(`/audit/stats${query ? `?${query}` : ''}`);
+
 // Admin Contact
 export const getAdminContact = async () => {
     try {
@@ -169,5 +208,16 @@ export const getAdminContact = async () => {
         return '';
     }
 };
+
+// Queue packages (Organizer)
+export const getQueuePackages = () => api.get('/queue/packages');
+export const getQueuePackage = (id) => api.get(`/queue/packages/${id}`);
+export const autoGroupPackages = (date) => api.post(`/queue/packages/auto-group?date=${encodeURIComponent(date)}`);
+export const reorderPackages = (orderedPackageIds) => api.post('/queue/packages/reorder', orderedPackageIds);
+export const reorderPackageTrips = (packageId, orderedTripIds) => api.post(`/queue/packages/${packageId}/reorder-trips`, orderedTripIds);
+export const moveTripUp = (packageId, tripId) => api.post(`/queue/packages/${packageId}/trips/${tripId}/move-up`);
+export const moveTripDown = (packageId, tripId) => api.post(`/queue/packages/${packageId}/trips/${tripId}/move-down`);
+export const addTripToPackage = (packageId, tripId) => api.post(`/queue/packages/${packageId}/trips`, tripId);
+export const removeTripFromPackage = (packageId, tripId) => api.delete(`/queue/packages/${packageId}/trips/${tripId}`);
 
 export default api;

@@ -158,6 +158,34 @@ public class TripManagementService : ITripService
 
         await _repository.AddAsync(trip);
         await _repository.SaveChangesAsync();
+        // Notify assigned driver about new trip
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.BaseAddress = new Uri(_notificationServiceUrl);
+            if (!string.IsNullOrEmpty(jwtToken))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            }
+
+            var title = $"New Trip Assigned: {trip.BusNumber}";
+            var message = $"You have been assigned to trip {trip.BusNumber} ({trip.Id}). Departure: {trip.DepartureTime:u}.";
+
+            var payload = new
+            {
+                UserId = trip.DriverId,
+                Title = title,
+                Message = message,
+                // NotificationType.TripUpdate == 1
+                Type = 1
+            };
+
+            await httpClient.PostAsJsonAsync("api/notification", payload);
+        }
+        catch
+        {
+            // Do not block trip creation on notification failures
+        }
         return MapToDto(trip);
     }
 
@@ -368,7 +396,8 @@ public class TripManagementService : ITripService
                 TargetRole = "Admin",
                 Title = title,
                 Message = message,
-                Type = "TripUpdate"
+                // NotificationType.TripUpdate == 1
+                Type = 1
             };
 
             await httpClient.PostAsJsonAsync("api/notification", payload);

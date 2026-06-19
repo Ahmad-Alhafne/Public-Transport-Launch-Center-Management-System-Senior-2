@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "expo-device": "^56.0.4"
+  }
+}

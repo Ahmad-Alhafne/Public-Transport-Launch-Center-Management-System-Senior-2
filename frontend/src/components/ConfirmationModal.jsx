@@ -1,35 +1,67 @@
-export default function ConfirmationModal({
-    open,
-    title = 'Confirm Action',
-    message,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
-    onConfirm,
-    onCancel,
-    danger = false,
-}) {
-    if (!open) return null;
+import { useEffect } from 'react';
 
-    return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-slate-700 shadow-xl">
-                <h2 className="text-xl font-bold mb-3 text-white">{title}</h2>
-                <p className="text-slate-300 mb-6">{message}</p>
-                <div className="flex justify-end gap-3">
-                    <button
-                        onClick={onCancel}
-                        className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600"
-                    >
-                        {cancelText}
-                    </button>
-                    <button
-                        onClick={onConfirm}
-                        className={`px-4 py-2 rounded text-white transition-colors ${danger ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500'}`}
-                    >
-                        {confirmText}
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+export default function ConfirmationModal({
+  open,
+  title,
+  message,
+  confirmText,
+  cancelText,
+  onConfirm,
+  onCancel,
+  danger,
+}) {
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        onCancel?.();
+      }
+    };
+
+    if (open) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [open, onCancel]);
+
+  if (!open) return null;
+
+return (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+    <div className="w-full max-w-2xl rounded-[1.25rem] bg-white p-8 md:p-10 shadow-card border border-surface-muted"  style={{padding:'20px'}}>
+      <div className="mb-6">
+        <h2 className="text-3xl font-semibold text-charcoal">
+          {title}
+        </h2>
+        <p className="mt-3 text-muted">
+          {message}
+        </p>
+      </div>
+
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          className="outline-button w-full sm:w-auto py-3 px-6 font-semibold"
+          onClick={onCancel}
+        >
+          {cancelText}
+        </button>
+
+        <button
+          type="button"
+          className={`${
+            danger ? 'danger-button' : 'primary-button'
+          } w-full sm:w-auto py-3 px-6 font-semibold`}
+          onClick={onConfirm}
+        >
+          {confirmText}
+        </button>
+      </div>
+    </div>
+  </div>
+);
 }

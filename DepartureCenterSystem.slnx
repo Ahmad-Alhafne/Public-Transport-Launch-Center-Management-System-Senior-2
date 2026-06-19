@@ -3,6 +3,11 @@
   <Folder Name="/backend/ApiGateway/">
     <Project Path="backend/ApiGateway/ApiGateway/ApiGateway.csproj" />
   </Folder>
+  <Folder Name="/backend/AuditService/">
+    <Project Path="backend/AuditService/AuditService.Api/AuditService.Api.csproj" />
+    <Project Path="backend/AuditService/AuditService.Application/AuditService.Application.csproj" />
+    <Project Path="backend/AuditService/AuditService.Domain/AuditService.Domain.csproj" />
+  </Folder>
   <Folder Name="/backend/AuthService/">
     <Project Path="backend/AuthService/AuthService.Api/AuthService.Api.csproj" />
     <Project Path="backend/AuthService/AuthService.Application/AuthService.Application.csproj" />
@@ -21,11 +26,23 @@
     <Project Path="backend/ComplaintService/ComplaintService.Domain/ComplaintService.Domain.csproj" />
     <Project Path="backend/ComplaintService/ComplaintService.Infrastructure/ComplaintService.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/backend/LiveTrackingService/">
+    <Project Path="backend/LiveTrackingService/LiveTrackingService.Api/LiveTrackingService.Api.csproj" />
+    <Project Path="backend/LiveTrackingService/LiveTrackingService.Application/LiveTrackingService.Application.csproj" />
+    <Project Path="backend/LiveTrackingService/LiveTrackingService.Domain/LiveTrackingService.Domain.csproj" />
+    <Project Path="backend/LiveTrackingService/LiveTrackingService.Infrastructure/LiveTrackingService.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/backend/NotificationService/">
     <Project Path="backend/NotificationService/NotificationService.Api/NotificationService.Api.csproj" />
     <Project Path="backend/NotificationService/NotificationService.Application/NotificationService.Application.csproj" />
     <Project Path="backend/NotificationService/NotificationService.Domain/NotificationService.Domain.csproj" />
     <Project Path="backend/NotificationService/NotificationService.Infrastructure/NotificationService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/OrganizerService/">
+    <Project Path="backend/OrganizerService/OrganizerService.Api/OrganizerService.Api.csproj" />
+    <Project Path="backend/OrganizerService/OrganizerService.Application/OrganizerService.Application.csproj" />
+    <Project Path="backend/OrganizerService/OrganizerService.Domain/OrganizerService.Domain.csproj" />
+    <Project Path="backend/OrganizerService/OrganizerService.Infrastructure/OrganizerService.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/backend/RouteService/">
     <Project Path="backend/RouteService/RouteService.Api/RouteService.Api.csproj" />

@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import LanguageSelector from '../../components/LanguageSelector';
 import { getMyProfile, updateMyProfile } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 export default function MyProfile() {
+    const { t } = useTranslation();
     const { user, loginUser } = useAuth();
     const [profile, setProfile] = useState({
         fullName: '',
@@ -31,7 +34,7 @@ export default function MyProfile() {
             });
             setPassword('');
         } catch (err) {
-            setError(err.response?.data?.Detailed || err.response?.data || 'Failed to load profile');
+            setError(err.response?.data?.Detailed || err.response?.data || t('generated.pages_citizen_MyProfile_jsx_64_3cc4f343'));
         } finally {
             setLoading(false);
         }
@@ -59,7 +62,7 @@ export default function MyProfile() {
 
             const { data } = await updateMyProfile(payload);
 
-            setSuccess('Profile updated successfully.');
+            setSuccess(t('generated.pages_citizen_MyProfile_jsx_36_c1e9b2f8'));
             setEditing(false);
             setPassword('');
 
@@ -69,7 +72,7 @@ export default function MyProfile() {
                 loginUser({ ...user, ...data, token });
             }
         } catch (err) {
-            setError(err.response?.data?.Detailed || err.response?.data || 'Failed to update profile');
+            setError(err.response?.data?.Detailed || err.response?.data || t('generated.pages_citizen_MyProfile_jsx_74_87f3d2e0'));
         }
     };
 
@@ -81,111 +84,136 @@ export default function MyProfile() {
     if (loading) {
         return (
             <div className="flex justify-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--forest)]"></div>
             </div>
         );
     }
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">My Profile</h1>
+        <div className="content-wrapper py-6">
+            <div className="flex items-center justify-between gap-4 mb-6">
+                <h1 className="heading-lg font-bold text-[var(--charcoal)]">
+                    {t('generated.pages_citizen_MyProfile_jsx_93_9ba8d391')}
+                </h1>
                 {!editing ? (
                     <button
                         onClick={() => setEditing(true)}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm transition-colors"
+                        className="secondary-button px-5 py-2.5 text-sm"
                     >
-                        Edit Profile
+                        {t('profile.editProfile')}
                     </button>
                 ) : (
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         <button
                             onClick={handleSave}
-                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm transition-colors"
+                            className="secondary-button px-5 py-2.5 text-sm"
                         >
-                            Save
+                            {t('common.save')}
                         </button>
                         <button
                             onClick={handleCancel}
-                            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-sm transition-colors"
+                            className="danger-button px-5 py-2.5 text-sm"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                     </div>
                 )}
             </div>
 
+            <div className="mb-6 max-w-sm">  
+                <LanguageSelector />
+            </div>
+
+            {/* Response Alerts mapping UI definitions */}
             {error && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                <div className="alert alert-error mb-6">
                     {error}
                 </div>
             )}
             {success && (
-                <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">
+                <div className="alert alert-success mb-6">
                     {success}
                 </div>
             )}
 
-            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 max-w-2xl">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">Full Name</span>
+            {/* Main Profile Form Wrapper */}
+            <div className="card p-6 max-w-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <label className="flex flex-col gap-1.5">
+                        <span className="form-label text-sm font-medium text-[var(--charcoal-medium)]">
+                            {t('generated.pages_citizen_MyProfile_jsx_137_64346b48')}
+                        </span>
                         <input
                             value={profile.fullName}
                             onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            className="input-field"
                             disabled={!editing}
                         />
                     </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">Email</span>
+
+                    <label className="flex flex-col gap-1.5">
+                        <span className="form-label text-sm font-medium text-[var(--charcoal-medium)]">
+                            {t('generated.pages_citizen_MyProfile_jsx_146_84add5b2')}
+                        </span>
                         <input
                             value={profile.email}
                             disabled
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 text-slate-400"
+                            className="input-field bg-[var(--surface-muted)] text-muted cursor-not-allowed opacity-75"
                         />
                     </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">Phone Number</span>
+
+                    <label className="flex flex-col gap-1.5">
+                        <span className="form-label text-sm font-medium text-[var(--charcoal-medium)]">
+                            {t('generated.pages_citizen_MyProfile_jsx_154_ab25d61b')}
+                        </span>
                         <input
                             value={profile.phoneNumber}
                             onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            className="input-field"
                             disabled={!editing}
                         />
                     </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">New Password</span>
+
+                    <label className="flex flex-col gap-1.5">
+                        <span className="form-label text-sm font-medium text-[var(--charcoal-medium)]">
+                            {t('generated.pages_citizen_MyProfile_jsx_163_4894cb39')}
+                        </span>
                         <input
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Leave blank to keep current password"
+                            placeholder={t('generated.pages_citizen_MyProfile_jsx_167_efaed3a1')}
                             type="password"
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            className="input-field"
                             disabled={!editing}
                         />
                     </label>
-                    <label className="flex flex-col gap-1">
-                        <span className="text-sm text-slate-300">Disability Status</span>
+
+                    <label className="flex flex-col gap-1.5">
+                        <span className="form-label text-sm font-medium text-[var(--charcoal-medium)]">
+                            {t('generated.pages_citizen_MyProfile_jsx_174_ab8b56ed')}
+                        </span>
                         <select
                             value={profile.disabilityStatus}
                             onChange={(e) => setProfile({ ...profile, disabilityStatus: e.target.value })}
                             disabled={!editing}
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            className="input-field appearance-none"
                         >
-                            <option value="">-- Select status --</option>
-                            <option value="None">None</option>
-                            <option value="Wheelchair">Wheelchair</option>
-                            <option value="Blind">Blind</option>
-                            <option value="Deaf">Deaf</option>
+                            <option value="">{t('generated.pages_citizen_MyProfile_jsx_181_bc7d8fb0')}</option>
+                            <option value="None">{t('generated.pages_citizen_MyProfile_jsx_182_6eef6648')}</option>
+                            <option value="Wheelchair">{t('generated.pages_citizen_MyProfile_jsx_183_6d2c3896')}</option>
+                            <option value="Blind">{t('generated.pages_citizen_MyProfile_jsx_184_dff70db3')}</option>
+                            <option value="Deaf">{t('generated.pages_citizen_MyProfile_jsx_185_185c6f18')}</option>
                         </select>
                     </label>
-                    <label className="flex flex-col gap-1 md:col-span-2">
-                        <span className="text-sm text-slate-300">Current Address</span>
+
+                    <label className="flex flex-col gap-1.5 md:col-span-2">
+                        <span className="form-label text-sm font-medium text-[var(--charcoal-medium)]">
+                            {t('generated.pages_citizen_MyProfile_jsx_189_04dbe0f3')}
+                        </span>
                         <input
                             value={profile.currentAddress}
                             onChange={(e) => setProfile({ ...profile, currentAddress: e.target.value })}
-                            className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                            className="input-field"
                             disabled={!editing}
                         />
                     </label>

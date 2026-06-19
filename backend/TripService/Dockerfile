@@ -5,7 +5,8 @@ COPY ["TripService.Api/TripService.Api.csproj", "TripService.Api/"]
 COPY ["TripService.Application/TripService.Application.csproj", "TripService.Application/"]
 COPY ["TripService.Domain/TripService.Domain.csproj", "TripService.Domain/"]
 COPY ["TripService.Infrastructure/TripService.Infrastructure.csproj", "TripService.Infrastructure/"]
-RUN dotnet restore "TripService.Api/TripService.Api.csproj" \
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet restore "TripService.Api/TripService.Api.csproj" \
     --disable-parallel \
     --verbosity minimal
 COPY . .

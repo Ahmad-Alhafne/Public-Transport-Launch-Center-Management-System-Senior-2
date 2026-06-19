@@ -19,6 +19,7 @@ public class User
     // Common profile
     public string? PhoneNumber { get; set; }
     public string? NationalIdNumber { get; set; }
+    public string LanguagePreference { get; set; } = "ar";
 
     // Personal identity
     public string? FirstName { get; set; }

@@ -21,6 +21,7 @@ The listed types are the CLR types used by the models; EF Core maps them to the 
 | `AccountStatus` | `enum` | No | Stored as string; values from `AuthService.Domain.Enums.AccountStatus` |
 | `PhoneNumber` | `string` | Yes | max length 50 |
 | `NationalIdNumber` | `string` | Yes | max length 20 |
+| `LanguagePreference` | `string` | No | Default 'ar' |
 | `FirstName` | `string` | Yes | max length 100 |
 | `LastName` | `string` | Yes | max length 100 |
 | `Gender` | `enum` | Yes | Stored as string; values from `AuthService.Domain.Enums.Gender` |
@@ -165,14 +166,65 @@ The listed types are the CLR types used by the models; EF Core maps them to the 
 |--------|------|----------|-------|
 | `Id` | `Guid` | No | Primary Key |
 | `UserId` | `Guid` | No | Indexed |
+| `TargetRole` | `string` | Yes | Optional target role for role-based notifications |
 | `Title` | `string` | No | |
 | `Message` | `string` | No | |
-| `Type` | `enum` | No | Stored as int; values from `NotificationService.Domain.Enums.NotificationType` |
-| `TargetRole` | `string` | Yes | Optional target role for role-based notifications |
+| `Type` | `enum` | No | Stored as `int`; values from `NotificationService.Domain.Enums.NotificationType` |
 | `IsRead` | `bool` | No | |
 | `CreatedAt` | `DateTime` | No | |
 
----
+### Table: `NotificationPreferences`
+
+| Column | Type | Nullable | Notes |
+|--------|------|----------|-------|
+| `Id` | `Guid` | No | Primary Key |
+| `UserId` | `Guid` | No | Indexed |
+| `Role` | `string` | No | Role this preference applies to |
+| `ReminderEnabled` | `bool` | No | |
+| `ReminderMinutesBeforeDeparture` | `int` | No | |
+| `CreatedAt` | `DateTime` | No | |
+| `UpdatedAt` | `DateTime` | No | |
+
+### Table: `NotificationTemplates`
+
+| Column | Type | Nullable | Notes |
+|--------|------|----------|-------|
+| `Id` | `Guid` | No | Primary Key |
+| `Key` | `string` | No | Unique key/identifier for the template |
+| `Type` | `enum` | No | Stored as `int`; values from `NotificationService.Domain.Enums.NotificationType` |
+| `TitleTemplate` | `string` | No | Template for notification title |
+| `BodyTemplate` | `string` | No | Template for notification body |
+| `IsActive` | `bool` | No | |
+| `CreatedAt` | `DateTime` | No | |
+
+### Table: `ScheduledReminders`
+
+| Column | Type | Nullable | Notes |
+|--------|------|----------|-------|
+| `Id` | `Guid` | No | Primary Key |
+| `TripId` | `Guid` | No | Indexed; reference to TripService.Trips.Id |
+| `UserId` | `Guid` | No | Indexed |
+| `Role` | `string` | No | Role for which reminder is scheduled |
+| `TargetRole` | `string` | Yes | Optional target role |
+| `TripNumber` | `string` | No | |
+| `StartLocation` | `string` | No | |
+| `Destination` | `string` | No | |
+| `VehicleInfo` | `string` | Yes | Optional vehicle info |
+| `RouteInfo` | `string` | Yes | Optional route info |
+| `DepartureTimeUtc` | `DateTime` | No | |
+| `ReminderAtUtc` | `DateTime` | No | When reminder should be processed |
+| `Processed` | `bool` | No | Whether reminder was processed |
+| `CreatedAt` | `DateTime` | No | |
+| `ProcessedAt` | `DateTime` | Yes | When processed |
+| `CorrelationId` | `string` | Yes | Optional correlation id |
+
+### Indexes/Constraints
+
+- `Notifications`: Index on `UserId`; index on `TargetRole`.
+- `NotificationPreferences`: Unique index on (`UserId`, `Role`).
+- `NotificationTemplates`: Unique index on `Key`.
+- `ScheduledReminders`: Unique index on (`TripId`, `UserId`, `Role`); index on `ReminderAtUtc`; index on `Processed`.
+
 
 ## 🚘 Vehicle Service (`VehicleService`)
 

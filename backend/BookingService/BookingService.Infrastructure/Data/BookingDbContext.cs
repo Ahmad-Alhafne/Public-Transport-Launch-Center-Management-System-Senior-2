@@ -24,6 +24,8 @@ public class BookingDbContext : DbContext
             entity.Property(e => e.Status).HasConversion<string>();
             entity.HasIndex(e => e.PassengerId);
             entity.HasIndex(e => e.TripId);
+            entity.Property(e => e.QrToken).HasMaxLength(2000).IsUnicode(false);
+            entity.HasIndex(e => e.QrGeneratedAt);
         });
     }
 }

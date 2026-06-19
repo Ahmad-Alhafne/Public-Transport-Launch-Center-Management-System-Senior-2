@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OrganizerService.Application\OrganizerService.Application.csproj" />
+    <ProjectReference Include="..\OrganizerService.Infrastructure\OrganizerService.Infrastructure.csproj" />
+    <ProjectReference Include="..\OrganizerService.Domain\OrganizerService.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -17,4 +17,5 @@ public class BookingDto
     public int? TripDelayMinutes { get; set; }
     public DateTime TripDepartureTimeUtc { get; set; }
     public DateTime BookedAt { get; set; }
+    public string? QrToken { get; set; }
 }

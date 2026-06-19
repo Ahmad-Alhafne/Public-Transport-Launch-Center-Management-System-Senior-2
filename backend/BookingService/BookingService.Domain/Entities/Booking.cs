@@ -13,4 +13,7 @@ public class Booking
     public BookingStatus Status { get; set; } = BookingStatus.Confirmed;
     public DateTime TripDepartureTimeUtc { get; set; }
     public DateTime BookedAt { get; set; } = DateTime.UtcNow;
+    // QR token used for boarding verification (signed payload)
+    public string? QrToken { get; set; }
+    public DateTime? QrGeneratedAt { get; set; }
 }

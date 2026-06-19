@@ -15,14 +15,15 @@ public class UserManagementService : IUserManagementService
         _userRepository = userRepository;
     }
 
-    public async Task<IEnumerable<UserSummaryDto>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserSummaryDto>> GetAllUsersAsync()
     {
         // Include all roles; this returns a combined view for admin
-        var admins = await _userRepository.GetByRoleAsync(Role.Admin);
-        var drivers = await _userRepository.GetByRoleAsync(Role.Driver);
-        var citizens = await _userRepository.GetByRoleAsync(Role.Citizen);
+            var admins = await _userRepository.GetByRoleAsync(Role.Admin);
+            var auditors = await _userRepository.GetByRoleAsync(Role.Auditor);
+            var drivers = await _userRepository.GetByRoleAsync(Role.Driver);
+            var citizens = await _userRepository.GetByRoleAsync(Role.Citizen);
 
-        return admins.Concat(drivers).Concat(citizens).Select(MapToSummaryDto);
+            return admins.Concat(auditors).Concat(drivers).Concat(citizens).Select(MapToSummaryDto);
     }
 
     public async Task<IEnumerable<UserSummaryDto>> GetUsersByRoleAsync(Role role)
@@ -68,6 +69,7 @@ public class UserManagementService : IUserManagementService
         if (!string.IsNullOrEmpty(dto.MotherName)) user.MotherName = dto.MotherName;
         if (!string.IsNullOrEmpty(dto.BirthPlace)) user.BirthPlace = dto.BirthPlace;
         if (!string.IsNullOrEmpty(dto.CurrentAddress)) user.CurrentAddress = dto.CurrentAddress;
+        if (!string.IsNullOrEmpty(dto.LanguagePreference)) user.LanguagePreference = dto.LanguagePreference;
         if (!string.IsNullOrEmpty(dto.CardNumber)) user.CardNumber = dto.CardNumber;
         if (dto.CardIssueDate.HasValue) user.CardIssueDate = dto.CardIssueDate;
         if (!string.IsNullOrEmpty(dto.FaceColor)) user.FaceColor = dto.FaceColor;
@@ -135,6 +137,7 @@ public class UserManagementService : IUserManagementService
             AdminLevel = user.AdminLevel,
             AccountStatus = user.AccountStatus.ToString(),
             Role = user.Role.ToString(),
+            LanguagePreference = user.LanguagePreference,
             AccountCreationDate = user.AccountCreationDate,
             LastProfileUpdate = user.LastProfileUpdate
         };
@@ -168,6 +171,7 @@ public class UserManagementService : IUserManagementService
         if (!string.IsNullOrEmpty(dto.MotherName)) user.MotherName = dto.MotherName;
         if (!string.IsNullOrEmpty(dto.BirthPlace)) user.BirthPlace = dto.BirthPlace;
         if (!string.IsNullOrEmpty(dto.CurrentAddress)) user.CurrentAddress = dto.CurrentAddress;
+        if (!string.IsNullOrEmpty(dto.LanguagePreference)) user.LanguagePreference = dto.LanguagePreference;
 
         if (!string.IsNullOrEmpty(dto.AccountStatus) && Enum.TryParse<AccountStatus>(dto.AccountStatus, true, out var status))
             user.AccountStatus = status;
@@ -197,6 +201,7 @@ public class UserManagementService : IUserManagementService
             AdminLevel = user.AdminLevel,
             AccountStatus = user.AccountStatus.ToString(),
             Role = user.Role.ToString(),
+            LanguagePreference = user.LanguagePreference,
             AccountCreationDate = user.AccountCreationDate,
             LastProfileUpdate = user.LastProfileUpdate
         };
@@ -226,6 +231,7 @@ public class UserManagementService : IUserManagementService
             CardIssueDate = user.CardIssueDate,
             FaceColor = user.FaceColor,
             EyeColor = user.EyeColor,
+            LanguagePreference = user.LanguagePreference,
             Role = user.Role.ToString(),
             AccountStatus = user.AccountStatus.ToString(),
             CreatedAt = user.CreatedAt

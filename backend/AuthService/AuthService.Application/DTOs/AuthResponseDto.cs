@@ -9,4 +9,5 @@ public class AuthResponseDto
     public string Email { get; set; } = string.Empty;
     public Role Role { get; set; }
     public string Token { get; set; } = string.Empty;
+    public string LanguagePreference { get; set; } = "ar";
 }

@@ -26,7 +26,7 @@ public class BookingController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id)
     {
         var booking = await _bookingService.GetBookingByIdAsync(id);

@@ -1,108 +1,178 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import logo from '../imgs/Syrian_logo_icon_gold.svg';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import NotificationBell from './NotificationBell';
 import ConfirmationModal from './ConfirmationModal';
 
 export default function Navbar() {
-    const { user, logout, isAdmin, isDriver, isCitizen } = useAuth();
-    const navigate = useNavigate();
-    const [confirmLogout, setConfirmLogout] = useState(false);
+  const { user, logout, isAdmin, isDriver, isCitizen, isAuditor, isOrganizer } = useAuth();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
-    const handleLogout = () => {
-        setConfirmLogout(true);
-    };
+  const handleLogout = () => {
+    setConfirmLogout(true);
+  };
 
-    const confirmLogoutAction = () => {
-        setConfirmLogout(false);
-        logout();
-        navigate('/login');
-    };
+  const confirmLogoutAction = () => {
+    setConfirmLogout(false);
+    logout();
+    navigate('/login');
+  };
 
-    const getRoleLabel = () => {
-        if (isAdmin()) return 'Admin';
-        if (isDriver()) return 'Driver';
-        if (isCitizen()) return 'Citizen';
-        return '';
-    };
+  if (!user) return null;
 
-    if (!user) return null;
+  // Determines the display string for the user role badge
+  const getUserRoleLabel = () => {
+    if (isAdmin()) return t('roles.admin') || 'Admin';
+    if (isDriver()) return t('roles.driver') || 'Driver';
+    if (isCitizen()) return t('roles.citizen') || 'Citizen';
+    if (isAuditor()) return t('roles.auditor') || 'Auditor';
+    if (isOrganizer()) return t('roles.organizer') || 'Organizer';
+    return '';
+  };
 
-    return (
+  const renderLinks = () => {
+    if (isAdmin()) {
+      return (
         <>
-            <nav className="bg-slate-900/80 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center gap-8">
-                            <Link to="/" className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                                🚌 Departure Center
-                            </Link>
-
-                            <div className="hidden md:flex items-center gap-4">
-                                {isAdmin() && (
-                                    <>
-                                        <Link to="/admin/users" className="text-slate-300 hover:text-white transition-colors text-sm">Manage Users</Link>
-                                        <Link to="/admin/drivers" className="text-slate-300 hover:text-white transition-colors text-sm">Manage Drivers</Link>
-                                        <Link to="/admin/vehicles" className="text-slate-300 hover:text-white transition-colors text-sm">Vehicles</Link>
-                                        <Link to="/admin/routes" className="text-slate-300 hover:text-white transition-colors text-sm">Routes</Link>
-                                        <Link to="/admin/trips" className="text-slate-300 hover:text-white transition-colors text-sm">Trips</Link>
-                                        <Link to="/admin/complaints" className="text-slate-300 hover:text-white transition-colors text-sm">Complaints</Link>
-                                        <Link to="/admin/profile" className="text-slate-300 hover:text-white transition-colors text-sm">My Profile</Link>
-                                    </>
-                                )}
-
-                                {isDriver() && (
-                                    <>
-                                        <Link to="/driver/profile" className="text-slate-300 hover:text-white transition-colors text-sm">My Profile</Link>
-                                        <Link to="/driver/trips" className="text-slate-300 hover:text-white transition-colors text-sm">My Trips</Link>
-                                        <Link to="/driver/complaints" className="text-slate-300 hover:text-white transition-colors text-sm">Complaints</Link>
-                                    </>
-                                )}
-
-                                {isCitizen() && (
-                                    <>
-                                        <Link to="/citizen/profile" className="text-slate-300 hover:text-white transition-colors text-sm">My Profile</Link>
-                                        <Link to="/citizen/trips" className="text-slate-300 hover:text-white transition-colors text-sm">Trips</Link>
-                                        <Link to="/citizen/favorites" className="text-slate-300 hover:text-white transition-colors text-sm">My Favorites</Link>
-                                        <Link to="/citizen/bookings" className="text-slate-300 hover:text-white transition-colors text-sm">My Bookings</Link>
-                                        <Link to="/citizen/complaints" className="text-slate-300 hover:text-white transition-colors text-sm">Complaints</Link>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <NotificationBell />
-
-                            <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                                {getRoleLabel()}
-                            </span>
-
-                            <span className="text-sm text-slate-400">
-                                {user.fullName}
-                            </span>
-
-                            <button
-                                onClick={handleLogout}
-                                className="text-sm text-slate-400 hover:text-red-400 transition-colors"
-                            >
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            <ConfirmationModal
-                open={confirmLogout}
-                title="Confirm Logout"
-                message="Are you sure you want to log out?"
-                confirmText="Logout"
-                cancelText="Cancel"
-                onConfirm={confirmLogoutAction}
-                onCancel={() => setConfirmLogout(false)}
-                danger
-            />
+          <NavLink to="/admin/organizers" className="nav-link text-sm font-medium">{t('nav.organizers') || 'Organizers'}</NavLink>
+          <NavLink to="/admin/users" className="nav-link text-sm font-medium">{t('nav.users')}</NavLink>
+          <NavLink to="/admin/drivers" className="nav-link text-sm font-medium">{t('nav.drivers')}</NavLink>
+          <NavLink to="/admin/vehicles" className="nav-link text-sm font-medium">{t('nav.vehicles')}</NavLink>
+          <NavLink to="/admin/routes" className="nav-link text-sm font-medium">{t('nav.routes')}</NavLink>
+          <NavLink to="/admin/trips" className="nav-link text-sm font-medium">{t('nav.trips')}</NavLink>
+          <NavLink to="/admin/complaints" className="nav-link text-sm font-medium">{t('nav.complaints')}</NavLink>
+          <NavLink to="/admin/profile" className="nav-link text-sm font-medium">{t('nav.profile')}</NavLink>
         </>
-    );
+      );
+    }
+
+    if (isOrganizer()) {
+      return (
+        <>
+          <NavLink to="/organizer/profile" className="nav-link text-sm font-medium">{t('nav.profile') || 'Profile'}</NavLink>
+          <NavLink to="/organizer/dashboard" className="nav-link text-sm font-medium">{t('nav.dashboard') || 'Dashboard'}</NavLink>
+          <NavLink to="/organizer/queues" className="nav-link text-sm font-medium">{t('nav.queues') || 'Queues'}</NavLink>
+          <NavLink to="/organizer/complaints" className="nav-link text-sm font-medium">{t('nav.complaints') || 'Complaints'}</NavLink>
+          <NavLink to="/organizer/violations" className="nav-link text-sm font-medium">{t('nav.violations') || 'Violations'}</NavLink>
+        </>
+      );
+    }
+
+    if (isDriver()) {
+      return (
+        <>
+          <NavLink to="/driver/profile" className="nav-link text-sm font-medium">{t('nav.profile')}</NavLink>
+          <NavLink to="/driver/trips" className="nav-link text-sm font-medium">{t('nav.trips')}</NavLink>
+          <NavLink to="/driver/complaints" className="nav-link text-sm font-medium">{t('nav.complaints')}</NavLink>
+        </>
+      );
+    }
+
+    if (isAuditor()) {
+      return (
+        <>
+          <NavLink to="/auditor/profile" className="nav-link text-sm font-medium">{t('nav.profile')}</NavLink>
+          <NavLink to="/auditor/available" className="nav-link text-sm font-medium">{t('nav.trips')}</NavLink>
+          <NavLink to="/auditor/active" className="nav-link text-sm font-medium">{t('nav.activeAudit') || 'Active Audit'}</NavLink>
+          <NavLink to="/auditor/history" className="nav-link text-sm font-medium">{t('nav.history') || 'Audit History'}</NavLink>
+          <NavLink to="/auditor/dashboard" className="nav-link text-sm font-medium">{t('nav.dashboard')}</NavLink>
+        </>
+      );
+    }
+
+    if (isCitizen()) {
+      return (
+        <>
+          <NavLink to="/citizen/profile" className="nav-link text-sm font-medium">{t('nav.profile')}</NavLink>
+          <NavLink to="/citizen/trips" className="nav-link text-sm font-medium">{t('nav.trips')}</NavLink>
+          <NavLink to="/citizen/favorites" className="nav-link text-sm font-medium">{t('nav.favorites')}</NavLink>
+          <NavLink to="/citizen/bookings" className="nav-link text-sm font-medium">{t('nav.bookings')}</NavLink>
+          <NavLink to="/citizen/complaints" className="nav-link text-sm font-medium">{t('nav.complaints')}</NavLink>
+        </>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <>
+      <nav className="navbar-shell sticky top-0 z-50 transition-all duration-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 gap-4">
+            
+            {/* Left side: Brand Logo and Navigation links */}
+            <div className="flex items-center gap-6">
+              <Link to="/" className="flex items-center gap-3 active:scale-98 transition-transform">
+                <img src={logo} alt="Departure Center Logo" className="h-10 w-10 rounded-full shadow-card object-contain" />
+                <span className="font-bold text-base tracking-tight brand-gradient whitespace-nowrap">
+                  {t('app.title')}
+                </span>
+              </Link>
+              
+              <div className="hidden lg:flex items-center gap-1.5">
+                    {renderLinks()}
+                    {/* Live Tracking link visible to all primary roles */}
+                    {(isAdmin() || isOrganizer() || isDriver() || isCitizen() || isAuditor()) && (
+                      <NavLink to="/live-tracking" className="nav-link text-sm font-medium">{t('nav.liveTracking') || 'Live Tracking'}</NavLink>
+                    )}
+                    {/* Auditors link for admin area */}
+                    {isAdmin() && (
+                      <NavLink to="/admin/auditors" className="nav-link text-sm font-medium">{t('nav.auditors')}</NavLink>
+                    )}
+              </div>
+            </div>
+
+            {/* Right side: Utilities, User Profile, and Actions */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center">
+                <NotificationBell />
+              </div>
+
+              {/* Live Tracking quick button (always visible for eligible roles) */}
+              {(isAdmin() || isOrganizer() || isDriver() || isCitizen() || isAuditor()) && (
+                <Link to="/live-tracking" className="button-icon mr-2" title={t('nav.liveTracking') || 'Live Tracking'}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                </Link>
+              )}
+
+              <div className="hidden sm:flex flex-col items-end gap-0.5 max-w-[150px]">
+                <span className="text-sm font-semibold truncate w-full text-right text-[var(--charcoal)] leading-tight">
+                  {user.fullName}
+                </span>
+                <span className="nav-role scale-90 origin-right whitespace-nowrap select-none">
+                  {getUserRoleLabel()}
+                </span>
+              </div>
+
+              {/* Decorative separator line */}
+              <div className="h-5 w-[1px] bg-gray-200 dark:bg-zinc-800 hidden sm:block"></div>
+
+              <button
+                onClick={handleLogout}
+                className="text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-lg text-[var(--umber)] hover:text-[var(--umber-dark)] hover:bg-[var(--umber)]/5 transition-all duration-150 active:scale-95 focus:outline-none focus:ring-2 focus:ring-[var(--umber)]/20"
+              >
+                {t('nav.logout')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <ConfirmationModal
+        open={confirmLogout}
+        title={t('confirmation.logoutTitle') || 'Confirm Logout'}
+        message={t('confirmation.logoutMessage') || 'Are you sure you want to log out?'}
+        confirmText={t('confirmation.logout') || 'Logout'}
+        cancelText={t('common.cancel') || 'Cancel'}
+        onConfirm={confirmLogoutAction}
+        onCancel={() => setConfirmLogout(false)}
+        danger
+      />
+    </>
+  );
 }

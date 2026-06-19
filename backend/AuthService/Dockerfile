@@ -6,7 +6,8 @@ COPY ["AuthService.Api/AuthService.Api.csproj", "AuthService.Api/"]
 COPY ["AuthService.Application/AuthService.Application.csproj", "AuthService.Application/"]
 COPY ["AuthService.Domain/AuthService.Domain.csproj", "AuthService.Domain/"]
 COPY ["AuthService.Infrastructure/AuthService.Infrastructure.csproj", "AuthService.Infrastructure/"]
-RUN dotnet restore "AuthService.Api/AuthService.Api.csproj" \
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet restore "AuthService.Api/AuthService.Api.csproj" \
     --disable-parallel \
     --verbosity minimal
 # Copy the rest

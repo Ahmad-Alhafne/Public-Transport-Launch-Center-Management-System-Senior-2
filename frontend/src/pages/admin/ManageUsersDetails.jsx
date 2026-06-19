@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getUser } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 export default function ManageUsersDetails() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -16,7 +18,7 @@ export default function ManageUsersDetails() {
         const { data } = await getUser(id);
         setUser(data);
       } catch (err) {
-        setError(err.response?.data?.Detailed || err.response?.data || 'Failed to load user details');
+        setError(err.response?.data?.Detailed || err.response?.data || t('pages_admin_ManageUsersDetails_load_failed'));
       } finally {
         setLoading(false);
       }
@@ -33,21 +35,21 @@ export default function ManageUsersDetails() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--forest)]"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
+      <div className="content-wrapper py-6">
         <button
           onClick={() => navigate(-1)}
-          className="mb-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm"
+          className="mb-6 px-4 py-2 bg-[var(--surface-soft)] hover:bg-[var(--surface-muted)] text-[var(--charcoal-medium)] border border-[rgba(66,129,119,0.15)] rounded-lg text-sm font-medium transition-colors"
         >
-          ← Back
+          {`← `}{t('common.back')}
         </button>
-        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">
+        <div className="alert alert-error">
           {error}
         </div>
       </div>
@@ -55,109 +57,126 @@ export default function ManageUsersDetails() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="content-wrapper py-6">
+      {/* Header View Area */}
+      <div className="flex items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold">User Details</h1>
-          <p className="text-slate-400 text-sm">Review the full profile information for the selected user.</p>
+          <h1 className="text-2xl font-bold text-[var(--charcoal)]">
+            {t('generated.pages_admin_ManageUsersDetails_jsx_61_5addd7d6')}
+          </h1>
+          <p className="text-muted text-sm mt-0.5">
+            {t('generated.pages_admin_ManageUsersDetails_jsx_62_d88ca017')}
+          </p>
         </div>
         <button
           onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm"
+          className="px-4 py-2 bg-[var(--surface-soft)] hover:bg-[var(--surface-muted)] text-[var(--charcoal-medium)] border border-[rgba(66,129,119,0.15)] rounded-lg text-sm font-medium transition-colors whitespace-nowrap shadow-sm"
         >
-          ← Back
+          {`← `}{t('common.back')}
         </button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50">
-          <h2 className="font-semibold text-lg mb-4">Account</h2>
-          <div className="space-y-2 text-sm text-slate-300">
+      {/* Main Details Grid Layout */}
+      <div className="grid gap-6 md:grid-cols-2">
+        
+        {/* Card Block 1: Main Core Account Credentials */}
+        <div className="card p-6 border border-[rgba(66,129,119,0.1)]">
+          <h2 className="font-bold text-lg mb-4 text-[var(--charcoal)] pb-2 border-b border-[rgba(66,129,119,0.06)]">
+            {t('generated.pages_admin_ManageUsersDetails_jsx_74_85dfa32c')}
+          </h2>
+          <div className="space-y-3 text-sm text-[var(--charcoal-medium)]">
             <div>
-              <span className="text-slate-400">Full Name:</span> {user.fullName || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_77_f963fee1')}</span> {user?.fullName || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Email:</span> {user.email || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_80_4c4e6b2d')}</span> {user?.email || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Phone:</span> {user.phoneNumber || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_83_daeea4d0')}</span> {user?.phoneNumber || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Role:</span> {user.role || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_86_61e4c27b')}</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{user?.role || '-'}</span>
             </div>
             <div>
-              <span className="text-slate-400">Status:</span> {user.accountStatus || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_89_11dc9e19')}</span> {user?.accountStatus || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Created:</span> {formatDate(user.createdAt)}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_92_0c78dab1')}</span> {formatDate(user?.createdAt)}
             </div>
           </div>
         </div>
 
-        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50">
-          <h2 className="font-semibold text-lg mb-4">Personal Information</h2>
-          <div className="space-y-2 text-sm text-slate-300">
+        {/* Card Block 2: Personal Registry Information */}
+        <div className="card p-6 border border-[rgba(66,129,119,0.1)]">
+          <h2 className="font-bold text-lg mb-4 text-[var(--charcoal)] pb-2 border-b border-[rgba(66,129,119,0.06)]">
+            {t('generated.pages_admin_ManageUsersDetails_jsx_98_ad12e422')}
+          </h2>
+          <div className="space-y-3 text-sm text-[var(--charcoal-medium)]">
             <div>
-              <span className="text-slate-400">First Name:</span> {user.firstName || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_101_e9a1010c')}</span> {user?.firstName || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Last Name:</span> {user.lastName || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_104_3d9fa635')}</span> {user?.lastName || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Gender:</span> {user.gender || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_107_525fa8d8')}</span> {user?.gender || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Date of Birth:</span> {formatDate(user.dateOfBirth)}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_110_fb1cadcf')}</span> {formatDate(user?.dateOfBirth)}
             </div>
             <div>
-              <span className="text-slate-400">City:</span> {user.city || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_113_c8573ddb')}</span> {user?.city || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Region:</span> {user.region || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_116_25cdc1ce')}</span> {user?.region || '-'}
             </div>
             <div>
-              <span className="text-slate-400">Disability Status:</span> {user.disabilityStatus || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_119_29c608d8')}</span> {user?.disabilityStatus || '-'}
             </div>
           </div>
         </div>
 
-        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 md:col-span-2">
-          <h2 className="font-semibold text-lg mb-4">Identification & Address</h2>
-          <div className="grid gap-4 md:grid-cols-2 text-sm text-slate-300">
-            <div className="space-y-2">
+        {/* Card Block 3: Verification & Civic Registration Parameters */}
+        <div className="card p-6 border border-[rgba(66,129,119,0.1)] md:col-span-2">
+          <h2 className="font-bold text-lg mb-4 text-[var(--charcoal)] pb-2 border-b border-[rgba(66,129,119,0.06)]">
+            {t('generated.pages_admin_ManageUsersDetails_jsx_125_3aeecec9')}
+          </h2>
+          <div className="grid gap-6 md:grid-cols-2 text-sm text-[var(--charcoal-medium)]">
+            <div className="space-y-3">
               <div>
-                <span className="text-slate-400">National ID:</span> {user.nationalIdNumber || '-'}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_129_e9757a1e')}</span> <span className="font-mono bg-[var(--surface-muted)] px-1.5 py-0.5 border border-[rgba(66,129,119,0.08)] rounded text-xs font-semibold">{user?.nationalIdNumber || '-'}</span>
               </div>
               <div>
-                <span className="text-slate-400">Card Number:</span> {user.cardNumber || '-'}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_132_1fa8ddfe')}</span> {user?.cardNumber || '-'}
               </div>
               <div>
-                <span className="text-slate-400">Card Issue Date:</span> {formatDate(user.cardIssueDate)}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_135_6f9ade97')}</span> {formatDate(user?.cardIssueDate)}
               </div>
               <div>
-                <span className="text-slate-400">Face Color:</span> {user.faceColor || '-'}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_138_b3bed3d7')}</span> {user?.faceColor || '-'}
               </div>
               <div>
-                <span className="text-slate-400">Eye Color:</span> {user.eyeColor || '-'}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_141_a498d7e5')}</span> {user?.eyeColor || '-'}
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div>
-                <span className="text-slate-400">Father Name:</span> {user.fatherName || '-'}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_147_b144649c')}</span> {user?.fatherName || '-'}
               </div>
               <div>
-                <span className="text-slate-400">Mother Name:</span> {user.motherName || '-'}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_150_3c81fa68')}</span> {user?.motherName || '-'}
               </div>
               <div>
-                <span className="text-slate-400">Birth Place:</span> {user.birthPlace || '-'}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_153_24d4e7a6')}</span> {user?.birthPlace || '-'}
               </div>
               <div>
-                <span className="text-slate-400">Current Address:</span> {user.currentAddress || '-'}
+                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_156_fcc79d13')}</span> {user?.currentAddress || '-'}
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

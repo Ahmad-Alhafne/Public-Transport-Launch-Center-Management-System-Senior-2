@@ -5,7 +5,8 @@ COPY ["ComplaintService.Api/ComplaintService.Api.csproj", "ComplaintService.Api/
 COPY ["ComplaintService.Application/ComplaintService.Application.csproj", "ComplaintService.Application/"]
 COPY ["ComplaintService.Domain/ComplaintService.Domain.csproj", "ComplaintService.Domain/"]
 COPY ["ComplaintService.Infrastructure/ComplaintService.Infrastructure.csproj", "ComplaintService.Infrastructure/"]
-RUN dotnet restore "ComplaintService.Api/ComplaintService.Api.csproj" \
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet restore "ComplaintService.Api/ComplaintService.Api.csproj" \
     --disable-parallel \
     --verbosity minimal
 COPY . .

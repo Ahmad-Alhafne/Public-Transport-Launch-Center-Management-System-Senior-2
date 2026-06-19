@@ -1,6 +1,7 @@
 namespace BookingService.Application.Services;
 
 using System;
+using Microsoft.Extensions.Configuration;
 using BookingService.Application.DTOs;
 using BookingService.Application.Interfaces;
 using BookingService.Domain.Entities;
@@ -10,11 +11,13 @@ public class BookingManagementService : IBookingService
 {
     private readonly IBookingRepository _repository;
     private readonly ITripServiceClient _tripClient;
+    private readonly IConfiguration _configuration;
 
-    public BookingManagementService(IBookingRepository repository, ITripServiceClient tripClient)
+    public BookingManagementService(IBookingRepository repository, ITripServiceClient tripClient, IConfiguration configuration)
     {
         _repository = repository;
         _tripClient = tripClient;
+        _configuration = configuration;
     }
 
     public async Task<IEnumerable<BookingDto>> GetAllBookingsAsync()
@@ -79,6 +82,32 @@ public class BookingManagementService : IBookingService
         await _repository.AddAsync(booking);
         await _repository.SaveChangesAsync();
 
+        // Generate signed QR token for this booking
+        try
+        {
+            var secret = _configuration["QrOptions:Secret"] ?? _configuration["JwtOptions:SecretKey"] ?? "DEFAULT_QR_SECRET_ChangeInProd";
+            var payload = $"{booking.Id}|{passengerId}|{booking.TripId}|{booking.BookedAt:o}";
+            var payloadBytes = System.Text.Encoding.UTF8.GetBytes(payload);
+
+            using var hmac = new System.Security.Cryptography.HMACSHA256(System.Text.Encoding.UTF8.GetBytes(secret));
+            var sig = hmac.ComputeHash(payloadBytes);
+
+            static string Base64UrlEncode(byte[] input)
+            {
+                return Convert.ToBase64String(input).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+            }
+
+            var token = Base64UrlEncode(payloadBytes) + "." + Base64UrlEncode(sig);
+            booking.QrToken = token;
+            booking.QrGeneratedAt = DateTime.UtcNow;
+            await _repository.UpdateAsync(booking);
+            await _repository.SaveChangesAsync();
+        }
+        catch
+        {
+            // QR generation failure should not block booking; log in real app
+        }
+
         return MapToDto(booking, tripInfo);
     }
 
@@ -125,7 +154,8 @@ public class BookingManagementService : IBookingService
             TripStatus = tripInfo?.Status ?? "N/A",
             TripDelayMinutes = tripInfo?.DelayMinutes ?? 0,
             TripDepartureTimeUtc = booking.TripDepartureTimeUtc,
-            BookedAt = booking.BookedAt
+            BookedAt = booking.BookedAt,
+            QrToken = booking.QrToken
         };
     }
 

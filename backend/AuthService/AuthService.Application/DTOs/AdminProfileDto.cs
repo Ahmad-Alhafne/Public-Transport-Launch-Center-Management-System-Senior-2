@@ -16,6 +16,7 @@ public class AdminProfileDto
     public string? Gender { get; set; }
     public DateTime? DateOfBirth { get; set; }
     public string? NationalIdNumber { get; set; }
+    public string? LanguagePreference { get; set; }
 
     // Location
     public string? City { get; set; }

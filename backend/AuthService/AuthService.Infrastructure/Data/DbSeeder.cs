@@ -89,6 +89,62 @@ public static class DbSeeder
                 LastProfileUpdate = DateTime.UtcNow,
                 AccountStatus = AccountStatus.Active
             }
+            ,
+            new User
+            {
+                FullName = "Auditor One",
+                Email = "auditor1@system.com",
+                PasswordHash = BCrypt.HashPassword("Auditor123!"),
+                Role = Role.Auditor,
+                PhoneNumber = "+10000000010",
+                FirstName = "Auditor",
+                LastName = "One",
+                Gender = Gender.Male,
+                DateOfBirth = new DateTime(1988, 3, 22),
+                City = "Audit City",
+                Region = "West",
+                NationalIdNumber = "AU1000001",
+                AccountCreationDate = DateTime.UtcNow,
+                LastProfileUpdate = DateTime.UtcNow,
+                AccountStatus = AccountStatus.Active
+            },
+            new User
+            {
+                FullName = "Auditor Two",
+                Email = "auditor2@system.com",
+                PasswordHash = BCrypt.HashPassword("Auditor123!"),
+                Role = Role.Auditor,
+                PhoneNumber = "+10000000011",
+                FirstName = "Auditor",
+                LastName = "Two",
+                Gender = Gender.Female,
+                DateOfBirth = new DateTime(1992, 11, 5),
+                City = "Audit Town",
+                Region = "South",
+                NationalIdNumber = "AU1000002",
+                AccountCreationDate = DateTime.UtcNow,
+                LastProfileUpdate = DateTime.UtcNow,
+                AccountStatus = AccountStatus.Active
+            }
+            ,
+            new User
+            {
+                FullName = "Queue Organizer",
+                Email = "organizer@system.com",
+                PasswordHash = BCrypt.HashPassword("Organizer123!"),
+                Role = Role.QueueOrganizer,
+                PhoneNumber = "+10000000020",
+                FirstName = "Queue",
+                LastName = "Organizer",
+                Gender = Gender.Female,
+                DateOfBirth = new DateTime(1990, 1, 1),
+                City = "Dispatch City",
+                Region = "Central",
+                NationalIdNumber = "QO1000001",
+                AccountCreationDate = DateTime.UtcNow,
+                LastProfileUpdate = DateTime.UtcNow,
+                AccountStatus = AccountStatus.Active
+            }
         };
 
         var basePhone = 10000000003;

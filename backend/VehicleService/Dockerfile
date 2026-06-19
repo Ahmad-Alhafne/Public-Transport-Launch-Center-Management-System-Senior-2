@@ -6,7 +6,10 @@ COPY ["VehicleService.Api/VehicleService.Api.csproj", "VehicleService.Api/"]
 COPY ["VehicleService.Application/VehicleService.Application.csproj", "VehicleService.Application/"]
 COPY ["VehicleService.Domain/VehicleService.Domain.csproj", "VehicleService.Domain/"]
 COPY ["VehicleService.Infrastructure/VehicleService.Infrastructure.csproj", "VehicleService.Infrastructure/"]
-RUN dotnet restore "VehicleService.Api/VehicleService.Api.csproj" --disable-parallel --verbosity minimal
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+	dotnet restore "VehicleService.Api/VehicleService.Api.csproj" \
+	--disable-parallel \
+	--verbosity minimal
 
 # Copy the rest
 COPY . .

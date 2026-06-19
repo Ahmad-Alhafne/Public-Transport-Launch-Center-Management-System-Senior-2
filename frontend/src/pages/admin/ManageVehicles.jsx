@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { getVehicles, createVehicle, updateVehicle, deleteVehicle } from '../../services/api';
 import ConfirmationModal from '../../components/ConfirmationModal';
 
 export default function ManageVehicles() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [vehicles, setVehicles] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -24,7 +26,7 @@ export default function ManageVehicles() {
             const { data } = await getVehicles();
             setVehicles(data);
         } catch {
-            setError('Failed to load vehicles');
+            setError(t('generated.pages_admin_ManageVehicles_jsx_22_84f38f1f'));
         } finally {
             setLoading(false);
         }
@@ -61,10 +63,10 @@ export default function ManageVehicles() {
         try {
             const payload = buildPayload();
             if (!payload.name || !payload.type || !payload.plateNumber || payload.capacity <= 0) {
-                throw new Error('All fields are required, capacity must be greater than zero.');
+                throw new Error(t('generated.pages_admin_ManageVehicles_jsx_66_b874c1d0'));
             }
             await createVehicle(payload);
-            setSuccess('Vehicle added successfully.');
+            setSuccess(t('generated.pages_admin_ManageVehicles_jsx_70_f7bf7ed6'));
             setShowForm(false);
             resetForm();
             fetchVehicles();
@@ -81,7 +83,7 @@ export default function ManageVehicles() {
         try {
             const payload = buildPayload();
             await updateVehicle(editId, payload);
-            setSuccess('Vehicle updated successfully.');
+            setSuccess(t('generated.pages_admin_ManageVehicles_jsx_84_411e8bf7'));
             setShowForm(false);
             resetForm();
             fetchVehicles();
@@ -115,7 +117,7 @@ export default function ManageVehicles() {
 
         try {
             await deleteVehicle(id);
-            setSuccess('Vehicle deleted successfully.');
+            setSuccess(t('generated.pages_admin_ManageVehicles_jsx_120_4bd2bc5b'));
             fetchVehicles();
         } catch (err) {
             setError(getErrorMessage(err));
@@ -140,73 +142,220 @@ export default function ManageVehicles() {
         }
     }, [currentPage, filteredVehicles.length, itemsPerPage]);
 
-    if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div></div>;
+    if (loading) {
+        return (
+            <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--forest)' }}></div>
+            </div>
+        );
+    }
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">Manage Vehicles</h1>
-                <button onClick={() => { setShowForm(!showForm); resetForm(); }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm transition-colors">
-                    {showForm ? 'Cancel' : '+ New Vehicle'}
+        <div className="max-w-6xl mx-auto px-4 py-6">
+            {/* Header Control Panel */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)' }}>
+                        {t('admin.vehicles.title')}
+                    </h1>
+                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
+                        {t('generated.pages_admin_ManageVehicles_jsx_22_84f38f1f10')}
+                    </p>
+                </div>
+                <button 
+                    onClick={() => { setShowForm(!showForm); resetForm(); }}
+                    className={showForm ? "danger-button px-5 py-2.5 font-medium text-sm shadow-sm transition-all duration-200" : "primary-button px-5 py-2.5 font-medium text-sm shadow-sm transition-all duration-200"}
+                    style={{ borderRadius: 'var(--radius-sm)' }}
+                >
+                    {showForm ? t('common.cancel') : `+ ${t('admin.vehicles.newVehicle')}`}
                 </button>
             </div>
 
-            {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>}
-            {success && <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">{success}</div>}
-
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-3">
-                <input placeholder="Search by name" value={filters.name} onChange={(e) => setFilters({ ...filters, name: e.target.value })} className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2" />
-                <input placeholder="Search by type" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })} className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2" />
-                <input placeholder="Search by plate" value={filters.plateNumber} onChange={(e) => setFilters({ ...filters, plateNumber: e.target.value })} className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2" />
-                <input placeholder="Search by status" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className="rounded-lg border border-slate-700/70 bg-slate-900/40 px-3 py-2" />
-            </div>
-
-            <ConfirmationModal open={confirmingUpdate} title="Confirm Update" message="Are you sure you want to update this vehicle?" confirmText="Update" cancelText="Cancel" onConfirm={confirmUpdate} onCancel={() => setConfirmingUpdate(false)} />
-            <ConfirmationModal open={!!confirmingDeleteId} title="Confirm Delete" message="Are you sure you want to delete this vehicle?" confirmText="Delete" cancelText="Cancel" danger onConfirm={confirmDelete} onCancel={() => setConfirmingDeleteId(null)} />
-
-            {showForm && (
-                <form onSubmit={handleSubmit} className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white" />
-                    <input placeholder="Type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} required className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white" />
-                    <input placeholder="Capacity" type="number" min="1" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })} required className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white" />
-                    <input placeholder="Plate Number" value={form.plateNumber} onChange={(e) => setForm({ ...form, plateNumber: e.target.value })} required maxLength={50} className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white" />
-                    <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="px-4 py-3 bg-slate-900/50 border border-slate-600/50 rounded-xl text-white">
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                    </select>
-                    <button type="submit" className="md:col-span-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm transition-colors">{editId ? 'Update Vehicle' : 'Create Vehicle'}</button>
-                </form>
+            {/* Operational Message Output Stack */}
+            {error && (
+                <div className="alert alert-error mb-4 text-sm font-medium shadow-sm">
+                    {error}
+                </div>
+            )}
+            {success && (
+                <div className="alert alert-success mb-4 text-sm font-medium shadow-sm">
+                    {success}
+                </div>
             )}
 
+            {/* Interactive Grid Filtering Node */}
+            <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-2xl border" style={{ backgroundColor: 'var(--surface-muted)', borderColor: 'rgba(66, 129, 119, 0.08)' }}>
+                <input placeholder={t('admin.vehicles.searchName')} value={filters.name} onChange={(e) => setFilters({ ...filters, name: e.target.value })} className="input-field !bg-white" />
+                <input placeholder={t('admin.vehicles.searchType')} value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })} className="input-field !bg-white" />
+                <input placeholder={t('admin.vehicles.searchPlate')} value={filters.plateNumber} onChange={(e) => setFilters({ ...filters, plateNumber: e.target.value })} className="input-field !bg-white" />
+                <input placeholder={t('admin.vehicles.searchStatus')} value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className="input-field !bg-white" />
+            </div>
+
+            {/* Dynamic Dialog Overlays */}
+            <ConfirmationModal open={confirmingUpdate} title={t('admin.vehicles.confirmUpdateTitle')} message={t('admin.vehicles.confirmUpdateMessage')} confirmText={t('common.update')} cancelText={t('common.cancel')} onConfirm={confirmUpdate} onCancel={() => setConfirmingUpdate(false)} />
+            <ConfirmationModal open={!!confirmingDeleteId} title={t('admin.vehicles.confirmDeleteTitle')} message={t('admin.vehicles.confirmDeleteMessage')} confirmText={t('common.delete')} cancelText={t('common.cancel')} danger onConfirm={confirmDelete} onCancel={() => setConfirmingDeleteId(null)} />
+
+            {/* Entity Insertion and Modification Deck */}
+            {showForm && (
+                <div className="card mb-8 p-6 transition-all duration-300" style={{ backgroundColor: 'var(--surface)', borderColor: 'rgba(66, 129, 119, 0.12)' }}>
+                    <h2 className="text-xl font-bold mb-6 pb-2 border-b" style={{ color: 'var(--forest-dark)', borderColor: 'rgba(66, 129, 119, 0.08)' }}>
+                        {editId ? t('admin.vehicles.updateVehicle') : t('admin.vehicles.createVehicle')}
+                    </h2>
+                    
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.vehicles.name')}</span>
+                            <input placeholder={t('admin.vehicles.name')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="input-field" />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.vehicles.type')}</span>
+                            <input placeholder={t('admin.vehicles.type')} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} required className="input-field" />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.vehicles.capacity')}</span>
+                            <input placeholder={t('admin.vehicles.capacity')} type="number" min="1" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value })} required className="input-field" />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5">
+                            <span className="form-label !mb-0">{t('admin.vehicles.plateNumber')}</span>
+                            <input placeholder={t('admin.vehicles.plateNumber')} value={form.plateNumber} onChange={(e) => setForm({ ...form, plateNumber: e.target.value })} required maxLength={50} className="input-field" />
+                        </label>
+
+                        <label className="flex flex-col gap-1.5 md:col-span-2">
+                            <span className="form-label !mb-0">Status</span>
+                            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="input-field">
+                                <option value="Active">{t('admin.vehicles.active')}</option>
+                                <option value="Inactive">{t('admin.vehicles.inactive')}</option>
+                            </select>
+                        </label>
+
+                        <div className="md:col-span-2 pt-2">
+                            <button type="submit" className="primary-button w-full py-3 text-sm font-semibold shadow-sm" style={{ borderRadius: 'var(--radius-sm)' }}>
+                                {editId ? t('admin.vehicles.updateVehicle') : t('admin.vehicles.createVehicle')}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {/* List Data Grid Layout wrapper */}
             <div className="grid gap-4">
                 {paginatedVehicles.map((vehicle) => (
-                    <div key={vehicle.id} className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 hover:border-slate-600/50">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="font-semibold text-lg">{vehicle.name}</h3>
-                                <p className="text-sm text-slate-400">{vehicle.type} • {vehicle.plateNumber}</p>
+                    <div 
+                        key={vehicle.id} 
+                        className="card p-5 transition-all duration-200"
+                        style={{ 
+                            backgroundColor: 'var(--surface)', 
+                            borderColor: 'rgba(66, 129, 119, 0.08)',
+                            borderRadius: 'var(--radius)'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(66, 129, 119, 0.2)'}
+                        onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(66, 129, 119, 0.08)'}
+                    >
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="space-y-1">
+                                <h3 className="font-bold text-lg" style={{ color: 'var(--charcoal)' }}>{vehicle.name}</h3>
+                                <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+                                    {vehicle.type} • {vehicle.plateNumber}
+                                </p>
+                                <div className="flex flex-wrap items-center gap-2 mt-2">
+                                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ backgroundColor: 'var(--wheat-light)', color: 'var(--charcoal-medium)' }}>
+                                        Capacity: {vehicle.capacity}
+                                    </span>
+                                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" 
+                                        style={{ 
+                                            backgroundColor: vehicle.status === 'Active' ? 'rgba(66, 129, 119, 0.12)' : 'rgba(107, 31, 42, 0.08)', 
+                                            color: vehicle.status === 'Active' ? 'var(--forest-dark)' : 'var(--umber)' 
+                                        }}
+                                    >
+                                        {vehicle.status || 'Active'}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => navigate(`/admin/vehicles/${vehicle.id}`)} className="px-3 py-1.5 bg-slate-700/50 text-slate-200 rounded-lg text-sm hover:bg-slate-700 transition-colors">View Details</button>
-                                <button onClick={() => handleEdit(vehicle)} className="px-3 py-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-sm hover:bg-blue-600/30">Edit</button>
-                                <button onClick={() => handleDelete(vehicle.id)} className="px-3 py-1.5 bg-red-600/20 text-red-400 rounded-lg text-sm hover:bg-red-600/30">Delete</button>
+                            
+                            {/* Management Command Matrix Buttons */}
+                            <div className="flex flex-wrap gap-2 sm:self-center">
+                                <button onClick={() => navigate(`/admin/vehicles/${vehicle.id}`)} className="outline-button px-3.5 py-1.5 text-sm font-medium" style={{ borderRadius: 'var(--radius-sm)' }}>
+                                    {t('common.viewDetails')}
+                                </button>
+                                <button 
+                                    onClick={() => handleEdit(vehicle)} 
+                                    className="px-3.5 py-1.5 text-sm font-medium transition-colors"
+                                    style={{ 
+                                        backgroundColor: 'rgba(66, 129, 119, 0.12)', 
+                                        color: 'var(--forest-dark)',
+                                        borderRadius: 'var(--radius-sm)'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(66, 129, 119, 0.2)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(66, 129, 119, 0.12)'}
+                                >
+                                    {t('common.edit')}
+                                </button>
+                                <button 
+                                    onClick={() => handleDelete(vehicle.id)} 
+                                    className="px-3.5 py-1.5 text-sm font-medium transition-colors"
+                                    style={{ 
+                                        backgroundColor: 'rgba(107, 31, 42, 0.08)', 
+                                        color: 'var(--umber)',
+                                        borderRadius: 'var(--radius-sm)'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(107, 31, 42, 0.14)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(107, 31, 42, 0.08)'}
+                                >
+                                    {t('common.delete')}
+                                </button>
                             </div>
                         </div>
                     </div>
                 ))}
-                {filteredVehicles.length === 0 && <p className="text-center text-slate-500 py-10">No vehicles found.</p>}
+                
+                {filteredVehicles.length === 0 && (
+                    <div className="text-center py-12 card" style={{ backgroundColor: 'var(--surface)' }}>
+                        <p className="text-base font-medium" style={{ color: 'var(--charcoal-medium)' }}>
+                            {t('admin.vehicles.noVehiclesFound')}
+                        </p>
+                    </div>
+                )}
             </div>
 
+            {/* Pagination Controls Deck Footer */}
             {pageCount > 1 && (
-                <div className="flex flex-wrap gap-2 justify-center mt-6">
-                    <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-3 py-1.5 bg-slate-700/50 text-slate-200 rounded-lg text-sm hover:bg-slate-700 disabled:opacity-50">Previous</button>
+                <div className="flex items-center justify-center gap-1.5 mt-8">
+                    <button
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-3.5 py-1.5 font-medium rounded-lg text-sm transition-all duration-200 disabled:opacity-40"
+                        style={{ backgroundColor: 'var(--surface-muted)', color: 'var(--charcoal-medium)' }}
+                    >
+                        {t('common.previous')}
+                    </button>
                     {[...Array(pageCount)].map((_, index) => (
-                        <button key={index} onClick={() => setCurrentPage(index + 1)} className={`px-3 py-1.5 rounded-lg text-sm ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-slate-700/50 text-slate-200 hover:bg-slate-700'}`}>
+                        <button 
+                            key={index} 
+                            onClick={() => setCurrentPage(index + 1)} 
+                            className="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200"
+                            style={currentPage === index + 1 ? {
+                                backgroundColor: 'var(--forest)',
+                                color: 'var(--surface)',
+                                boxShadow: '0 4px 12px rgba(66, 129, 119, 0.15)'
+                            } : {
+                                backgroundColor: 'var(--surface-muted)',
+                                color: 'var(--charcoal-medium)'
+                            }}
+                        >
                             {index + 1}
                         </button>
                     ))}
-                    <button onClick={() => setCurrentPage((p) => Math.min(pageCount, p + 1))} disabled={currentPage === pageCount} className="px-3 py-1.5 bg-slate-700/50 text-slate-200 rounded-lg text-sm hover:bg-slate-700 disabled:opacity-50">Next</button>
+                    <button
+                        onClick={() => setCurrentPage((p) => Math.min(pageCount, p + 1))}
+                        disabled={currentPage === pageCount}
+                        className="px-3.5 py-1.5 font-medium rounded-lg text-sm transition-all duration-200 disabled:opacity-40"
+                        style={{ backgroundColor: 'var(--surface-muted)', color: 'var(--charcoal-medium)' }}
+                    >
+                        {t('common.next')}
+                    </button>
                 </div>
             )}
         </div>

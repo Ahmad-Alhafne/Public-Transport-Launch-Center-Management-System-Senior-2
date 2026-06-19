@@ -31,5 +31,22 @@ public static class DbSeeder
             """);
 
         // No sample bookings seeded; bookings are created dynamically by citizens
+        // Add QrToken and QrGeneratedAt columns if missing (added in later schema)
+        await context.Database.ExecuteSqlRawAsync("""
+            IF COL_LENGTH('dbo.Bookings', 'QrToken') IS NULL OR COL_LENGTH('dbo.Bookings', 'QrGeneratedAt') IS NULL
+            BEGIN
+                IF COL_LENGTH('dbo.Bookings', 'QrToken') IS NULL
+                BEGIN
+                    ALTER TABLE [dbo].[Bookings]
+                    ADD [QrToken] varchar(2000) NULL;
+                END
+
+                IF COL_LENGTH('dbo.Bookings', 'QrGeneratedAt') IS NULL
+                BEGIN
+                    ALTER TABLE [dbo].[Bookings]
+                    ADD [QrGeneratedAt] datetime2 NULL;
+                END
+            END
+            """);
     }
 }
