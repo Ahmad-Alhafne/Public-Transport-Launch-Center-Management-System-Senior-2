@@ -1,6 +1,7 @@
 {
   "citizen": {
     "trips": {
+      "reserveAndPay":"Reserve and Pay",
       "title": "Available Trips",
       "selectRoute": "Select route",
       "selectDeparture": "Select departure",
@@ -22,13 +23,33 @@
       "searchRouteName": "Search by route name",
       "startLocation": "Start location",
       "statusDelayed": "Delayed",
+      "status_Delayed": "Delayed",
       "statusFinished": "Finished",
+      "status_Finished": "Finished",
       "status_Confirmed": "Confirmed",
       "status_Cancelled": "Cancelled",
       "statusScheduled": "Scheduled",
+      "status_Scheduled": "Scheduled",
       "statusStarted": "Started",
+      "status_Started": "Started",
       "toLabel": "To",
       "tripsFor": "Trips for"
+      ,
+      "directionArrow": "→",
+      "totalAmount": "{{amount}} {{currency}}",
+      "cardPlaceholder": "4242 4242 4242 4242",
+      "cvcPlaceholder": "123",
+      "paymentModalTitle": "Confirm booking and pay",
+      "paymentModalSubtitle": "Enter payment details to complete your reservation.",
+      "selectedTrip": "Selected trip",
+      "paymentSummary": "Payment summary",
+      "seatCount": "Seats",
+      "cardNumber": "Card number",
+      "expMonth": "Exp. month",
+      "expYear": "Exp. year",
+      "cvc": "CVC",
+      "processingPayment": "Processing payment...",
+      "payAndConfirm": "Pay & confirm booking"
     },
     "bookButton": "Book Now",
     "selectRouteLabel": "Choose a route",
@@ -63,32 +84,67 @@
       "noMatches": "No favorite trips match your filters.",
       "confirmRemoveTitle": "Confirm Remove Favorite",
       "confirmRemoveMessage": "Are you sure you want to remove this trip from your favorites?"
+    },
+    "myBookings":{
+      "reportEmergency":"Report Emergency"
+    }
+    ,
+    "qr": {
+      "viewQr": "View QR",
+      "qrFor": "QR Ticket",
+      "download_failed": "Failed to download image",
+      "noActiveTickets": "No active tickets"
     }
   },
   "profile": {
     "language": "Language",
     "selectLanguage": "Select language",
     "save": "Save",
+    "name": "Name",
+    "email": "Email",
+    "actions": "Actions",
     "languageSaved": "Language preference saved.",
-    "editProfile": "Edit profile"
+    "editProfile": "Edit profile",
+    "role": "Role",
+    "status": "Account Status",
+    "createdAt": "Created",
+    "nationalId": "National ID",
+    "dob": "Date of Birth",
+    "statusActive": "Active",
+    "statusPending": "Pending",
+    "statusSuspended": "Suspended"
   },
   "nav": {
+    "violations":"Violations",
+    "queues":"Queues",
     "dashboard": "Dashboard",
     "routes": "Routes",
     "trips": "Trips",
     "vehicles": "Vehicles",
     "drivers": "Drivers",
-    "auditors": "Auditors",
+    "auditors1": "Auditors",
     "users": "Users",
     "notifications": "Notifications",
+    "emergencies":"Emergencies",
     "settings": "Settings",
     "profile": "Profile",
     "complaints": "Complaints",
     "favorites": "Favorites",
     "bookings": "Bookings",
+    "auditors": {
+      "detailsTitle": "Auditor Details",
+      "detailsSubtitle": "Review the full auditor profile and account information.",
+      "account": "Account",
+      "fullName": "Full Name:",
+      "phoneNumber": "Phone:",
+      "role": "Role:",
+      "status": "Status:",
+      "created": "Created:"
+    },
     "logout": "Logout",
     "activeAudit": "Active Audit",
-    "history": "History"
+    "history": "History",
+    "organizers":"Organizers"
   },
   "auth": {
     "login": "Sign In",
@@ -140,7 +196,8 @@
     "driver": "Driver",
     "citizen": "Citizen",
     "auditor": "Auditor",
-    "organizer": "Organizer"
+    "organizer": "Organizer",
+    "queueorganizer": "Queue Organizer"
   },
   "auditor":{
     "manage":{
@@ -153,6 +210,8 @@
       "confirmDeleteMessage":"Are you sure you want to delete this audit?"
     },
     "profile": {
+      "title": "My Profile",
+      "account": "Account",
       "fullName":"Full Name",
       "email":"Email",
       "phone":"Phone",
@@ -165,9 +224,146 @@
       "region":"Region",
       "nationalIdNumber":"National ID Number",
       "password":"Password",
+      "passwordPlaceholder":"New password",
       "save":"Save",
-      "cancel":"Cancel"
+      "cancel":"Cancel",
+      "select":"Select"
+    },
+    "available": {
+      "title": "Available Trips",
+      "none": "No trips available",
+      "pick": "Pick",
+      "picked": "Trip assigned to you",
+      "alreadyAssigned": "Trip already assigned",
+      "error": "Unable to pick trip",
+      "confirmMessage": "Are you sure you want to pick this trip for auditing?",
+      "confirmTitle": "Confirm Pick Trip"
+    },
+    "dashboard": {
+      "title": "Auditor Dashboard",
+      "assignedTrips": "Assigned Trips",
+      "completedAudits": "Completed Audits",
+      "totalScanned": "Total Scanned"
+    },
+    "history": {
+      "title": "Audit History",
+      "empty": "No audit history found."
+    },
+    "active": {
+      "noAssignment": "No active trip assigned",
+      "title": "Active Audit",
+      "scanner": "Scanner",
+      "statusError": "Error",
+      "validationFailed": "Validation failed"
     }
+  },
+  "organizer": {
+    "manage": {
+      "title": "Manage Organizers",
+      "new": "New Organizer",
+      "created": "Organizer created",
+      "updated": "Organizer updated",
+      "deleted": "Organizer deleted",
+      "saveFailed": "Save failed",
+      "deleteFailed": "Delete failed",
+      "empty": "No organizers found.",
+      "confirmDeleteTitle": "Confirm delete",
+      "confirmDeleteMessage": "Delete this organizer?"
+    },
+    "details": {
+      "title": "Organizer Details",
+      "subtitle": "Account and profile information for the organizer"
+    },
+    "live": {
+      "title": "Live Tracking Dashboard",
+      "filter": {
+        "tripNumber": "Trip number",
+        "driverName": "Driver name",
+        "vehiclePlate": "Vehicle plate",
+        "route": "Route",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    },
+    "dashboard": {
+      "title": "Organizer Dashboard",
+      "totalPackages": "Total Packages",
+      "todaysPackages": "Today's Packages",
+      "tripsWaiting": "Trips Waiting",
+      "upcomingDepartures": "Upcoming Departures"
+    },
+    "profile": {
+      "title": "Organizer Profile",
+      "loading": "Loading...",
+      "noProfile": "No profile"
+    },
+    "queue": {
+      "title": "Queue Packages",
+      "routeLabel": "Route",
+      "autoGroup": "Auto-group Today",
+      "packages": "Packages",
+      "loading": "Loading...",
+      "details": "Package Details",
+      "searchPlaceholder": "Search trips by id or destination",
+      "addTrip": "Add Trip",
+      "search": "Search",
+      "selectPackage": "Select a package to view details",
+      "selectedPackage": "Selected Package:",
+      "col": {
+        "pos": "Pos",
+        "tripId": "TripId",
+        "actions": "Actions"
+      }
+    },
+    "complaints": {
+      "title": "My Complaints",
+      "empty": "No complaints yet"
+    },
+    "violations": {
+      "title": "My Violations",
+      "empty": "No violation reports"
+    },
+    "tripDetails": {
+      "title": "Trip Tracking Details",
+      "info": "Trip Info",
+      "trip": "Trip",
+      "driver": "Driver",
+      "vehicle": "Vehicle",
+      "speed": "Speed",
+      "coordinates": "Coordinates",
+      "lastUpdate": "Last Update",
+      "timeline": "Tracking Timeline",
+      "col": {
+        "time": "Time",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "speed": "Speed"
+      }
+    }
+  },
+  "components": {
+    "activeTrips": {
+      "title": "Active Trips",
+      "col": {
+        "driverName": "Driver Name",
+        "tripNumber": "Trip Number",
+        "speed": "Speed",
+        "reservedSeats": "Reserved Seats",
+        "emergency": "Emergency"
+      },
+      "track": "Track",
+      "kmh": "km/h"
+    },
+    "liveMap": {
+      "reservedSeats": "Reserved Seats",
+      "speed": "Speed",
+      "updated": "Updated",
+      "selected": "Selected"
+    }
+  },
+  "app": {
+    "logoAlt": "Departure Center Logo"
   },
   "admin": {
     "trips": {
@@ -253,6 +449,28 @@
       "updateSuccess": "Driver updated successfully.",
       "deleteSuccess": "Driver deleted successfully."
     },
+    "auditors": {
+      "detailsTitle": "Auditor Details",
+      "detailsSubtitle": "Review the full auditor profile and account information.",
+      "account": "Account",
+      "fullName": "Full Name:",
+      "phoneNumber": "Phone:",
+      "role": "Role:",
+      "status": "Status:",
+      "created": "Created:",
+      "manage": {
+        "title": "Manage Auditors",
+        "new": "New Auditor",
+        "updated": "Auditor updated",
+        "created": "Auditor created",
+        "deleted": "Auditor deleted",
+        "saveFailed": "Save failed",
+        "deleteFailed": "Delete failed",
+        "empty": "No auditors found.",
+        "confirmDeleteTitle": "Confirm delete",
+        "confirmDeleteMessage": "Delete this auditor?"
+      }
+    },
     "vehicles": {
       "title": "Manage Vehicles",
       "newVehicle": "New Vehicle",
@@ -289,11 +507,41 @@
       "resolved": "Resolved",
       "rejected": "Rejected"
     },
+    "emergencies": {
+      "title": "Emergency Management",
+      "subtitle": "Review reported emergencies, escalate incidents, and update response status for critical trips.",
+      "refresh": "Refresh",
+      "loadError": "Unable to load emergencies.",
+      "filterType": "Filter by type",
+      "filterPriority": "Filter by priority",
+      "filterStatus": "Filter by status",
+      "searchPlaceholder": "Search emergencies...",
+      "table": {
+        "trip": "Trip",
+        "type": "Type",
+        "priority": "Priority",
+        "status": "Status",
+        "reporter": "Reporter",
+        "reportedAt": "Reported At",
+        "actions": "Actions"
+      },
+      "noRecords": "No emergencies found.",
+      "viewTrip": "View Trip",
+      "notUpdated": "Not updated yet",
+      "detailsLink": "Trip details",
+      "confirmTitle": "Confirm status update",
+      "confirmMessage": "Are you sure you want to update this emergency status?",
+      "statusUpdated": "Emergency status updated.",
+      "statusUpdateError": "Unable to update the emergency status."
+    },
     "citizen": {
       "trips": {
         "title": "Available Trips",
         "selectRoute": "Select route",
-        "selectDeparture": "Select departure"
+        "selectDeparture": "Select departure",
+        "paymentSuccess": "Payment successful. Booking confirmed.",
+        "paymentPending": "Payment is pending. Booking is created and will be processed shortly.",
+        "paymentRequiresAction": "Payment requires additional authentication. Please check your bank prompts."
       },
       "bookButton": "Book Now",
       "selectRouteLabel": "Choose a route",
@@ -416,6 +664,63 @@
     "viewAll": "View all notifications",
     "complaintUpdatePrefix": "Complaint Update:",
     "complaintResolvedAdminResponsePrefix": "Your complaint has been resolved. Admin response:"
+    ,
+    "emergencyReported": {
+      "title": "Emergency Reported: {{type}}",
+      "message": "Trip {{tripNumber}} ({{tripId}}) - {{type}} - Priority: {{priority}}. Reporter: {{reporter}}."
+    },
+    "tripUpdate": {
+      "title": "Trip Update: {{tripNumber}}",
+      "message": "Trip {{tripNumber}} ({{tripId}}) status changed to {{status}}. Departure: {{departure}}."
+    },
+    "emergencyUpdate": {
+      "title": "Emergency Update: {{type}}",
+      "message": "Trip {{tripNumber}} ({{tripId}}) emergency status is now {{status}}."
+    },
+    "paymentSuccess": {
+      "title": "Payment Successful",
+      "message": "Your payment of {{amount}} has been successfully completed. Thank you."
+    },
+    "reminder": {
+      "title": "Reminder: {{text}}",
+      "message": "Your trip from {{from}} to {{to}} departs at {{time}}."
+    },
+    "emergencyStatusUpdated": {
+      "title": "Emergency Status Updated: {{type}}",
+      "message": "Trip {{tripNumber}} ({{tripId}}) - {{type}} - emergency status changed to {{status}}."
+    },
+    "newTripAssigned": {
+      "title": "New Trip Assigned: {{tripNumber}}",
+      "message": "You have been assigned to trip {{tripNumber}} ({{tripId}}). Departure: {{departure}}."
+    },
+    "driverAssigned": {
+      "title": "Driver assigned to Trip #{{tripNumber}}",
+      "message": "You have been assigned to Trip #{{tripNumber}} departing at {{departure}}. Vehicle: {{vehicle}}. Route: {{route}}."
+    },
+    "driverReminder": {
+      "title": "Reminder: Trip #{{tripNumber}} departs soon",
+      "message": "Trip #{{tripNumber}} departs at {{time}}. Vehicle: {{vehicle}}. Route: {{route}}."
+    },
+    "complaintResponse": {
+      "title": "Complaint response received",
+      "message": "Your complaint '{{title}}' has a response: {{response}}."
+    },
+    "tripStatuses": {
+      "Scheduled": "Scheduled",
+      "Started": "Started",
+      "Delayed": "Delayed",
+      "Finished": "Finished",
+      "Cancelled": "Cancelled"
+    },
+    "emergencyStatuses": {
+      "Reported": "Reported",
+      "Acknowledged": "Acknowledged",
+      "InProgress": "In Progress",
+      "Escalated": "Escalated",
+      "Resolved": "Resolved",
+      "Cancelled": "Cancelled"
+    },
+    "yourTrip": "Your trip"
   },
   "driver": {
     "trips": {
@@ -423,6 +728,7 @@
       "confirmDelayMessage": "Are you sure you want to submit this delay?",
       "confirmFinishMessage": "Are you sure you want to finish this trip?",
       "start": "Start",
+      "reportEmergency":"Report Emergency",
       "submit": "Submit",
       "finish": "Finish",
       "status_Scheduled": "Scheduled",
@@ -430,9 +736,73 @@
       "status_Delayed": "Delayed",
       "status_Finished": "Finished",
       "status_Cancelled": "Cancelled"
+      ,
+      "permission": {
+        "required": "Location permission required.",
+        "blocked": "The browser blocked access to your location. To enable live tracking:",
+        "step1": "Click the lock icon in the address bar → Site settings → Location → Allow.",
+        "step2": "Ensure OS location services are enabled (Windows: Settings → Privacy → Location).",
+        "step3": "After allowing, reload this page and press",
+        "retryButton": "Retry Permission",
+        "reloadButton": "Reload Page",
+        "openChrome": "Open Chrome Location Settings"
+      },
+      "reminder": {
+        "minutes": {
+          "30": "30 minutes",
+          "45": "45 minutes",
+          "60": "60 minutes",
+          "120": "120 minutes",
+          "360": "360 minutes",
+          "1440": "1 day"
+        },
+        "updateFailed": "Failed to update reminder",
+        "cancel": "🔔 Cancel",
+        "set": "🔕 Set",
+        "button": {
+          "30": "Send 30m",
+          "45": "Send 45m",
+          "60": "Send 60m",
+          "custom": "Custom"
+        }
+      },
+      "delay": {
+        "title": "Delay Trip",
+        "minutes": "Minutes",
+        "recipientContact": "Recipient Contact",
+        "justification": "Delay Justification",
+        "placeholder": "Enter delay justification"
+      },
+      "submit": "Submit",
+      "empty": "No trips found.",
+      "delayAction": "Delay",
+      "departure": "Departure",
+      "title": "Driver Trips",
+      "tab": {
+        "active": "Active Trips",
+        "history": "History"
+      },
+      "filter": {
+        "busNumberPlaceholder": "Search by bus number",
+        "departurePlaceholder": "Filter by departure date",
+        "availableSeatsPlaceholder": "Filter by seats"
+      },
+      "confirmStartTitle": "Confirm Start",
+      "confirmFinishTitle": "Confirm Finish",
+      "confirmDelayTitle": "Confirm Delay",
+      "loadFailed": "Failed to load trips.",
+      "operationFailed": "Operation failed."
+    },
+    "profile":{
+      "successUpdate":"Profile updated successfully.",
+      "updateFailed":"Update failed."
     }
   },
   "common": {
+  "close": "Close",
+  "download":"Download",
+  "closeSymbol":"×",
+  "saved":"changes Saved",
     "saveChanges": "Save changes",
     "back": "Back",
     "cancel": "Cancel",
@@ -444,6 +814,7 @@
     "update": "Update",
     "delete": "Delete",
     "create": "Create",
+    "confirm": "Confirm",
     "refresh": "Refresh",
     "viewDetails": "View Details",
     "edit": "Edit",
@@ -459,6 +830,9 @@
     "showDetails": "Show Details",
     "start": "Start",
     "finish": "Finish",
+    "route": "Route",
+    "departure": "Departure",
+    "invalidDate": "Invalid date",
     "submit": "Submit",
     "confirmStartMessage": "Are you sure you want to start this trip?",
     "confirmDelayMessage": "Are you sure you want to submit this delay?",
@@ -466,6 +840,8 @@
     "statusFinished": "Finished"
   },
   "generated": {
+    "accountInfo": "Account Info",
+    "profileInfo": "Profile",
     "components_ComplaintFormAndHistory_jsx_39_05ec66f5": "Admin Reply",
     "components_ComplaintFormAndHistory_jsx_104_8d183dbd": "Subject",
     "components_ComplaintFormAndHistory_jsx_113_55f8ebc8": "Description",
@@ -532,6 +908,7 @@
     "pages_admin_ManageDriversDetails_jsx_128_6b73dc9d": "Vehicle Color:",
     "pages_admin_ManageDriversDetails_jsx_131_ef775fbb": "Registration Expiry:",
     "pages_admin_ManageUsers_jsx_307_751f7d62": "Manage Users",
+    "pages_admin_ManageUsers_jsx_316_7e1f3c9b": "Account Information",
     "pages_admin_ManageUsers_load_failed": "Failed to load user.",
     "pages_admin_ManageUsers_confirmUpdateMessage": "Are you sure you want to update this user's information?",
     "pages_admin_ManageUsers_confirmDeleteMessage": "Are you sure you want to delete this citizen? This action cannot be undone.",
@@ -793,13 +1170,16 @@
     "pages_citizen_MyBookings_jsx_119_312b5688": "Active ({{count}})",
     "pages_citizen_MyBookings_jsx_127_8abd2d99": "History ({{count}})",
     "pages_citizen_MyBookings_jsx_179_b3e7c0ad": "No active bookings.",
-    "pages_citizen_MyBookings_jsx_183_5fcbc5e3": "Status",
-    "pages_citizen_MyBookings_jsx_183_5fcbc5e3_history": "History",
+    "pages_citizen_MyBookings_jsx_179_b3e7c0ad1": "Cancle Book.",
+    "pages_citizen_MyBookings_jsx_183_5fcbc5e3": "No active bookings.",
+    "pages_citizen_MyBookings_jsx_183_5fcbc5e3_history": "No booking history.",
     "pages_citizen_MyBookings_jsx_185_0b1fa2a4": "Cancel Booking",
+    "pages_citizen_MyBookings_jsx_185_0b1fa2a41": "No Active Bookings",
     "pages_citizen_MyProfile_jsx_36_c1e9b2f8": "Profile updated successfully.",
     "pages_citizen_MyProfile_jsx_64_3cc4f343": "Update failed.",
     "pages_citizen_MyProfile_jsx_74_87f3d2e0": "Profile not found.",
     "pages_citizen_MyProfile_jsx_100_79180a70": "Save Changes",
+    "pages_NotificationsPage_markAll":"Mark all as read",
     "pages_driver_DriverProfile_jsx_24_813849fe": "Unable to load driver profile.",
     "pages_driver_DriverProfile_jsx_59_03d89f70": "License Info",
     "pages_driver_DriverProfile_jsx_68_7d3c6b35": "Vehicle Info",
@@ -813,5 +1193,40 @@
   },
   "components_ComplaintFormAndHistory_load_failed": "Failed to load complaints.",
   "pages_admin_ManageUsersDetails_load_failed": "Failed to load user details.",
-  "auth-token-changed": "Authentication token changed. Please sign in again."
-}
+  "auth-token-changed": "Authentication token changed. Please sign in again.",
+  "emergency": {
+    "modal": {
+      "title": "Report an Emergency",
+      "tripLabel": "Trip emergency report",
+      "type": "Emergency Type",
+      "priority": "Priority",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the emergency in as much detail as possible.",
+      "cancel": "Cancel",
+      "submit": "Submit Report"
+    },
+    "type": {
+      "Medical": "Medical",
+      "Security": "Security",
+      "Mechanical": "Mechanical",
+      "Fire": "Fire",
+      "Other": "Other"
+    },
+    "priority": {
+      "Low": "Low",
+      "Medium": "Medium",
+      "High": "High",
+      "Critical": "Critical"
+    },
+    "status": {
+      "Reported": "Reported",
+      "Acknowledged": "Acknowledged",
+      "InProgress": "In Progress",
+      "Escalated": "Escalated",
+      "Resolved": "Resolved",
+      "Cancelled": "Cancelled"
+    },
+    "success": "Emergency reported successfully.",
+    "failed": "Unable to report the emergency. Please try again."
+  }
+} 

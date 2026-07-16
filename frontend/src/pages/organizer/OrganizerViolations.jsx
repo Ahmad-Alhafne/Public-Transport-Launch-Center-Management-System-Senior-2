@@ -12,7 +12,7 @@ export default function OrganizerViolations() {
 
   return (
     <div className="content-wrapper py-6">
-      <h1 className="text-2xl font-bold mb-4">{t('organizer.violations.title', 'My Violations')}</h1>
+      <h1 style={{margin:'20px 0'}} className="text-2xl font-bold mb-4">{t('organizer.violations.title', 'My Violations')}</h1>
       <div className="card p-4">
         {violations.length === 0 ? <div>{t('organizer.violations.empty', 'No violation reports')}</div> : (
           <ul>

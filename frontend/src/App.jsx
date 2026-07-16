@@ -9,6 +9,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Dashboard from './pages/Dashboard';
 import ManageRoutes from './pages/admin/ManageRoutes';
+import ManageEmergencies from './pages/admin/ManageEmergencies';
 import ManageTrips from './pages/admin/ManageTrips';
 import ManageVehicles from './pages/admin/ManageVehicles';
 import ManageDrivers from './pages/admin/ManageDrivers';
@@ -81,6 +82,9 @@ export default function App() {
             } />
             <Route path="/admin/trips" element={
               <ProtectedRoute roles={['Admin']}><ManageTrips /></ProtectedRoute>
+            } />
+            <Route path="/admin/emergencies" element={
+              <ProtectedRoute roles={['Admin']}><ManageEmergencies /></ProtectedRoute>
             } />
             <Route path="/admin/trips/:tripId" element={
               <ProtectedRoute roles={['Admin']}><TripDetails /></ProtectedRoute>

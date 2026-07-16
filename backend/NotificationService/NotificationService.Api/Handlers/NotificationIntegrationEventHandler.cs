@@ -47,6 +47,9 @@ public class NotificationIntegrationEventHandler
             case nameof(FavoriteRouteMatchedEvent):
                 await HandleFavoriteRouteMatchedAsync(JsonSerializer.Deserialize<FavoriteRouteMatchedEvent>(payload));
                 break;
+            case nameof(PaymentSuccessfulEvent):
+                await HandlePaymentSuccessfulAsync(JsonSerializer.Deserialize<PaymentSuccessfulEvent>(payload));
+                break;
         }
     }
 
@@ -201,6 +204,31 @@ public class NotificationIntegrationEventHandler
             Title = title,
             Message = body,
             Type = NotificationType.BookingUpdate
+        });
+    }
+
+    private async Task HandlePaymentSuccessfulAsync(PaymentSuccessfulEvent? eventPayload)
+    {
+        if (eventPayload == null)
+        {
+            return;
+        }
+
+        var amountText = eventPayload.Amount > 0
+            ? $"{eventPayload.Currency.ToUpperInvariant()} {eventPayload.Amount:F2}"
+            : string.Empty;
+
+        var message = !string.IsNullOrWhiteSpace(amountText)
+            ? $"Your payment of {amountText} has been successfully completed. Thank you."
+            : "Your payment has been successfully completed. Thank you.";
+
+        await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+        {
+            UserId = eventPayload.UserId,
+            TargetRole = "Citizen",
+            Title = "Payment Successful",
+            Message = message,
+            Type = NotificationType.PaymentUpdate
         });
     }
 

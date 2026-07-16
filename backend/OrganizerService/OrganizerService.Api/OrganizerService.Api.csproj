@@ -11,5 +11,11 @@
     <ProjectReference Include="..\OrganizerService.Infrastructure\OrganizerService.Infrastructure.csproj" />
     <ProjectReference Include="..\OrganizerService.Domain\OrganizerService.Domain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
+  </ItemGroup>
 
 </Project>

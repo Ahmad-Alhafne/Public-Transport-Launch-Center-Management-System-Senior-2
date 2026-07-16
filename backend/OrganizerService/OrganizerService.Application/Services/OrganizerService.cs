@@ -37,7 +37,7 @@ namespace OrganizerService.Application.Services
             };
 
             var created = await _repo.CreateAsync(entity);
-            await _repo.AddActionLogAsync(new OrganizerService.Domain.Entities.OrganizerActionLog { Id = Guid.NewGuid(), OrganizerId = created.Id, Action = "CreateOrganizer", Timestamp = DateTime.UtcNow, RelatedEntityId = created.Id });
+            await _repo.AddActionLogAsync(new OrganizerActionLog { Id = Guid.NewGuid(), OrganizerId = created.Id, Action = "CreateOrganizer", Timestamp = DateTime.UtcNow, RelatedEntityId = created.Id });
             return MapToDto(created);
         }
 
@@ -69,13 +69,13 @@ namespace OrganizerService.Application.Services
             e.UpdatedAt = DateTime.UtcNow;
 
             await _repo.UpdateAsync(e);
-            await _repo.AddActionLogAsync(new OrganizerService.Domain.Entities.OrganizerActionLog { Id = Guid.NewGuid(), OrganizerId = e.Id, Action = "UpdateOrganizer", Timestamp = DateTime.UtcNow, RelatedEntityId = e.Id });
+            await _repo.AddActionLogAsync(new OrganizerActionLog { Id = Guid.NewGuid(), OrganizerId = e.Id, Action = "UpdateOrganizer", Timestamp = DateTime.UtcNow, RelatedEntityId = e.Id });
         }
 
         public async Task DeleteAsync(Guid id)
         {
             await _repo.DeleteAsync(id);
-            await _repo.AddActionLogAsync(new OrganizerService.Domain.Entities.OrganizerActionLog { Id = Guid.NewGuid(), OrganizerId = id, Action = "DeleteOrganizer", Timestamp = DateTime.UtcNow, RelatedEntityId = id });
+            await _repo.AddActionLogAsync(new OrganizerActionLog { Id = Guid.NewGuid(), OrganizerId = id, Action = "DeleteOrganizer", Timestamp = DateTime.UtcNow, RelatedEntityId = id });
         }
 
         private OrganizerDto MapToDto(Organizer e) => new OrganizerDto

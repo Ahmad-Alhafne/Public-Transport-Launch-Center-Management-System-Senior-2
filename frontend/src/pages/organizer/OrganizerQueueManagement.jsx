@@ -121,7 +121,7 @@ export default function OrganizerQueueManagement() {
     <DragDropContext onDragEnd={(res) => { if (res.type === 'packages') onDragEndPackages(res); else if (res.type === 'trips') onDragEndTrips(res); }}>
     <div className="content-wrapper py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[var(--charcoal)]">{t('organizer.queue.title', 'Queue Packages')}</h1>
+        <h1 style={{margin:'20px 0'}} className="text-2xl font-bold text-[var(--charcoal)]">{t('organizer.queue.title', 'Queue Packages')}</h1>
         <div>
           <button className="outline-button mr-2" onClick={handleAutoGroup}>{t('organizer.queue.autoGroup', 'Auto-group Today')}</button>
           <button className="primary-button" onClick={fetchPackages}>{t('common.refresh', 'Refresh')}</button>
@@ -131,7 +131,7 @@ export default function OrganizerQueueManagement() {
       <div className="grid grid-cols-3 gap-4">
         <div className="card p-4">
           <h2 className="font-semibold mb-2">{t('organizer.queue.packages', 'Packages')}</h2>
-          {loading ? <div>Loading...</div> : (
+          {loading ? <div>{t('organizer.queue.loading', 'Loading...')}</div> : (
             <Droppable droppableId="packages-droppable" type="packages">
               {(provided) => (
                 <ul {...provided.droppableProps} ref={provided.innerRef}>
@@ -139,8 +139,8 @@ export default function OrganizerQueueManagement() {
                     <Draggable draggableId={p.id} index={index} key={p.id}>
                       {(prov) => (
                         <li ref={prov.innerRef} {...prov.draggableProps} {...prov.dragHandleProps} className="py-2 border-b flex justify-between items-center">
-                          <div onClick={() => openPackage(p)} className="cursor-pointer">
-                            <div className="font-semibold">Route: {p.routeId}</div>
+                            <div onClick={() => openPackage(p)} className="cursor-pointer">
+                            <div className="font-semibold">{t('organizer.queue.routeLabel','Route')}: {p.routeId}</div>
                             <div className="text-sm text-gray-500">{new Date(p.departureDate).toLocaleDateString()}</div>
                           </div>
                           <div className="flex gap-2">
@@ -162,7 +162,7 @@ export default function OrganizerQueueManagement() {
           <h2 className="font-semibold mb-2">{t('organizer.queue.details', 'Package Details')}</h2>
           {selected ? (
             <div>
-              <div className="mb-4">Selected Package: <strong>{selected.id}</strong></div>
+              <div className="mb-4">{t('organizer.queue.selectedPackage', 'Selected Package:')} <strong>{selected.id}</strong></div>
               <div className="mb-4 flex gap-2">
                 <input placeholder={t('organizer.queue.searchPlaceholder', 'Search trips by id or destination')} value={newTripId} onChange={(e) => setNewTripId(e.target.value)} className="input-field mr-2" />
                 <button className="primary-button" onClick={handleAddTrip}>{t('organizer.queue.addTrip', 'Add Trip')}</button>
@@ -182,7 +182,7 @@ export default function OrganizerQueueManagement() {
               <Droppable droppableId="trips-droppable" type="trips">
                 {(provided) => (
                   <table className="w-full" {...provided.droppableProps} ref={provided.innerRef}>
-                    <thead><tr><th>Pos</th><th>TripId</th><th>Actions</th></tr></thead>
+                    <thead><tr><th>{t('organizer.queue.col.pos','Pos')}</th><th>{t('organizer.queue.col.tripId','TripId')}</th><th>{t('organizer.queue.col.actions','Actions')}</th></tr></thead>
                     <tbody>
                       {trips.map((ti, index) => (
                         <Draggable key={ti.tripId} draggableId={ti.tripId} index={index}>
@@ -194,7 +194,7 @@ export default function OrganizerQueueManagement() {
                                 <div className="flex gap-2">
                                   <button className="outline-button" onClick={() => handleTripMove(ti.tripId, 'up')}>↑</button>
                                   <button className="outline-button" onClick={() => handleTripMove(ti.tripId, 'down')}>↓</button>
-                                  <button className="danger-button" onClick={() => handleRemoveTrip(ti.tripId)}>Remove</button>
+                                  <button className="danger-button" onClick={() => handleRemoveTrip(ti.tripId)}>{t('common.remove','Remove')}</button>
                                 </div>
                               </td>
                             </tr>

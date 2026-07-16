@@ -19,6 +19,12 @@ api.interceptors.response.use(
     (error) => {
         if (error.response) {
             const status = error.response.status;
+            const skipRedirect = error.config && error.config.skipAuthRedirect;
+
+            // If caller asked to handle auth errors, don't clear token or redirect.
+            if ((status === 401 || status === 403) && skipRedirect) {
+                return Promise.reject(error);
+            }
 
             if (status === 401 || status === 403) {
                 console.warn(`Auth error ${status}:`, error.response.data || error.response.statusText);
@@ -110,6 +116,17 @@ export const getMyActiveBookings = () => api.get('/booking/my/active');
 export const getMyBookingHistory = () => api.get('/booking/my/history');
 export const createBooking = (data) => api.post('/booking', data);
 export const cancelBooking = (data) => api.post('/booking/cancel', data);
+
+// Payments
+export const createPaymentIntent = (data) => api.post('/payments/create-payment-intent', data);
+export const confirmPayment = (data) => api.post('/payments/confirm', data);
+
+// Emergencies
+export const createEmergency = (data, config = {}) => api.post('/emergency', data, config);
+export const getEmergency = (id) => api.get(`/emergency/${id}`);
+export const getTripEmergencies = (tripId) => api.get(`/emergency/trip/${tripId}`);
+export const getEmergencies = (params = {}) => api.get('/emergency', { params });
+export const updateEmergencyStatus = (id, data) => api.patch(`/emergency/${id}/status`, data);
 
 // Complaints
 export const getComplaints = () => api.get('/complaint');

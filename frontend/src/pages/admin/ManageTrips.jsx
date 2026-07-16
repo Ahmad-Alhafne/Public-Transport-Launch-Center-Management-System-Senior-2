@@ -21,7 +21,13 @@ export default function ManageTrips() {
     const [editId, setEditId] = useState(null);
     const [expandedId, setExpandedId] = useState(null);
 
-    const getErrorMessage = (err) => err?.response?.data?.Detailed || err?.response?.data?.detailed || err?.response?.data?.message || err.message || 'Operation failed';
+    const getErrorMessage = (err) => {
+        const responseData = err?.response?.data;
+        if (typeof responseData === 'string' && responseData.trim()) {
+            return responseData;
+        }
+        return responseData?.Detailed || responseData?.detailed || responseData?.message || err.message || 'Operation failed';
+    };
 
     const [filters, setFilters] = useState({
         busNumber: '',
@@ -31,6 +37,7 @@ export default function ManageTrips() {
     });
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+    const selectedVehicle = vehicles.find((vehicle) => String(vehicle.id) === String(form.vehicleId));
 
     const fetchTrips = async () => {
         try { const { data } = await getTrips(); setTrips(data); }
@@ -63,14 +70,13 @@ export default function ManageTrips() {
     }, [filters, trips]);
 
     const buildPayload = () => ({
-        ...form,
         routeId: form.routeId,
         driverId: form.driverId,
         vehicleId: form.vehicleId,
         busNumber: form.busNumber,
         departureTime: form.departureTime,
-        arrivalTime: form.arrivalTime,
-        totalSeats: parseInt(form.totalSeats, 10)
+        arrivalTime: form.arrivalTime || null,
+        totalSeats: Number(form.totalSeats)
     });
 
     const handleSubmit = async (e) => {
@@ -157,6 +163,18 @@ export default function ManageTrips() {
         }
     }, [currentPage, filteredTrips.length, itemsPerPage]);
 
+    useEffect(() => {
+        if (!form.vehicleId) return;
+
+        const vehicle = vehicles.find((item) => String(item.id) === String(form.vehicleId));
+        if (!vehicle) return;
+
+        const vehicleCapacity = String(vehicle.capacity ?? '');
+        if (vehicleCapacity !== form.totalSeats) {
+            setForm((prev) => ({ ...prev, totalSeats: vehicleCapacity }));
+        }
+    }, [form.vehicleId, form.totalSeats, vehicles]);
+
     // Status mapping aligned dynamically to semantic theme states or clean fallback fills
     const statusColors = { 
         Scheduled: 'text-blue-600 bg-blue-50', 
@@ -179,12 +197,9 @@ export default function ManageTrips() {
             {/* Header Control Panel */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)' }}>
+                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)',margin:'20px 0' }}>
                         {t('admin.trips.title')}
                     </h1>
-                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-                        {t('generated.pages_admin_ManageTrips_jsx_141_1496d16550')}
-                    </p>
                 </div>
                 <button 
                     onClick={() => { setShowForm(!showForm); if (showForm) { setEditId(null); setForm({ routeId: '', driverId: '', vehicleId: '', busNumber: '', departureTime: '', arrivalTime: '', totalSeats: '' }); } }}
@@ -277,7 +292,7 @@ export default function ManageTrips() {
                             <select value={form.vehicleId} onChange={e => setForm({ ...form, vehicleId: e.target.value })} required className="input-field">
                                 <option value="" disabled>{vehicles.length ? t('admin.trips.selectVehicle') : t('admin.trips.noVehiclesAvailable')}</option>
                                 {vehicles.length === 0 && <option value="" disabled>{t('admin.trips.noVehiclesAvailable')}</option>}
-                                {vehicles.map(v => <option key={v.id} value={v.id}>{`${v.name} (${v.plateNumber})`}</option>)}
+                                {vehicles.map(v => <option key={v.id} value={v.id}>{`${v.name} (${v.plateNumber}) - ${v.capacity} ${t('common.seats')}`}</option>)}
                             </select>
                         </label>
 
@@ -298,7 +313,19 @@ export default function ManageTrips() {
 
                         <label className="flex flex-col gap-1.5 md:col-span-2">
                             <span className="form-label !mb-0">{t('admin.trips.totalSeats')}</span>
-                            <input type="number" value={form.totalSeats} onChange={e => setForm({ ...form, totalSeats: e.target.value })} required className="input-field" />
+                            <input
+                                type="number"
+                                value={form.totalSeats}
+                                readOnly
+                                required
+                                className="input-field bg-[var(--surface-muted)] cursor-not-allowed"
+                                placeholder={t('admin.trips.selectVehicle')}
+                            />
+                            <span className="text-xs text-muted">
+                                {selectedVehicle
+                                    ? `${t('admin.trips.totalSeats')}: ${selectedVehicle.capacity}`
+                                    : t('admin.trips.selectVehicle')}
+                            </span>
                         </label>
 
                         <div className="md:col-span-2 pt-2">

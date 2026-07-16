@@ -5,5 +5,6 @@ public enum NotificationType
     ComplaintUpdate,
     TripUpdate,
     BookingUpdate,
+    PaymentUpdate,
     AdminAnnouncement
 }

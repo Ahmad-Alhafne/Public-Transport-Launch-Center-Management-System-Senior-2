@@ -33,6 +33,11 @@ export default function ManageAuditorsDetails() {
     return Number.isNaN(date.getTime()) ? raw : date.toLocaleDateString();
   };
 
+  const normalizeRoleKey = (role) => {
+    if (!role) return '';
+    return String(role).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -54,22 +59,22 @@ export default function ManageAuditorsDetails() {
     <div className="content-wrapper py-6">
       <div className="flex items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--charcoal)]">{t('admin.auditors.detailsTitle') || 'Auditor Details'}</h1>
-          <p className="text-muted text-sm mt-0.5">{t('admin.auditors.detailsSubtitle') || 'Review auditor account information.'}</p>
+          <h1 style={{margin:'20px 0'}} className="text-2xl font-bold text-[var(--charcoal)]">{t('admin.auditors.detailsTitle', 'Auditor Details')}</h1>
+          <p className="text-muted text-sm mt-0.5">{t('admin.auditors.detailsSubtitle', 'Review the full auditor profile and account information.')}</p>
         </div>
         <button onClick={() => navigate(-1)} className="px-4 py-2 bg-[var(--surface-soft)] hover:bg-[var(--surface-muted)] text-[var(--charcoal-medium)] border rounded-lg text-sm font-medium">{`← `}{t('common.back')}</button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="card p-6 border border-[rgba(66,129,119,0.1)]">
-          <h2 className="font-bold text-lg mb-4 text-[var(--charcoal)] pb-2 border-b">{t('admin.auditors.account') || 'Account'}</h2>
+          <h2 className="font-bold text-lg mb-4 text-[var(--charcoal)] pb-2 border-b">{t('admin.auditors.account', 'Account')}</h2>
           <div className="space-y-3 text-sm text-[var(--charcoal-medium)]">
-            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.fullName') || 'Full Name:'}</span> {auditor?.fullName || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('auth.email') || 'Email:'}</span> {auditor?.email || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.phoneNumber') || 'Phone:'}</span> {auditor?.phoneNumber || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.role') || 'Role:'}</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{auditor?.role || '-'}</span></div>
-            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.status') || 'Status:'}</span> {auditor?.accountStatus || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.created') || 'Created:'}</span> {formatDate(auditor?.createdAt)}</div>
+            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.fullName', 'Full Name:')}</span> {auditor?.fullName || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auth.email', 'Email:')}</span> {auditor?.email || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.phoneNumber', 'Phone:')}</span> {auditor?.phoneNumber || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.role', 'Role:')}</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{auditor?.role ? t(`roles.${normalizeRoleKey(auditor.role)}`, auditor.role) : '-'}</span></div>
+            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.status', 'Status:')}</span> {auditor?.accountStatus ? t(`profile.status${auditor.accountStatus.charAt(0).toUpperCase()}${auditor.accountStatus.slice(1).toLowerCase()}`, auditor.accountStatus) : '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('admin.auditors.created', 'Created:')}</span> {formatDate(auditor?.createdAt)}</div>
           </div>
         </div>
       </div>

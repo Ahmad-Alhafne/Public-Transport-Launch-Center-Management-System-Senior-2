@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getRoutes, getTripsByRoute, createBooking, addToFavorites, removeFromFavorites, getMyFavorites, getScheduledReminder, createScheduledReminder, deleteScheduledReminder, getMyActiveBookings } from '../../services/api';
-import QRCode from 'react-qr-code';
+import { getRoutes, getTripsByRoute, createBooking, addToFavorites, removeFromFavorites, getMyFavorites, getScheduledReminder, createScheduledReminder, deleteScheduledReminder, getMyActiveBookings, createPaymentIntent, confirmPayment, cancelBooking } from '../../services/api';
 
 export default function CitizenTrips() {
     const { t } = useTranslation();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [routes, setRoutes] = useState([]);
     const [selectedRouteId, setSelectedRouteId] = useState('');
     const [trips, setTrips] = useState([]);
@@ -15,11 +17,16 @@ export default function CitizenTrips() {
     const [bookingName, setBookingName] = useState('');
     const [bookingTripId, setBookingTripId] = useState(null);
     const [bookingSeatCount, setBookingSeatCount] = useState(1);
+    const [paymentCardNumber, setPaymentCardNumber] = useState('');
+    const [paymentExpMonth, setPaymentExpMonth] = useState(new Date().getMonth() + 1);
+    const [paymentExpYear, setPaymentExpYear] = useState(new Date().getFullYear());
+    const [paymentCvc, setPaymentCvc] = useState('');
+    const [paymentProcessing, setPaymentProcessing] = useState(false);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [favorites, setFavorites] = useState([]);
     const [reminders, setReminders] = useState({});
     const [reminderMinutes, setReminderMinutes] = useState({});
     const [myBookings, setMyBookings] = useState([]);
-    const [qrModalBooking, setQrModalBooking] = useState(null);
 
     // Trip filters (appear only after selecting a route)
     const [tripFilters, setTripFilters] = useState({
@@ -35,6 +42,7 @@ export default function CitizenTrips() {
         startLocation: '',
         endLocation: ''
     });
+    const TICKET_PRICE = 5.00;
 
     useEffect(() => {
         fetchRoutes();
@@ -93,6 +101,16 @@ export default function CitizenTrips() {
     };
 
     const selectedRoute = routes.find(r => r.id === selectedRouteId);
+    const bookingTrip = trips.find(t => t.id === bookingTripId);
+
+    const translateTripStatus = (status) => {
+        if (!status) return '';
+        const normalized = status.replace(/\s+/g, '');
+        const normalizedTitle = normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
+        return t(`citizen.trips.status_${normalizedTitle}`, {
+            defaultValue: t(`citizen.trips.status${normalizedTitle}`, { defaultValue: status })
+        });
+    };
 
     // ROUTE FILTER LOGIC
     const filteredRoutes = useMemo(() => routes.filter(route => {
@@ -146,11 +164,26 @@ export default function CitizenTrips() {
         e.preventDefault();
         setError('');
         setSuccess('');
+        setPaymentProcessing(true);
+        let createdBookingId = null;
+
         try {
             const trip = trips.find(t => t.id === bookingTripId);
             if (!trip) throw new Error(t('generated.pages_citizen_CitizenTrips_trip_not_found'));
             if (bookingSeatCount <= 0) {
                 setError(t('generated.pages_citizen_CitizenTrips_seat_count_min'));
+                return;
+            }
+            if (!bookingName.trim()) {
+                setError(t('generated.pages_citizen_CitizenTrips_name_required', 'Please enter your full name.'));
+                return;
+            }
+            if (!paymentCardNumber.trim() || !paymentCvc.trim()) {
+                setError(t('generated.pages_citizen_CitizenTrips_payment_details_required', 'Please enter valid payment details.'));
+                return;
+            }
+            if (paymentExpMonth < 1 || paymentExpMonth > 12 || paymentExpYear < new Date().getFullYear()) {
+                setError(t('generated.pages_citizen_CitizenTrips_payment_date_invalid', 'Please enter a valid expiration date.'));
                 return;
             }
             if (bookingSeatCount > trip.availableSeats) {
@@ -164,14 +197,98 @@ export default function CitizenTrips() {
                 seatCount: bookingSeatCount
             });
 
-            setSuccess(t('generated.pages_citizen_CitizenTrips_booking_confirmed', { code: data.cancellationCode }));
+            createdBookingId = data.id;
+            const paymentAmount = Number((bookingSeatCount * TICKET_PRICE).toFixed(2));
+            const paymentIntentResponse = await createPaymentIntent({
+                bookingId: data.id,
+                amount: paymentAmount,
+                currency: 'usd',
+                paymentMethod: 'card'
+            });
+
+            const paymentIntentId = paymentIntentResponse?.data?.paymentIntentId
+                || paymentIntentResponse?.data?.PaymentIntentId
+                || paymentIntentResponse?.data?.payment_intent_id;
+
+            if (!paymentIntentId) {
+                throw new Error(t('citizen.trips.paymentIntentMissing', 'Unable to start payment. Please try again.'));
+            }
+
+            // Map common test card numbers to Stripe test tokens to avoid sending raw card numbers.
+            const normalizedCard = (paymentCardNumber || '').replace(/\s+/g, '');
+            let paymentMethodToken = null;
+            if (/^tok_/.test(normalizedCard)) {
+                paymentMethodToken = normalizedCard; // already a token
+            } else if (normalizedCard === '4242424242424242') {
+                paymentMethodToken = 'tok_visa';
+            }
+
+            const confirmPayload = paymentMethodToken
+                ? { paymentIntentId, paymentMethodToken }
+                : {
+                    paymentIntentId,
+                    cardNumber: paymentCardNumber,
+                    expMonth: paymentExpMonth,
+                    expYear: paymentExpYear,
+                    cvc: paymentCvc
+                };
+
+            const confirmResponse = await confirmPayment(confirmPayload);
+            setShowPaymentModal(false);
+
+            // PaymentService returns a PaymentDto with a numeric `status` enum.
+            const status = confirmResponse?.data?.status;
+            const SUCCEEDED = 1; // PaymentStatus.Succeeded
+            const REQUIRES_ACTION = 3; // PaymentStatus.RequiresAction
+            const FAILED = 2; // PaymentStatus.Failed
+            const PENDING = 0; // PaymentStatus.Pending
+
+            if (!(status === SUCCEEDED || status === 'succeeded' || status === 'Succeeded' || status === PENDING || status === 'pending' || status === 'Pending' || status === REQUIRES_ACTION || status === 'requires_action' || status === 'RequiresAction')) {
+                throw new Error(t('citizen.trips.paymentFailed', 'Payment failed. Please check card details and try again.'));
+            }
+
             setBookingTripId(null);
             setBookingName('');
             setBookingSeatCount(1);
-            await fetchTripsForRoute(selectedRouteId);
+            setPaymentCardNumber('');
+            setPaymentExpMonth(new Date().getMonth() + 1);
+            setPaymentExpYear(new Date().getFullYear());
+            setPaymentCvc('');
+            
+            const message = status === SUCCEEDED || status === 'succeeded' || status === 'Succeeded'
+                ? `${t('generated.pages_citizen_CitizenTrips_booking_confirmed', { code: data.cancellationCode })} ${t('admin.citizen.trips.paymentSuccess')}`
+                : status === PENDING || status === 'pending' || status === 'Pending'
+                ? `${t('generated.pages_citizen_CitizenTrips_booking_confirmed', { code: data.cancellationCode })} ${t('citizen.trips.paymentPending')}`
+                : `${t('generated.pages_citizen_CitizenTrips_booking_confirmed', { code: data.cancellationCode })} ${t('citizen.trips.paymentRequiresAction')}`;
+            
+            navigate('/citizen/bookings', { 
+                replace: true,
+                state: { paymentMessage: message, messageType: 'success' }
+            });
 
         } catch (err) {
-            setError(err.response?.data?.Detailed || t('generated.pages_citizen_CitizenTrips_booking_failed'));
+            if (createdBookingId) {
+                try {
+                    await cancelBooking({ bookingId: createdBookingId });
+                } catch {
+                    // ignore cancellation failure, show payment error instead
+                }
+            }
+            const errorMessage = err?.response?.data?.detail
+                || err?.response?.data?.Message
+                || err?.response?.data?.message
+                || err?.response?.data?.error
+                || err?.response?.data?.title
+                || err?.response?.data?.Detailed
+                || err?.message
+                || t('generated.pages_citizen_CitizenTrips_payment_failed');
+            
+            navigate('/citizen/bookings', {
+                replace: true,
+                state: { paymentMessage: errorMessage, messageType: 'error' }
+            });
+        } finally {
+            setPaymentProcessing(false);
         }
     };
 
@@ -213,7 +330,7 @@ export default function CitizenTrips() {
     return (
         <div className="content-wrapper py-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <h1 className="heading-lg font-bold text-[var(--charcoal)]">
+                <h1 style={{margin:'20px 0'}} className="heading-lg font-bold text-[var(--charcoal)]">
                     {selectedRoute ? t('citizen.trips.tripsFor', { route: selectedRoute.name }) : t('citizen.trips.chooseRoute')}
                 </h1>
                 {selectedRoute && (
@@ -222,6 +339,10 @@ export default function CitizenTrips() {
                             setSelectedRouteId('');
                             setTrips([]);
                             setBookingTripId(null);
+                            setPaymentCardNumber('');
+                            setPaymentExpMonth(new Date().getMonth() + 1);
+                            setPaymentExpYear(new Date().getFullYear());
+                            setPaymentCvc('');
                             setSuccess('');
                             setError('');
                             setTripFilters({
@@ -241,108 +362,6 @@ export default function CitizenTrips() {
             {/* Custom Alert Box Integration */}
             {error && <div className="alert alert-error mb-6">{error}</div>}
             {success && <div className="alert alert-success mb-6">{success}</div>}
-
-            {/* My QR Ticket section */}
-            <div className="mb-6 card p-4">
-                <h2 className="font-semibold">{t('citizen.qr.myTicket', 'My QR Ticket')}</h2>
-                {myBookings.length === 0 && (
-                    <p className="text-sm text-muted">{t('citizen.qr.noActiveTickets', 'No active tickets')}</p>
-                )}
-                {myBookings.map(b => (
-                    <div key={b.id} className="flex items-center justify-between mt-3">
-                        <div className="text-sm">
-                            <div className="font-medium">{t('admin.vehicles.name')}: {b.passengerName}</div>
-                            <div className="text-muted text-xs">{t('citizen.trips.departureDate')}: {new Date(b.tripDepartureTimeUtc).toLocaleString()}</div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button className="secondary-button px-3 py-1 text-sm" onClick={() => setQrModalBooking(b)}>{t('citizen.qr.viewQr', 'View QR')}</button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* QR Modal */}
-            {qrModalBooking && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-                    <div className="bg-white rounded-lg p-6 w-[320px]">
-                        <h3 className="font-semibold mb-3">{t('citizen.qr.qrFor', 'QR Ticket')}</h3>
-                                        <div className="flex flex-col items-center gap-3">
-                                                <div className="p-2 bg-white" id={`qr-wrapper-${qrModalBooking.id}`}>
-                                                    <QRCode value={qrModalBooking.qrToken || ''} size={256} />
-                                                </div>
-                                            <div className="text-xs text-muted text-center break-words">{qrModalBooking.qrToken}</div>
-                                            <div className="flex gap-2 mt-3">
-                                                <button
-                                                    type="button"
-                                                    className="secondary-button px-3 py-1 text-sm"
-                                                    onClick={async () => {
-                                                        try {
-                                                            await navigator.clipboard.writeText(qrModalBooking.qrToken || '');
-                                                            setSuccess(t('citizen.qr.copied', 'QR token copied'));
-                                                            setTimeout(() => setSuccess(''), 2000);
-                                                        } catch (err) {
-                                                            setError(t('citizen.qr.copy_failed', 'Failed to copy'));
-                                                            setTimeout(() => setError(''), 2000);
-                                                        }
-                                                    }}
-                                                >
-                                                    {t('citizen.qr.copyToken', 'Copy token')}
-                                                </button>
-
-                                                <button
-                                                    type="button"
-                                                    className="secondary-button px-3 py-1 text-sm"
-                                                    onClick={() => {
-                                                        try {
-                                                            try {
-                                                                const wrapper = document.getElementById(`qr-wrapper-${qrModalBooking.id}`);
-                                                                if (!wrapper) throw new Error('QR element not found');
-                                                                const svg = wrapper.querySelector('svg');
-                                                                if (!svg) throw new Error('SVG not found');
-
-                                                                const serializer = new XMLSerializer();
-                                                                const svgString = serializer.serializeToString(svg);
-                                                                const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-                                                                const url = URL.createObjectURL(svgBlob);
-                                                                const img = new Image();
-                                                                img.onload = () => {
-                                                                    const canvas = document.createElement('canvas');
-                                                                    canvas.width = img.width;
-                                                                    canvas.height = img.height;
-                                                                    const ctx = canvas.getContext('2d');
-                                                                    ctx.fillStyle = '#ffffff';
-                                                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                                                                    ctx.drawImage(img, 0, 0);
-                                                                    URL.revokeObjectURL(url);
-                                                                    const dataUrl = canvas.toDataURL('image/png');
-                                                                    const a = document.createElement('a');
-                                                                    a.href = dataUrl;
-                                                                    a.download = `qr_${qrModalBooking.id}.png`;
-                                                                    document.body.appendChild(a);
-                                                                    a.click();
-                                                                    a.remove();
-                                                                };
-                                                                img.onerror = () => { throw new Error('Failed to rasterize SVG'); };
-                                                                img.src = url;
-                                                            } catch (err) {
-                                                                setError(t('citizen.qr.download_failed', 'Failed to download image'));
-                                                                setTimeout(() => setError(''), 2000);
-                                                            }
-                                                        } catch (err) {
-                                                            setError(t('citizen.qr.download_failed', 'Failed to download image'));
-                                                            setTimeout(() => setError(''), 2000);
-                                                        }
-                                                    }}
-                                                >
-                                                    {t('common.download')}
-                                                </button>
-
-                                                <button className="primary-button" onClick={() => setQrModalBooking(null)}>{t('common.close')}</button>
-                                            </div>
-                                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* ROUTES LIST */}
             {!selectedRoute && (
@@ -461,7 +480,7 @@ export default function CitizenTrips() {
                                                 {trip.busNumber}
                                             </h3>
                                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${statusColors[trip.status] || ''}`}>
-                                                {t(`citizen.trips.status_${trip.status}`, { defaultValue: trip.status })}
+                                                {translateTripStatus(trip.status)}
                                             </span>
                                         </div>
                                         <div className="text-muted text-sm space-y-1">
@@ -495,12 +514,12 @@ export default function CitizenTrips() {
                                                 })}
                                                 className="bg-transparent border-none px-2 py-1 text-xs font-medium focus:outline-none text-[var(--charcoal-medium)]"
                                             >
-                                                <option value={30}>30 min</option>
-                                                <option value={45}>45 min</option>
-                                                <option value={60}>60 min</option>
-                                                <option value={120}>2 hours</option>
-                                                <option value={360}>6 hours</option>
-                                                <option value={1440}>24 hours</option>
+                                                <option value={30}>{t('driver.trips.reminder.minutes.30','30 minutes')}</option>
+                                                <option value={45}>{t('driver.trips.reminder.minutes.45','45 minutes')}</option>
+                                                <option value={60}>{t('driver.trips.reminder.minutes.60','60 minutes')}</option>
+                                                <option value={120}>{t('driver.trips.reminder.minutes.120','120 minutes')}</option>
+                                                <option value={360}>{t('driver.trips.reminder.minutes.360','360 minutes')}</option>
+                                                <option value={1440}>{t('driver.trips.reminder.minutes.1440','1 day')}</option>
                                             </select>
                                             <button
                                                 onClick={async () => {
@@ -526,7 +545,7 @@ export default function CitizenTrips() {
                                                             setReminders({ ...reminders, [trip.id]: res.data });
                                                         }
                                                     } catch (err) {
-                                                        setError('Failed to update reminder');
+                                                        setError(t('driver.trips.reminder.updateFailed','Failed to update reminder'));
                                                     }
                                                 }}
                                                 className="p-1.5 hover:bg-[var(--surface-muted)] text-sm rounded-lg transition-colors"
@@ -538,50 +557,25 @@ export default function CitizenTrips() {
 
                                         {trip.availableSeats > 0 && trip.status === 'Scheduled' && new Date(trip.departureTime) > new Date() && (
                                             <button 
-                                                onClick={() => { setBookingTripId(trip.id); setBookingSeatCount(1); setBookingName(''); }}
+                                                type="button"
+                                                onClick={() => {
+                                                    setBookingTripId(trip.id);
+                                                    setBookingSeatCount(1);
+                                                    setBookingName('');
+                                                    setPaymentCardNumber('');
+                                                    setPaymentExpMonth(new Date().getMonth() + 1);
+                                                    setPaymentExpYear(new Date().getFullYear());
+                                                    setPaymentCvc('');
+                                                    setShowPaymentModal(true);
+                                                }}
                                                 className="primary-button px-5 py-2.5 text-sm"
                                             >
-                                                {t('citizen.trips.reserve')}
+                                                {t('citizen.trips.reserveAndPay', 'Reserve & pay')}
                                             </button>
                                         )}
                                     </div>
                                 </div>
 
-                                {/* Booking dynamic inline form container */}
-                                {bookingTripId === trip.id && (
-                                    <form onSubmit={handleBook} className="mt-4 pt-4 border-t border-[rgba(66,129,119,0.12)] grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                                        <div>
-                                            <label className="form-label">{t('citizen.trips.bookingFullName')}</label>
-                                            <input 
-                                                placeholder={t('citizen.trips.bookingFullName')} 
-                                                value={bookingName} 
-                                                onChange={e => setBookingName(e.target.value)} 
-                                                required 
-                                                className="input-field"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="form-label">{t('citizen.trips.availableSeats')}</label>
-                                            <input 
-                                                type="number" 
-                                                min={1} 
-                                                max={trip.availableSeats} 
-                                                value={bookingSeatCount} 
-                                                onChange={e => setBookingSeatCount(parseInt(e.target.value || '1', 10))} 
-                                                required 
-                                                className="input-field"
-                                            />
-                                        </div>
-                                        <div className="flex gap-3">
-                                            <button type="submit" className="primary-button flex-1 py-3 text-sm">
-                                                {t('citizen.trips.confirmBooking')}
-                                            </button>
-                                            <button type="button" onClick={() => setBookingTripId(null)} className="danger-button flex-1 py-3 text-sm">
-                                                {t('common.cancel')}
-                                            </button>
-                                        </div>
-                                    </form>
-                                )}
                             </div>
                         ))}
 
@@ -592,6 +586,135 @@ export default function CitizenTrips() {
                         )}
                     </div>
                 </>
+            )}
+
+            {showPaymentModal && bookingTrip && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+                            <div className="flex items-start justify-between gap-4 border-b border-[rgba(66,129,119,0.18)] p-5">
+                            <div>
+                                <h2 className="text-xl font-semibold text-[var(--charcoal)]">{t('citizen.trips.paymentModalTitle', 'Confirm booking and pay')}</h2>
+                                <p className="text-sm text-[var(--charcoal-medium)]">{t('citizen.trips.paymentModalSubtitle', 'Enter payment details to complete your reservation.')}</p>
+                            </div>
+                            <button
+                                type="button"
+                                title={t('common.close')}
+                                onClick={() => {
+                                    setShowPaymentModal(false);
+                                    setBookingTripId(null);
+                                    setPaymentCardNumber('');
+                                    setPaymentExpMonth(new Date().getMonth() + 1);
+                                    setPaymentExpYear(new Date().getFullYear());
+                                    setPaymentCvc('');
+                                }}
+                                className="text-xl font-semibold text-[var(--charcoal-medium)] hover:text-[var(--charcoal)]"
+                            >
+                                {t('common.closeSymbol','×')}
+                            </button>
+                        </div>
+                        <div className="p-5 grid gap-6">
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="rounded-2xl border border-[rgba(66,129,119,0.14)] p-4 bg-[var(--surface-soft)]">
+                                    <div className="text-sm text-[var(--charcoal-medium)] mb-2">{t('citizen.trips.selectedTrip', 'Selected trip')}</div>
+                                    <div className="font-semibold text-[var(--charcoal)] mb-1">{bookingTrip.busNumber || bookingTrip.tripNumber}</div>
+                                    <div className="text-sm">{selectedRoute?.startLocation} <span className="text-[var(--forest)] font-bold">{t('citizen.trips.directionArrow','→')}</span> {selectedRoute?.endLocation}</div>
+                                    <div className="text-sm mt-2">{new Date(bookingTrip.departureTime).toLocaleString()}</div>
+                                    <div className="text-sm mt-2">{t('citizen.trips.availableSeats', { defaultValue: 'available' })}: {bookingTrip.availableSeats}</div>
+                                </div>
+                                <div className="rounded-2xl border border-[rgba(66,129,119,0.14)] p-4 bg-[var(--surface-soft)]">
+                                    <div className="text-sm text-[var(--charcoal-medium)] mb-2">{t('citizen.trips.paymentSummary', 'Payment summary')}</div>
+                                    <div className="text-lg font-semibold text-[var(--charcoal)]">{t('citizen.trips.totalAmount', { amount: (bookingSeatCount * TICKET_PRICE).toFixed(2), currency: 'USD', defaultValue: '{{amount}} {{currency}}' })}</div>
+                                    <div className="text-sm text-[var(--charcoal-medium)] mt-2">{t('citizen.trips.seatCount', 'Seats')}: {bookingSeatCount}</div>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleBook} className="grid gap-4">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="form-label">{t('citizen.trips.bookingFullName')}</label>
+                                        <input
+                                            placeholder={t('citizen.trips.bookingFullName')}
+                                            value={bookingName}
+                                            onChange={e => setBookingName(e.target.value)}
+                                            required
+                                            className="input-field"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="form-label">{t('citizen.trips.cardNumber', 'Card number')}</label>
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                placeholder={t('citizen.trips.cardPlaceholder','4242 4242 4242 4242')}
+                                                value={paymentCardNumber}
+                                                onChange={e => setPaymentCardNumber(e.target.value)}
+                                                required
+                                                className="input-field"
+                                            />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="form-label">{t('citizen.trips.expMonth', 'Exp. month')}</label>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            max={12}
+                                            value={paymentExpMonth}
+                                            onChange={e => setPaymentExpMonth(parseInt(e.target.value || '1', 10))}
+                                            required
+                                            className="input-field"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="form-label">{t('citizen.trips.expYear', 'Exp. year')}</label>
+                                        <input
+                                            type="number"
+                                            min={new Date().getFullYear()}
+                                            max={2050}
+                                            value={paymentExpYear}
+                                            onChange={e => setPaymentExpYear(parseInt(e.target.value || String(new Date().getFullYear()), 10))}
+                                            required
+                                            className="input-field"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="form-label">{t('citizen.trips.cvc', 'CVC')}</label>
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                placeholder={t('citizen.trips.cvcPlaceholder','123')}
+                                                value={paymentCvc}
+                                                onChange={e => setPaymentCvc(e.target.value)}
+                                                required
+                                                className="input-field"
+                                            />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col sm:flex-row gap-3 mt-2">
+                                    <button type="submit" disabled={paymentProcessing} className="primary-button flex-1 py-3 text-sm">
+                                        {paymentProcessing ? t('citizen.trips.processingPayment', 'Processing payment...') : t('citizen.trips.payAndConfirm', 'Pay & confirm booking')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowPaymentModal(false);
+                                            setBookingTripId(null);
+                                            setPaymentCardNumber('');
+                                            setPaymentExpMonth(new Date().getMonth() + 1);
+                                            setPaymentExpYear(new Date().getFullYear());
+                                            setPaymentCvc('');
+                                        }}
+                                        disabled={paymentProcessing}
+                                        className="danger-button flex-1 py-3 text-sm"
+                                    >
+                                        {t('common.cancel')}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

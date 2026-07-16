@@ -96,7 +96,7 @@ export default function ManageOrganizers() {
   return (
     <div className="content-wrapper py-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[var(--charcoal)]">{t('organizer.manage.title', 'Manage Organizers')}</h1>
+        <h1 style={{margin:'20px 0'}} className="text-2xl font-bold text-[var(--charcoal)]">{t('organizer.manage.title', 'Manage Organizers')}</h1>
         <button className="primary-button" onClick={openNew}>+ {t('organizer.manage.new', 'New Organizer')}</button>
       </div>
 
@@ -107,56 +107,56 @@ export default function ManageOrganizers() {
         <div className="card p-4 mb-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="form-label">{t('profile.fullName', 'Full name')}</label>
+              <label className="form-label">{t('auditor.profile.fullName', 'Full name')}</label>
               <input className="input-field" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} required />
             </div>
             <div>
-              <label className="form-label">{t('profile.email', 'Email')}</label>
+              <label className="form-label">{t('auditor.profile.email', 'Email')}</label>
               <input type="email" className="input-field" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
             </div>
             <div>
-              <label className="form-label">{t('profile.phone', 'Phone')}</label>
+              <label className="form-label">{t('auditor.profile.phone', 'Phone')}</label>
               <input className="input-field" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} />
             </div>
             <div>
-              <label className="form-label">{t('profile.firstName', 'First name')}</label>
+              <label className="form-label">{t('auditor.profile.firstName', 'First name')}</label>
               <input className="input-field" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
             </div>
             <div>
-              <label className="form-label">{t('profile.lastName', 'Last name')}</label>
+              <label className="form-label">{t('auditor.profile.lastName', 'Last name')}</label>
               <input className="input-field" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
             </div>
             <div>
-              <label className="form-label">{t('profile.gender', 'Gender')}</label>
+              <label className="form-label">{t('auditor.profile.gender', 'Gender')}</label>
               <select className="input-field" value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
-                <option value="">{t('profile.selectGender', 'Select')}</option>
+                <option value="">{t('auditor.profile.selectGender', 'Select')}</option>
                 <option value="Male">{t('auth.male', 'Male')}</option>
                 <option value="Female">{t('auth.female', 'Female')}</option>
               </select>
             </div>
             <div>
-              <label className="form-label">{t('profile.dateOfBirth', 'Date of birth')}</label>
+              <label className="form-label">{t('auditor.profile.dateOfBirth', 'Date of birth')}</label>
               <input type="date" className="input-field" value={form.dateOfBirth} onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })} />
             </div>
             <div>
-              <label className="form-label">{t('profile.city', 'City')}</label>
+              <label className="form-label">{t('auditor.profile.city', 'City')}</label>
               <input className="input-field" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
             </div>
             <div>
-              <label className="form-label">{t('profile.region', 'Region')}</label>
+              <label className="form-label">{t('auditor.profile.region', 'Region')}</label>
               <input className="input-field" value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} />
             </div>
             <div>
-              <label className="form-label">{t('profile.nationalIdNumber', 'National ID')}</label>
+              <label className="form-label">{t('auditor.profile.nationalIdNumber', 'National ID')}</label>
               <input className="input-field" value={form.nationalIdNumber} onChange={(e) => setForm({ ...form, nationalIdNumber: e.target.value })} />
             </div>
             <div>
-              <label className="form-label">{t('profile.password', 'Password')}</label>
+              <label className="form-label">{t('auditor.profile.password', 'Password')}</label>
               <input type="password" className="input-field" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} { ...(editId ? {} : { required: true }) } />
             </div>
             <div className="flex gap-2">
-              <button type="submit" className="primary-button">{t('profile.save', 'Save')}</button>
-              <button type="button" className="danger-button" onClick={() => { setShowForm(false); setEditId(null); }}>{t('profile.cancel', 'Cancel')}</button>
+              <button type="submit" className="primary-button">{t('auditor.profile.save', 'Save')}</button>
+              <button type="button" className="danger-button" onClick={() => { setShowForm(false); setEditId(null); }}>{t('auditor.profile.cancel', 'Cancel')}</button>
             </div>
           </form>
         </div>

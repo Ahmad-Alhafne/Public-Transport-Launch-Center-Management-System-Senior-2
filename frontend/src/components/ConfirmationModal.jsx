@@ -31,7 +31,7 @@ export default function ConfirmationModal({
   if (!open) return null;
 
 return (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" style={{zIndex: 9999}}>
     <div className="w-full max-w-2xl rounded-[1.25rem] bg-white p-8 md:p-10 shadow-card border border-surface-muted"  style={{padding:'20px'}}>
       <div className="mb-6">
         <h2 className="text-3xl font-semibold text-charcoal">

@@ -1,0 +1,12 @@
+**/bin
+**/obj
+**/.vs
+**/*.user
+**/*.suo
+**/*.dotCover
+**/*.ncrunch*
+**/*.log
+**/*.vspscc
+**/*.vssscc
+.git
+.gitignore

@@ -12,8 +12,10 @@ RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
     --verbosity minimal
 COPY . .
 WORKDIR "/src/RouteService.Api"
-RUN dotnet build -c Release -o /app/build
-RUN dotnet publish -c Release -o /app/publish
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet build -c Release -o /app/build --no-restore
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app

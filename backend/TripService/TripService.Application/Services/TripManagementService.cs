@@ -16,13 +16,14 @@ public class TripManagementService : ITripService
     private readonly IRouteServiceClient _routeServiceClient;
     private readonly IAuthServiceClient _authServiceClient;
     private readonly string _notificationServiceUrl;
-
-    public TripManagementService(ITripRepository repository, IVehicleServiceClient vehicleServiceClient, IRouteServiceClient routeServiceClient, IAuthServiceClient authServiceClient, string notificationServiceUrl)
+    private readonly IDriverProfileRepository? _driverProfileRepository;
+    public TripManagementService(ITripRepository repository, IVehicleServiceClient vehicleServiceClient, IRouteServiceClient routeServiceClient, IAuthServiceClient authServiceClient, IDriverProfileRepository? driverProfileRepository, string notificationServiceUrl)
     {
         _repository = repository;
         _vehicleServiceClient = vehicleServiceClient;
         _routeServiceClient = routeServiceClient;
         _authServiceClient = authServiceClient;
+        _driverProfileRepository = driverProfileRepository;
         _notificationServiceUrl = notificationServiceUrl;
     }
 
@@ -136,6 +137,8 @@ public class TripManagementService : ITripService
         if (!driverExists)
             throw new KeyNotFoundException($"Driver with ID {dto.DriverId} not found.");
 
+        // No license validation in service layer (handled by controller)
+
         if (dto.VehicleId == Guid.Empty)
             throw new ArgumentException("VehicleId is required.", nameof(dto.VehicleId));
 
@@ -208,6 +211,8 @@ public class TripManagementService : ITripService
             throw new KeyNotFoundException($"Vehicle with ID {dto.VehicleId} not found.");
 
         trip.RouteId = dto.RouteId;
+        // If admin is changing/assigning driver, ensure license is valid
+        // No license validation in service layer (handled by controller)
         trip.DriverId = dto.DriverId;
         trip.VehicleId = dto.VehicleId;
         trip.BusNumber = dto.BusNumber;

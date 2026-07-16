@@ -33,6 +33,18 @@ export default function ManageOrganizersDetails() {
     return Number.isNaN(date.getTime()) ? raw : date.toLocaleDateString();
   };
 
+  const normalizeRoleKey = (role) => {
+    if (!role) return '';
+    return String(role).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  };
+
+  const translateAccountStatus = (status) => {
+    if (!status) return '-';
+    const s = String(status).trim();
+    const key = `profile.status${s.charAt(0).toUpperCase()}${s.slice(1).toLowerCase()}`;
+    return t(key, status);
+  };
+
   const handleDelete = async () => {
     try {
       await deleteUser(id);
@@ -68,7 +80,7 @@ export default function ManageOrganizersDetails() {
     <div className="content-wrapper py-6">
       <div className="flex items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--charcoal)]">{t('organizer.details.title', 'Organizer Details')}</h1>
+          <h1 style={{margin:'20px 0'}} className="text-2xl font-bold text-[var(--charcoal)]">{t('organizer.details.title', 'Organizer Details')}</h1>
           <p className="text-muted text-sm mt-0.5">{t('organizer.details.subtitle', 'Account and profile information for the organizer')}</p>
         </div>
         <button
@@ -83,23 +95,23 @@ export default function ManageOrganizersDetails() {
         <div className="card p-6 border border-[rgba(66,129,119,0.1)]">
           <h2 className="font-bold text-lg mb-4 text-[var(--charcoal)] pb-2 border-b border-[rgba(66,129,119,0.06)]">{t('generated.accountInfo', 'Account Info')}</h2>
           <div className="space-y-3 text-sm text-[var(--charcoal-medium)]">
-            <div><span className="text-muted font-medium mr-1">{t('profile.fullName', 'Full name')}</span> {user?.fullName || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.email', 'Email')}</span> {user?.email || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.phone', 'Phone')}</span> {user?.phoneNumber || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.role', 'Role')}</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{user?.role || '-'}</span></div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.status', 'Account Status')}</span> {user?.accountStatus || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.createdAt', 'Created')}</span> {formatDate(user?.createdAt)}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.fullName', 'Full name')}:</span> {user?.fullName || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.email', 'Email')}:</span> {user?.email || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.phone', 'Phone')}:</span> {user?.phoneNumber || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('profile.role', 'Role')}:</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{user?.role ? t(`roles.${normalizeRoleKey(user.role)}`, user.role) : '-'}</span></div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.status', 'Account Status')}:</span> {translateAccountStatus(user?.accountStatus)}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.createdAt', 'Created')}:</span> {formatDate(user?.createdAt)}</div>
           </div>
         </div>
 
         <div className="card p-6 border border-[rgba(66,129,119,0.1)]">
           <h2 className="font-bold text-lg mb-4 text-[var(--charcoal)] pb-2 border-b border-[rgba(66,129,119,0.06)]">{t('generated.profileInfo', 'Profile')}</h2>
           <div className="space-y-3 text-sm text-[var(--charcoal-medium)]">
-            <div><span className="text-muted font-medium mr-1">{t('profile.nationalId', 'National ID')}</span> {user?.nationalIdNumber || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.city', 'City')}</span> {user?.city || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.region', 'Region')}</span> {user?.region || '-'}</div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.dob', 'Date of Birth')}</span> {formatDate(user?.dateOfBirth)}</div>
-            <div><span className="text-muted font-medium mr-1">{t('profile.phone', 'Phone')}</span> {user?.phoneNumber || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.nationalId', 'National ID')}:</span> {user?.nationalIdNumber || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.city', 'City')}:</span> {user?.city || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.region', 'Region')}:</span> {user?.region || '-'}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.dob', 'Date of Birth')}:</span> {formatDate(user?.dateOfBirth)}</div>
+            <div><span className="text-muted font-medium mr-1">{t('auditor.profile.phone', 'Phone')}:</span> {user?.phoneNumber || '-'}</div>
           </div>
         </div>
       </div>

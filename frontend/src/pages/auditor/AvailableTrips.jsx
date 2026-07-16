@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAvailableAuditTrips, pickAuditTrip } from '../../services/api';
+import ConfirmationModal from '../../components/ConfirmationModal';
 
 export default function AvailableTrips() {
   const { t } = useTranslation();
+  const formatDate = (raw) => {
+    if (!raw) return '-';
+    const d = new Date(raw);
+    return Number.isNaN(d.getTime()) ? t('common.invalidDate', 'Invalid date') : d.toLocaleString();
+  };
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +29,15 @@ export default function AvailableTrips() {
     loadTrips();
   }, []);
 
-  const handlePick = async (tripId) => {
+  const [confirmingTrip, setConfirmingTrip] = useState(null);
+
+  const handlePick = (trip) => {
+    setConfirmingTrip(trip);
+  };
+
+  const handleConfirmPick = async () => {
+    if (!confirmingTrip) return;
+    const tripId = confirmingTrip.id;
     try {
       await pickAuditTrip(tripId);
       setTrips((prev) => prev.filter((t) => t.id !== tripId));
@@ -35,10 +49,12 @@ export default function AvailableTrips() {
         alert(t('auditor.available.alreadyAssigned', 'Trip already assigned'));
         // Refresh list to reflect current state
         await loadTrips();
+        setConfirmingTrip(null);
         return;
       }
       alert(t('auditor.available.error', 'Unable to pick trip'));
     }
+    setConfirmingTrip(null);
   };
 
   if (loading) return (
@@ -69,9 +85,9 @@ export default function AvailableTrips() {
                 {trips.map((trip) => (
                   <tr key={trip.id} className="border-t">
                     <td className="py-3 font-semibold text-[var(--charcoal)]">{trip.routeName} {trip.id}</td>
-                    <td className="py-3 text-sm text-[var(--charcoal-medium)]">{new Date(trip.departureUtc).toLocaleString()}</td>
+                    <td className="py-3 text-sm text-[var(--charcoal-medium)]">{formatDate(trip.departureUtc)}</td>
                     <td className="py-3">
-                      <button className="primary-button" onClick={() => handlePick(trip.id)}>{t('auditor.available.pick', 'Pick')}</button>
+                      <button className="primary-button" onClick={() => handlePick(trip)}>{t('auditor.available.pick', 'Pick')}</button>
                     </td>
                   </tr>
                 ))}
@@ -80,6 +96,15 @@ export default function AvailableTrips() {
           </div>
         )}
       </div>
+      <ConfirmationModal
+        open={Boolean(confirmingTrip)}
+        title={t('auditor.available.confirmTitle', 'Confirm assignment')}
+        message={confirmingTrip ? `${t('auditor.available.confirmMessage', 'Assign this trip to you?')}\n${confirmingTrip.routeName || ''}` : ''}
+        confirmText={t('common.confirm', 'Confirm')}
+        cancelText={t('common.cancel', 'Cancel')}
+        onConfirm={handleConfirmPick}
+        onCancel={() => setConfirmingTrip(null)}
+      />
     </div>
   );
 }

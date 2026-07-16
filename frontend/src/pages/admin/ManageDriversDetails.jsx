@@ -68,7 +68,7 @@ export default function ManageDriversDetails() {
       {/* Header View Area */}
       <div className="flex items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--charcoal)]">
+          <h1 style={{margin:'20px 0'}} className="text-2xl font-bold text-[var(--charcoal)]">
             {t('generated.pages_admin_ManageDriversDetails_jsx_70_461341b1')}
           </h1>
           <p className="text-muted text-sm mt-0.5">
@@ -102,10 +102,10 @@ export default function ManageDriversDetails() {
               <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageDriversDetails_jsx_92_daeea4d0')}</span> {driver?.phoneNumber || '-'}
             </div>
             <div>
-              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageDriversDetails_jsx_95_61e4c27b')}</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{driver?.role || '-'}</span>
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageDriversDetails_jsx_95_61e4c27b')}</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{driver?.role ? t(`roles.${driver.role.toLowerCase()}`, driver.role) : '-'}</span>
             </div>
             <div>
-              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageDriversDetails_jsx_98_11dc9e19')}</span> {driver?.accountStatus || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageDriversDetails_jsx_98_11dc9e19')}</span> {driver?.accountStatus ? t(`profile.status${driver.accountStatus.charAt(0).toUpperCase()}${driver.accountStatus.slice(1).toLowerCase()}`, driver.accountStatus) : '-'}
             </div>
             <div>
               <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageDriversDetails_jsx_101_0c78dab1')}</span> {formatDate(driver?.createdAt)}

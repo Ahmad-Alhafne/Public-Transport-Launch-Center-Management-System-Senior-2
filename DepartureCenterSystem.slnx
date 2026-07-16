@@ -44,6 +44,11 @@
     <Project Path="backend/OrganizerService/OrganizerService.Domain/OrganizerService.Domain.csproj" />
     <Project Path="backend/OrganizerService/OrganizerService.Infrastructure/OrganizerService.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/backend/PaymentService/">
+    <Project Path="backend/PaymentService/PaymentService.Application/PaymentService.Application.csproj" />
+    <Project Path="backend/PaymentService/PaymentService.Domain/PaymentService.Domain.csproj" />
+    <Project Path="backend/PaymentService/PaymentService.Infrastructure/PaymentService.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/backend/RouteService/">
     <Project Path="backend/RouteService/RouteService.Api/RouteService.Api.csproj" />
     <Project Path="backend/RouteService/RouteService.Application/RouteService.Application.csproj" />
@@ -61,5 +66,9 @@
     <Project Path="backend/TripService/TripService.Application/TripService.Application.csproj" />
     <Project Path="backend/TripService/TripService.Domain/TripService.Domain.csproj" />
     <Project Path="backend/TripService/TripService.Infrastructure/TripService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tools/" />
+  <Folder Name="/tools/inspect_constructors/">
+    <Project Path="tools/inspect_constructors/Inspect.csproj" />
   </Folder>
 </Solution>

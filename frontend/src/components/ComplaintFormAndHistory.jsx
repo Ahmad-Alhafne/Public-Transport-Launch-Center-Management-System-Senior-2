@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { createComplaint, getMyComplaints } from '../services/api';
+import { getMyComplaints } from '../services/api';
+import API_BASE from '../config';
 import { useTranslation } from 'react-i18next';
 
 const statusStyles = {
@@ -24,10 +25,25 @@ function ComplaintCard({ complaint }) {
     const createdAt = new Date(complaint.createdAt).toLocaleString();
     const { t } = useTranslation();
 
-    const statusKey =
-        complaint.status !== undefined && complaint.status !== null
-            ? complaint.status
-            : 'Pending';
+    // Normalize status into one of the style keys: Pending, InProgress, Resolved, Rejected
+    const numericToKey = { 0: 'Pending', 1: 'InProgress', 2: 'Resolved', 3: 'Rejected' };
+    let statusKeyRaw = complaint.status;
+    let statusKey;
+
+    if (statusKeyRaw === undefined || statusKeyRaw === null) {
+        statusKey = 'Pending';
+    } else if (typeof statusKeyRaw === 'number') {
+        statusKey = numericToKey[statusKeyRaw] || 'Pending';
+    } else if (typeof statusKeyRaw === 'string') {
+        // Prefer direct match, otherwise try to compact (remove spaces) to match keys like 'InProgress'
+        if (statusStyles[statusKeyRaw]) statusKey = statusKeyRaw;
+        else {
+            const compact = statusKeyRaw.replace(/\s+/g, '');
+            statusKey = statusStyles[compact] ? compact : statusKeyRaw;
+        }
+    } else {
+        statusKey = 'Pending';
+    }
 
     const translatedStatus = t(
         `generated.components_ComplaintFormAndHistory_status_${statusKey}`
@@ -37,7 +53,7 @@ function ComplaintCard({ complaint }) {
         translatedStatus !==
         `generated.components_ComplaintFormAndHistory_status_${statusKey}`
             ? translatedStatus
-            : statusTextMap[statusKey] || statusKey;
+            : (typeof complaint.status === 'number' ? statusTextMap[complaint.status] : statusTextMap[statusKey]) || statusKey;
 
     const statusClass = statusStyles[statusKey] || statusStyles.Pending;
 
@@ -114,17 +130,46 @@ export default function ComplaintFormAndHistory({ heading }) {
         setError('');
         setSuccess('');
         setLoading(true);
-        try {
-            await createComplaint({ subject, description });
-            setSuccess(t('generated.components_ComplaintFormAndHistory_submit_success'));
-            setSubject('');
-            setDescription('');
-            await fetchMyComplaints();
-        } catch (err) {
-            setError(err.response?.data?.Detailed || t('generated.components_ComplaintFormAndHistory_submit_failed'));
-        } finally {
-            setLoading(false);
-        }
+            try {
+                // Use fetch to avoid global axios interceptor auto-redirect on 401/403
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_BASE}/complaint`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                    body: JSON.stringify({ subject, description }),
+                });
+
+                if (res.status === 401) {
+                    setError(t('generated.components_ComplaintFormAndHistory_auth_required', 'Authentication required. Please login again.'));
+                    setLoading(false);
+                    return;
+                }
+
+                if (res.status === 403) {
+                    setError(t('generated.components_ComplaintFormAndHistory_forbidden', 'You are not allowed to submit this complaint.'));
+                    setLoading(false);
+                    return;
+                }
+
+                if (!res.ok) {
+                    const payload = await res.json().catch(() => ({}));
+                    setError(payload.Detailed || t('generated.components_ComplaintFormAndHistory_submit_failed'));
+                    setLoading(false);
+                    return;
+                }
+
+                setSuccess(t('generated.components_ComplaintFormAndHistory_submit_success'));
+                setSubject('');
+                setDescription('');
+                await fetchMyComplaints();
+            } catch (err) {
+                setError(t('generated.components_ComplaintFormAndHistory_submit_failed'));
+            } finally {
+                setLoading(false);
+            }
     };
 
     return (

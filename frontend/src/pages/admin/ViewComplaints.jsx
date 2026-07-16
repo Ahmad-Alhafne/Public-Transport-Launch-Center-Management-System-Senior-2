@@ -54,7 +54,7 @@ export default function ViewComplaints() {
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold tracking-tight mb-6" style={{ color: 'var(--charcoal)' }}>
+            <h1 className="text-3xl font-bold tracking-tight mb-6" style={{ color: 'var(--charcoal)',margin:'20px 0' }}>
                 {t('admin.complaints.title')}
             </h1>
 

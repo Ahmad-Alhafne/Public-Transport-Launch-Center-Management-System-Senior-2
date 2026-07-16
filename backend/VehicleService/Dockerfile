@@ -14,8 +14,10 @@ RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
 # Copy the rest
 COPY . .
 WORKDIR "/src/VehicleService.Api"
-RUN dotnet build -c Release -o /app/build
-RUN dotnet publish -c Release -o /app/publish
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+	dotnet build -c Release -o /app/build --no-restore
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+	dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app

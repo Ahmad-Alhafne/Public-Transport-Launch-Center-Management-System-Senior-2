@@ -15,12 +15,18 @@ public class AuthServiceClient : IAuthServiceClient
         _httpClient = httpClient;
         _authServiceUrl = configuration["AuthServiceUrl"]
             ?? configuration["ServiceUrls:AuthServiceUrl"]
-            ?? "http://localhost:5001";
+            ?? "http://localhost:5104"; // Local development AuthService port
+    }
+    private Uri BuildRequestUri(string relativePath)
+    {
+        var baseUrl = _authServiceUrl.TrimEnd('/');
+        var path = relativePath.TrimStart('/');
+        return new Uri($"{baseUrl}/{path}", UriKind.Absolute);
     }
 
     public async Task UpdateUserPhoneAsync(Guid userId, string phoneNumber, string? jwtToken = null)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Patch, $"{_authServiceUrl}/api/users/{userId}/phone")
+        using var request = new HttpRequestMessage(HttpMethod.Patch, BuildRequestUri($"api/users/{userId}/phone"))
         {
             Content = JsonContent.Create(new { phoneNumber })
         };
@@ -34,7 +40,7 @@ public class AuthServiceClient : IAuthServiceClient
 
     public async Task UpdateUserPasswordAsync(Guid userId, string newPassword, string? jwtToken = null)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Patch, $"{_authServiceUrl}/api/users/{userId}/password")
+        using var request = new HttpRequestMessage(HttpMethod.Patch, BuildRequestUri($"api/users/{userId}/password"))
         {
             Content = JsonContent.Create(new { newPassword })
         };
@@ -48,7 +54,7 @@ public class AuthServiceClient : IAuthServiceClient
 
     public async Task<bool> UserExistsAsync(Guid userId, string? jwtToken = null)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, $"{_authServiceUrl}/api/users/{userId}");
+        using var request = new HttpRequestMessage(HttpMethod.Get, BuildRequestUri($"api/users/{userId}"));
         if (!string.IsNullOrEmpty(jwtToken))
         {
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);

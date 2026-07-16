@@ -60,7 +60,7 @@ export default function DriverChangeRequests() {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold mb-6">{t('generated.pages_driver_DriverChangeRequests_jsx_62_617eece0') }</h1>
+            <h1 style={{margin:'20px 0'}} className="text-2xl font-bold mb-6">{t('generated.pages_driver_DriverChangeRequests_jsx_62_617eece0') }</h1>
 
             {error && <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>}
             {success && <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">{success}</div>}

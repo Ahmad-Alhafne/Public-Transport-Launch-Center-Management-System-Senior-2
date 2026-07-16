@@ -155,12 +155,9 @@ export default function ManageVehicles() {
             {/* Header Control Panel */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)' }}>
+                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)' ,margin:'20px 0'}}>
                         {t('admin.vehicles.title')}
                     </h1>
-                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-                        {t('generated.pages_admin_ManageVehicles_jsx_22_84f38f1f10')}
-                    </p>
                 </div>
                 <button 
                     onClick={() => { setShowForm(!showForm); resetForm(); }}
@@ -224,7 +221,7 @@ export default function ManageVehicles() {
                         </label>
 
                         <label className="flex flex-col gap-1.5 md:col-span-2">
-                            <span className="form-label !mb-0">Status</span>
+                            <span className="form-label !mb-0">{t('generated.pages_admin_TripDetails_jsx_140_bae7d5be')}</span>
                             <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="input-field">
                                 <option value="Active">{t('admin.vehicles.active')}</option>
                                 <option value="Inactive">{t('admin.vehicles.inactive')}</option>

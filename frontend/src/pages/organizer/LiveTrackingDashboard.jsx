@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import LiveMap from '../../components/LiveMap';
 import ActiveTripsTable from '../../components/ActiveTripsTable';
-import { getActiveTrackings } from '../../services/api';
+import { getActiveTrackings, getTripEmergencies } from '../../services/api';
 import { createLiveTrackingConnection, getConnection } from '../../services/signalr';
 
 export default function LiveTrackingDashboard() {
+  const { t } = useTranslation();
   const [trackings, setTrackings] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [filters, setFilters] = useState({ tripNumber: '', driverName: '', vehiclePlate: '', route: '', status: '' });
+  const [tripEmergencies, setTripEmergencies] = useState({});
 
   useEffect(() => {
     let conn = null;
@@ -82,9 +85,43 @@ export default function LiveTrackingDashboard() {
       currentSpeed: o.currentSpeed ?? o.CurrentSpeed ?? o.speed ?? o.Speed ?? null,
       lastUpdatedAt: o.lastUpdatedAt || o.LastUpdatedAt || o.timestamp || o.Timestamp || null,
       status: (o.status || o.Status || o.trackingStatus || o.TrackingStatus || o.state || o.State || o.isActive) ?? null,
+      emergencyActive: o.emergencyActive ?? o.hasEmergency ?? false,
       __raw: o
     };
   }
+
+  async function loadEmergenciesForTrips(tripIds) {
+    if (!tripIds?.length) return;
+    const results = await Promise.all(tripIds.map(async (tripId) => {
+      if (!tripId) return [tripId, false];
+      try {
+        const res = await getTripEmergencies(tripId);
+        const emergencies = Array.isArray(res.data) ? res.data : [];
+        const hasOpenEmergency = emergencies.some(e => (e.status || '').toString().toLowerCase() === 'reported');
+        return [tripId, hasOpenEmergency];
+      } catch (err) {
+        console.error('Failed to load emergencies for trip', tripId, err);
+        return [tripId, false];
+      }
+    }));
+
+    setTripEmergencies(prev => {
+      const next = { ...prev };
+      for (const item of results) {
+        if (item && item[0]) next[item[0]] = item[1];
+      }
+      return next;
+    });
+  }
+
+  useEffect(() => {
+    if (!trackings.length) return;
+
+    const tripIds = Array.from(new Set(trackings.map(t => t.tripId).filter(Boolean)));
+    loadEmergenciesForTrips(tripIds);
+    const interval = setInterval(() => loadEmergenciesForTrips(tripIds), 15000);
+    return () => clearInterval(interval);
+  }, [trackings]);
 
   const applyFilters = (list) => {
     return list.filter(t => {
@@ -108,25 +145,25 @@ export default function LiveTrackingDashboard() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Live Tracking Dashboard</h2>
+      <h2 style={{margin:'20px 0'}} className="text-xl font-bold mb-4">{t('organizer.live.title', 'Live Tracking Dashboard')}</h2>
       <div className="mb-4 grid grid-cols-1 md:grid-cols-5 gap-2">
-        <input placeholder="Trip number" value={filters.tripNumber} onChange={e=>setFilters({...filters,tripNumber:e.target.value})} className="input-field" />
-        <input placeholder="Driver name" value={filters.driverName} onChange={e=>setFilters({...filters,driverName:e.target.value})} className="input-field" />
-        <input placeholder="Vehicle plate" value={filters.vehiclePlate} onChange={e=>setFilters({...filters,vehiclePlate:e.target.value})} className="input-field" />
-        <input placeholder="Route" value={filters.route} onChange={e=>setFilters({...filters,route:e.target.value})} className="input-field" />
+        <input placeholder={t('organizer.live.filter.tripNumber', 'Trip number')} value={filters.tripNumber} onChange={e=>setFilters({...filters,tripNumber:e.target.value})} className="input-field" />
+        <input placeholder={t('organizer.live.filter.driverName', 'Driver name')} value={filters.driverName} onChange={e=>setFilters({...filters,driverName:e.target.value})} className="input-field" />
+        <input placeholder={t('organizer.live.filter.vehiclePlate', 'Vehicle plate')} value={filters.vehiclePlate} onChange={e=>setFilters({...filters,vehiclePlate:e.target.value})} className="input-field" />
+        <input placeholder={t('organizer.live.filter.route', 'Route')} value={filters.route} onChange={e=>setFilters({...filters,route:e.target.value})} className="input-field" />
         <select value={filters.status} onChange={e=>setFilters({...filters,status:e.target.value})} className="input-field">
-          <option value="">All</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
+          <option value="">{t('organizer.live.filter.all', 'All')}</option>
+          <option value="Active">{t('organizer.live.filter.active', 'Active')}</option>
+          <option value="Inactive">{t('organizer.live.filter.inactive', 'Inactive')}</option>
         </select>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-1">
-          <ActiveTripsTable trackings={filtered} onSelect={(t) => setSelectedTrip(t)} />
+          <ActiveTripsTable trackings={filtered} emergencyTrips={tripEmergencies} onSelect={(t) => setSelectedTrip(t)} />
         </div>
         <div className="col-span-2">
-          <LiveMap trackings={filtered} selectedTrip={selectedTrip} />
+          <LiveMap trackings={filtered} selectedTrip={selectedTrip} emergencyTrips={tripEmergencies} />
         </div>
       </div>
     </div>

@@ -1,16 +1,74 @@
-import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
 import logo from '../imgs/Syrian_logo_icon_gold.svg';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import NotificationBell from './NotificationBell';
 import ConfirmationModal from './ConfirmationModal';
+import { getEmergencies } from '../services/api';
 
 export default function Navbar() {
   const { user, logout, isAdmin, isDriver, isCitizen, isAuditor, isOrganizer } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [hasPendingEmergencies, setHasPendingEmergencies] = useState(false);
+  const [lastSeenEmergencyAt, setLastSeenEmergencyAt] = useState(null);
+
+  const lastSeenKey = user?.id ? `adminEmergencyLastSeenAt:${user.id}` : 'adminEmergencyLastSeenAt';
+  const emergencyPagePath = '/admin/emergencies';
+
+  useEffect(() => {
+    if (!user) {
+      setLastSeenEmergencyAt(null);
+      setHasPendingEmergencies(false);
+      return;
+    }
+
+    const stored = localStorage.getItem(lastSeenKey);
+    setLastSeenEmergencyAt(stored ? new Date(stored) : null);
+  }, [user, lastSeenKey]);
+
+  const saveLastSeenEmergencyAt = useCallback((date) => {
+    const timestamp = date.toISOString();
+    localStorage.setItem(lastSeenKey, timestamp);
+    setLastSeenEmergencyAt(new Date(timestamp));
+  }, [lastSeenKey]);
+
+  const fetchPendingEmergencies = useCallback(async () => {
+    if (!isAdmin()) {
+      setHasPendingEmergencies(false);
+      return;
+    }
+
+    try {
+      const { data } = await getEmergencies();
+      const hasNew = Array.isArray(data) && data.some((emergency) => {
+        if (emergency?.status !== 'Reported') return false;
+        const createdAt = new Date(emergency.createdAt);
+        if (Number.isNaN(createdAt.getTime())) return false;
+        return !lastSeenEmergencyAt || createdAt > lastSeenEmergencyAt;
+      });
+      setHasPendingEmergencies(!!hasNew);
+    } catch (err) {
+      console.error('Failed to load emergency status for navbar alert:', err);
+      setHasPendingEmergencies(false);
+    }
+  }, [isAdmin, lastSeenEmergencyAt]);
+
+  useEffect(() => {
+    fetchPendingEmergencies();
+    const interval = setInterval(fetchPendingEmergencies, 30000);
+    return () => clearInterval(interval);
+  }, [fetchPendingEmergencies]);
+
+  useEffect(() => {
+    if (isAdmin() && location.pathname.startsWith(emergencyPagePath)) {
+      saveLastSeenEmergencyAt(new Date());
+      setHasPendingEmergencies(false);
+    }
+  }, [isAdmin, location.pathname, saveLastSeenEmergencyAt]);
 
   const handleLogout = () => {
     setConfirmLogout(true);
@@ -19,6 +77,7 @@ export default function Navbar() {
   const confirmLogoutAction = () => {
     setConfirmLogout(false);
     logout();
+    setHasPendingEmergencies(false);
     navigate('/login');
   };
 
@@ -44,6 +103,17 @@ export default function Navbar() {
           <NavLink to="/admin/vehicles" className="nav-link text-sm font-medium">{t('nav.vehicles')}</NavLink>
           <NavLink to="/admin/routes" className="nav-link text-sm font-medium">{t('nav.routes')}</NavLink>
           <NavLink to="/admin/trips" className="nav-link text-sm font-medium">{t('nav.trips')}</NavLink>
+          <NavLink
+            to="/admin/emergencies"
+            onClick={() => {
+              saveLastSeenEmergencyAt(new Date());
+              setHasPendingEmergencies(false);
+            }}
+            style={hasPendingEmergencies ? { backgroundColor: '#dc2626', color: '#ffffff' } : undefined}
+            className={({ isActive }) => `nav-link text-sm font-medium ${isActive ? 'active' : ''}`}
+          >
+            {t('nav.emergencies','Emergencies')}
+          </NavLink>
           <NavLink to="/admin/complaints" className="nav-link text-sm font-medium">{t('nav.complaints')}</NavLink>
           <NavLink to="/admin/profile" className="nav-link text-sm font-medium">{t('nav.profile')}</NavLink>
         </>
@@ -101,28 +171,21 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="navbar-shell sticky top-0 z-50 transition-all duration-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav style={{borderRadius:'15px',padding:"8px"}} className="navbar-shell sticky top-0 z-50 transition-all duration-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{padding:"8px"}}>
           <div className="flex items-center justify-between h-16 gap-4">
             
             {/* Left side: Brand Logo and Navigation links */}
             <div className="flex items-center gap-6">
-              <Link to="/" className="flex items-center gap-3 active:scale-98 transition-transform">
-                <img src={logo} alt="Departure Center Logo" className="h-10 w-10 rounded-full shadow-card object-contain" />
-                <span className="font-bold text-base tracking-tight brand-gradient whitespace-nowrap">
-                  {t('app.title')}
-                </span>
+                <Link to="/" className="flex items-center gap-3 active:scale-98 transition-transform">
+                <img src={logo} alt={t('app.logoAlt', 'Departure Center Logo')} className="h-10 w-10 rounded-full shadow-card object-contain" />
               </Link>
               
               <div className="hidden lg:flex items-center gap-1.5">
                     {renderLinks()}
-                    {/* Live Tracking link visible to all primary roles */}
-                    {(isAdmin() || isOrganizer() || isDriver() || isCitizen() || isAuditor()) && (
-                      <NavLink to="/live-tracking" className="nav-link text-sm font-medium">{t('nav.liveTracking') || 'Live Tracking'}</NavLink>
-                    )}
                     {/* Auditors link for admin area */}
                     {isAdmin() && (
-                      <NavLink to="/admin/auditors" className="nav-link text-sm font-medium">{t('nav.auditors')}</NavLink>
+                      <NavLink to="/admin/auditors" className="nav-link text-sm font-medium">{t('nav.auditors1')}</NavLink>
                     )}
               </div>
             </div>
@@ -153,6 +216,7 @@ export default function Navbar() {
               <div className="h-5 w-[1px] bg-gray-200 dark:bg-zinc-800 hidden sm:block"></div>
 
               <button
+                style={{fontWeight:"bold"}}
                 onClick={handleLogout}
                 className="text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-lg text-[var(--umber)] hover:text-[var(--umber-dark)] hover:bg-[var(--umber)]/5 transition-all duration-150 active:scale-95 focus:outline-none focus:ring-2 focus:ring-[var(--umber)]/20"
               >

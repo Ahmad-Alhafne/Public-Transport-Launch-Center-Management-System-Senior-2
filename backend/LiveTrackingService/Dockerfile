@@ -4,10 +4,15 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy and build will be done by the developer when csproj files are added
 COPY . .
 WORKDIR /src/LiveTrackingService.Api
-RUN dotnet publish -c Release -o /app/publish
+ENV NUGET_HTTP_TIMEOUT=600
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet restore "LiveTrackingService.Api.csproj" \
+    --disable-parallel \
+    --verbosity minimal
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet publish -c Release -o /app/publish --no-restore
 
 FROM base AS final
 WORKDIR /app

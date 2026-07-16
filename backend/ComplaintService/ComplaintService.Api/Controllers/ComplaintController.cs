@@ -43,7 +43,7 @@ public class ComplaintController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Citizen,Driver")]
+    [Authorize(Roles = "Citizen,Driver,QueueOrganizer")]
     public async Task<IActionResult> Create(CreateComplaintDto request)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

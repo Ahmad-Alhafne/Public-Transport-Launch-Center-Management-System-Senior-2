@@ -34,6 +34,8 @@ public class ExceptionMiddleware
 
         if (exception is KeyNotFoundException)
             context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+        else if (exception is UnauthorizedAccessException)
+            context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
         else if (exception is ArgumentException || exception is ValidationException)
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
         else

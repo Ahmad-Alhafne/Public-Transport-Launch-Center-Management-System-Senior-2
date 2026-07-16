@@ -9,11 +9,11 @@ services:
     volumes:
       - sqlserver_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1,1433 -U sa -P \"Your_password123\" -Q \"SELECT 1\" -b -C || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1,1433 -U sa -P \"Your_password123\" -Q \"SELECT 1\" -b -C -l 60 || exit 1"]
       interval: 10s
-      timeout: 30s
-      retries: 30
-      start_period: 240s
+      timeout: 120s
+      retries: 60
+      start_period: 600s
 
   rabbitmq:
     image: rabbitmq:3.11-management
@@ -60,6 +60,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=TripDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - ServiceUrls__BookingServiceUrl=http://bookingservice:8080/
+      - ServiceUrls__NotificationService=http://notificationservice:8080/
+      - ServiceUrls__RouteServiceUrl=http://routeservice:8080/
+      - ServiceUrls__VehicleServiceUrl=http://vehicleservice:8080/
+      - ServiceUrls__AuthServiceUrl=http://authservice:8080/
     ports:
       - "5003:8080"
     depends_on:
@@ -79,6 +84,26 @@ services:
         condition: service_healthy
       tripservice:
         condition: service_started
+
+  paymentservice:
+    build: ./backend/PaymentService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=PaymentDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+      - RabbitMq__VirtualHost=/
+      - JwtOptions__Issuer=DepartureCenter
+      - JwtOptions__Audience=DepartureCenterUsers
+      - JwtOptions__SecretKey=THIS_IS_A_LONG_SHARED_SECRET_KEY_123456789
+    ports:
+      - "5009:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   auditservice:
     build: ./backend/AuditService
@@ -160,6 +185,21 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  organizerservice:
+    build: ./backend/OrganizerService
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=OrganizerDB;User Id=sa;Password=Your_password123;TrustServerCertificate=True
+      - JwtOptions__Issuer=DepartureCenter
+      - JwtOptions__Audience=DepartureCenterUsers
+      - JwtOptions__SecretKey=THIS_IS_A_LONG_SHARED_SECRET_KEY_123456789
+    ports:
+      - "5011:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
   apigateway:
     build: ./backend/ApiGateway
     environment:
@@ -171,9 +211,13 @@ services:
       - routeservice
       - tripservice
       - bookingservice
+      - paymentservice
       - auditservice
       - complaintservice
       - notificationservice
+      - vehicleservice
+      - livetrackingservice
+      - organizerservice
 
   frontend:
     build: ./frontend

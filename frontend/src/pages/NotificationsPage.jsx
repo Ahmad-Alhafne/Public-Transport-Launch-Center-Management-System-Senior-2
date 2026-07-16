@@ -1,42 +1,14 @@
 import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { NotificationContext } from '../context/NotificationContext';
 import { useTranslation } from 'react-i18next';
+import { formatNotificationTitle, formatNotificationMessage } from '../utils/notificationFormatter';
 
 const NotificationsPage = () => {
-    const { t } = useTranslation();    
+    const { t } = useTranslation();
     const { notifications, unreadCount, markAsRead, markAllAsRead, loading } = useContext(NotificationContext);
-    const [filter, setFilter] = useState('all'); // all, unread, read
-
-    // Format title to replace backend hardcoded English/Arabic fragments with translations
-    const formatNotificationTitle = (notification, t) => {
-        if (!notification) return '';
-        let title = notification.title || '';
-        try {
-            title = title.replace(/Complaint Update:/i, t('notifications.complaintUpdatePrefix'));
-            title = title.replace(/بلاغ:/i, t('notifications.complaintUpdatePrefix'));
-        } catch (e) {
-            // fallback: leave title as-is
-        }
-        return title;
-    };
-
-    // Format message to replace known hardcoded fragments
-    const formatNotificationMessage = (notification, t) => {
-        if (!notification) return '';
-        let msg = notification.message || '';
-        try {
-            msg = msg.replace(/Your complaint has been resolved\.\s*Admin response:/i, t('notifications.complaintResolvedAdminResponsePrefix'));
-            msg = msg.replace(/تم حل شكواك\.\s*رد المسؤول:/i, t('notifications.complaintResolvedAdminResponsePrefix'));
-            // replace any literal Read/Unread words that may have been embedded
-            msg = msg.replace(/\bRead\b/g, t('generated.pages_NotificationsPage_status_read'));
-            msg = msg.replace(/\bUnread\b/g, t('generated.pages_NotificationsPage_status_unread'));
-            msg = msg.replace(/مقروء/g, t('generated.pages_NotificationsPage_status_read'));
-            msg = msg.replace(/غير مقروء/g, t('generated.pages_NotificationsPage_status_unread'));
-        } catch (e) {
-            // leave original message
-        }
-        return msg;
-    };
+    const navigate = useNavigate();
+    const [filter, setFilter] = useState('all');
 
     const filteredNotifications = notifications.filter(notification => {
         if (filter === 'unread') return !notification.isRead;
@@ -61,36 +33,52 @@ const NotificationsPage = () => {
     return (
         <div className="w-full flex flex-col items-center px-4 py-8">
             <div className="w-full max-w-2xl">
-                
-                {/* Header Section */}
                 <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight mb-1" style={{ color: 'var(--charcoal)' }}>
-                            {t('generated.pages_NotificationsPage_jsx_31_753a22b2')}
-                        </h1>
-                        <p style={{ color: 'var(--text-muted)' }}>
-                            {t('generated.pages_NotificationsPage_you_have', { count: unreadCount })}
-                        </p>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => {
+                                try {
+                                    navigate(-1);
+                                } catch {
+                                    navigate('/');
+                                }
+                            }}
+                            className="px-3 py-2 rounded-md text-sm font-medium transition-all duration-150"
+                            style={{
+                                backgroundColor: 'var(--surface-muted)',
+                                color: 'var(--charcoal-medium)'
+                            }}
+                        >
+                            ← {t('common.back')}
+                        </button>
+
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight mb-1" style={{ color: 'var(--charcoal)',margin:'20px 0' }}>
+                                {t('generated.pages_NotificationsPage_jsx_31_753a22b2')}
+                            </h1>
+                            <p style={{ color: 'var(--text-muted)' }}>
+                                {t('generated.pages_NotificationsPage_you_have', { count: unreadCount })}
+                            </p>
+                        </div>
                     </div>
-                    
+
                     {unreadCount > 0 && (
                         <button
                             onClick={markAllAsRead}
                             className="px-4 py-2 text-sm font-semibold transition-all duration-200 self-start sm:self-auto shrink-0"
-                            style={{ 
-                                color: 'var(--forest-dark)', 
+                            style={{
+                                color: 'var(--forest-dark)',
                                 backgroundColor: 'rgba(66, 129, 119, 0.08)',
                                 borderRadius: 'var(--radius-sm)'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(66, 129, 119, 0.14)'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(66, 129, 119, 0.08)'}
                         >
-                            Mark all as read
+                            {t('generated.pages_NotificationsPage_markAll')}
                         </button>
                     )}
                 </div>
 
-                {/* Filter Buttons */}
                 <div className="flex flex-wrap gap-2 mb-6 p-1.5 rounded-xl" style={{ backgroundColor: 'var(--surface-muted)' }}>
                     <button
                         onClick={() => setFilter('all')}
@@ -133,7 +121,6 @@ const NotificationsPage = () => {
                     </button>
                 </div>
 
-                {/* Notifications List */}
                 <div className="space-y-3">
                     {filteredNotifications.length > 0 ? (
                         filteredNotifications.map(notification => (
@@ -149,14 +136,12 @@ const NotificationsPage = () => {
                                 }}
                             >
                                 <div className="flex items-start gap-4">
-                                    {/* Unread Status Dot Indicator */}
                                     {!notification.isRead && (
                                         <div className="flex-shrink-0 mt-1.5">
                                             <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--forest)' }}></div>
                                         </div>
                                     )}
 
-                                    {/* Notification Content Body */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                                             <div className="flex-1 min-w-0">
@@ -167,9 +152,8 @@ const NotificationsPage = () => {
                                                     {formatNotificationMessage(notification, t)}
                                                 </p>
                                             </div>
-                                            
-                                            {/* Dynamic Status Badge */}
-                                            <span 
+
+                                            <span
                                                 className="text-xs font-semibold px-2.5 py-1 rounded-full self-start shrink-0"
                                                 style={notification.isRead ? {
                                                     backgroundColor: 'var(--surface-muted)',
@@ -182,8 +166,7 @@ const NotificationsPage = () => {
                                                 {notification.isRead ? t('generated.pages_NotificationsPage_status_read') : t('generated.pages_NotificationsPage_status_unread')}
                                             </span>
                                         </div>
-                                        
-                                        {/* Timestamp */}
+
                                         <p className="text-xs mt-3 font-medium" style={{ color: 'var(--wheat-dark)' }}>
                                             {new Date(notification.createdAt).toLocaleString()}
                                         </p>
@@ -192,7 +175,6 @@ const NotificationsPage = () => {
                             </div>
                         ))
                     ) : (
-                        /* Empty State Dashboard Illustration Container */
                         <div className="text-center py-16 card" style={{ backgroundColor: 'var(--surface)' }}>
                             <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--surface-soft)' }}>
                                 <svg className="w-8 h-8" style={{ color: 'var(--wheat)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +189,6 @@ const NotificationsPage = () => {
                         </div>
                     )}
                 </div>
-
             </div>
         </div>
     );

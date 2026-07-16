@@ -14,6 +14,15 @@ export default function FavoriteTrips() {
     const [confirmingRemove, setConfirmingRemove] = useState(null);
     const { t } = useTranslation();
 
+    const translateTripStatus = (status) => {
+        if (!status) return '';
+        const normalized = status.replace(/\s+/g, '');
+        const normalizedTitle = normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
+        return t(`citizen.trips.status_${normalizedTitle}`, {
+            defaultValue: t(`citizen.trips.status${normalizedTitle}`, { defaultValue: status })
+        });
+    };
+
     const [filters, setFilters] = useState({
         from: '',
         to: '',
@@ -109,7 +118,7 @@ export default function FavoriteTrips() {
 
     return (
         <div className="content-wrapper py-6">
-            <h1 className="text-2xl font-bold mb-6 text-[var(--charcoal)]">
+            <h1 style={{margin:'20px 0'}} className="text-2xl font-bold mb-6 text-[var(--charcoal)]">
                 {t('citizen.favoriteTrips.title')}
             </h1>
             
@@ -155,9 +164,9 @@ export default function FavoriteTrips() {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                             <div className="space-y-1.5 flex-1">
                                 <div className="flex items-center gap-3">
-                                    <h3 className="font-bold text-lg text-[var(--charcoal)]">🚌 {trip.busNumber}</h3>
+                                    <h3 className="font-bold text-lg text-[var(--charcoal)]">{trip.busNumber}</h3>
                                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide ${statusColors[trip.status] || 'bg-[var(--surface-muted)] text-muted'}`}>
-                                        {trip.status}
+                                        {translateTripStatus(trip.status)}
                                     </span>
                                 </div>
                                 <div className="text-sm text-muted space-y-0.5">
@@ -178,14 +187,6 @@ export default function FavoriteTrips() {
                                     {t('citizen.favoriteTrips.remove')}
                                 </button>
                                 
-                                {trip.status === 'Scheduled' && trip.availableSeats > 0 && new Date(trip.departureTime) > new Date() && (
-                                    <button
-                                        onClick={() => { setBookingTripId(trip.id); setBookingSeatCount(1); setBookingName(''); }}
-                                        className="px-4 py-2 bg-[var(--forest)] hover:bg-[var(--forest-dark)] text-white rounded-xl text-sm font-medium transition-colors shadow-sm"
-                                    >
-                                        {t('citizen.favoriteTrips.reserve')}
-                                    </button>
-                                )}
                             </div>
                         </div>
 

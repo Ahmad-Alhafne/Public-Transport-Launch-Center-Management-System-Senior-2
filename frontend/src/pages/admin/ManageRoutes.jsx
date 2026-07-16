@@ -148,12 +148,9 @@ export default function ManageRoutes() {
             {/* Header Control Panel */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)' }}>
+                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)',margin:'20px 0' }}>
                         {t('admin.routes.title')}
                     </h1>
-                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-                        {t('generated.pages_admin_ManageRoutes_1234jsx')}
-                    </p>
                 </div>
                 <button 
                     onClick={() => { setShowForm(!showForm); setEditId(null); setForm({ name: '', startLocation: '', endLocation: '', distanceKm: '', estimatedDurationMins: '' }); }}

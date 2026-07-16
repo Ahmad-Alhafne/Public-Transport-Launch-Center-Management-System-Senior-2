@@ -90,35 +90,33 @@ public class ClientTrackingController : ControllerBase
 
         // build enriched response objects expected by frontend
         var enriched = active.Select(a => {
-            tripsById.TryGetValue(a.TripId, out var tripObj);
-            driversById.TryGetValue(a.DriverId, out var driverObj);
+            tripsById.TryGetValue(a.TripId, out var tripElem);
+            driversById.TryGetValue(a.DriverId, out var driverElem);
 
             string driverName = null;
-            if (driversById.TryGetValue(a.DriverId, out var driverElem) && driverElem.ValueKind == JsonValueKind.Object)
+            if (driverElem.ValueKind == JsonValueKind.Object)
             {
-                if (driverElem.TryGetProperty("fullName", out var p) && p.ValueKind == JsonValueKind.String) driverName = p.GetString();
-                else if (driverElem.TryGetProperty("FullName", out p) && p.ValueKind == JsonValueKind.String) driverName = p.GetString();
-                else if (driverElem.TryGetProperty("name", out p) && p.ValueKind == JsonValueKind.String) driverName = p.GetString();
-                else if (driverElem.TryGetProperty("displayName", out p) && p.ValueKind == JsonValueKind.String) driverName = p.GetString();
+                driverName = ExtractStringValue(driverElem, "fullName", "FullName", "name", "Name", "displayName", "display_name", "username", "userName");
             }
 
             string tripNumber = null;
+            string vehiclePlate = null;
             int? reservedSeats = null;
-            if (tripsById.TryGetValue(a.TripId, out var tripElem) && tripElem.ValueKind == JsonValueKind.Object)
+            if (tripElem.ValueKind == JsonValueKind.Object)
             {
-                if (tripElem.TryGetProperty("busNumber", out var bp) && bp.ValueKind == JsonValueKind.String) tripNumber = bp.GetString();
-                else if (tripElem.TryGetProperty("BusNumber", out bp) && bp.ValueKind == JsonValueKind.String) tripNumber = bp.GetString();
-                else if (tripElem.TryGetProperty("id", out bp) && bp.ValueKind == JsonValueKind.String) tripNumber = bp.GetString();
+                tripNumber = ExtractStringValue(tripElem, "tripNumber", "TripNumber", "busNumber", "BusNumber", "busNo", "BusNo", "tripNo", "TripNo", "number", "Number", "id");
+                vehiclePlate = ExtractStringValue(tripElem, "vehiclePlate", "VehiclePlate", "plate", "Plate", "vehicleNumber", "VehicleNumber", "registrationNumber", "RegistrationNumber");
 
-                int? total = null;
-                int? avail = null;
-                if (tripElem.TryGetProperty("totalSeats", out var ts) && ts.ValueKind == JsonValueKind.Number && ts.TryGetInt32(out var tsi)) total = tsi;
-                else if (tripElem.TryGetProperty("TotalSeats", out ts) && ts.ValueKind == JsonValueKind.Number && ts.TryGetInt32(out tsi)) total = tsi;
-
-                if (tripElem.TryGetProperty("availableSeats", out var asv) && asv.ValueKind == JsonValueKind.Number && asv.TryGetInt32(out var asvi)) avail = asvi;
-                else if (tripElem.TryGetProperty("AvailableSeats", out asv) && asv.ValueKind == JsonValueKind.Number && asv.TryGetInt32(out asvi)) avail = asvi;
-
-                if (total.HasValue && avail.HasValue) reservedSeats = total.Value - avail.Value;
+                var total = ExtractIntValue(tripElem, "totalSeats", "TotalSeats", "seatCount", "SeatCount", "capacity", "Capacity");
+                var available = ExtractIntValue(tripElem, "availableSeats", "AvailableSeats", "available", "Available");
+                if (total.HasValue && available.HasValue)
+                {
+                    reservedSeats = total.Value - available.Value;
+                }
+                else
+                {
+                    reservedSeats = ExtractIntValue(tripElem, "reservedSeats", "ReservedSeats", "reserved", "Reserved");
+                }
             }
 
             return new {
@@ -127,7 +125,7 @@ public class ClientTrackingController : ControllerBase
                 driverId = a.DriverId,
                 driverName,
                 vehicleId = a.VehicleId,
-                vehiclePlate = a.VehicleId.ToString(),
+                vehiclePlate = vehiclePlate ?? a.VehicleId.ToString(),
                 reservedSeats,
                 currentLatitude = a.CurrentLatitude,
                 currentLongitude = a.CurrentLongitude,
@@ -156,5 +154,41 @@ public class ClientTrackingController : ControllerBase
     {
         var history = await _service.GetHistoryAsync(tripId, limit);
         return Ok(history);
+    }
+
+    // Helper: extract first matching string property from JsonElement
+    private static string? ExtractStringValue(JsonElement elem, params string[] names)
+    {
+        foreach (var n in names)
+        {
+            if (elem.TryGetProperty(n, out var v) && v.ValueKind == JsonValueKind.String)
+                return v.GetString();
+        }
+        // sometimes ids are GUIDs returned as strings or numbers
+        foreach (var n in names)
+        {
+            if (elem.TryGetProperty(n, out var v))
+            {
+                if (v.ValueKind == JsonValueKind.Number && v.TryGetInt64(out var num))
+                    return num.ToString();
+                if (v.ValueKind == JsonValueKind.String)
+                    return v.GetString();
+            }
+        }
+        return null;
+    }
+
+    // Helper: extract first matching int property from JsonElement
+    private static int? ExtractIntValue(JsonElement elem, params string[] names)
+    {
+        foreach (var n in names)
+        {
+            if (elem.TryGetProperty(n, out var v))
+            {
+                if (v.ValueKind == JsonValueKind.Number && v.TryGetInt32(out var i)) return i;
+                if (v.ValueKind == JsonValueKind.String && int.TryParse(v.GetString(), out var pi)) return pi;
+            }
+        }
+        return null;
     }
 }

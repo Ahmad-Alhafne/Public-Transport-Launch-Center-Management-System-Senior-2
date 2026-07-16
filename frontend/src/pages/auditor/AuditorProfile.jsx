@@ -82,7 +82,7 @@ export default function AuditorProfile() {
     return (
         <div className="content-wrapper py-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <h1 className="text-3xl font-bold tracking-tight text-[var(--charcoal)]">{t('auditor.profile.title') || 'My Profile'}</h1>
+                <h1 style={{margin:'20px 0'}} className="text-3xl font-bold tracking-tight text-[var(--charcoal)]">{t('auditor.profile.title') || 'My Profile'}</h1>
                 {!editing ? (
                     <button onClick={() => setEditing(true)} className="primary-button">{t('common.edit')}</button>
                 ) : (

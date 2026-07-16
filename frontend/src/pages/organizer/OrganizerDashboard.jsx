@@ -12,12 +12,12 @@ export default function OrganizerDashboard() {
 
   return (
     <div className="content-wrapper py-6">
-      <h1 className="text-2xl font-bold mb-4">{t('organizer.dashboard.title', 'Organizer Dashboard')}</h1>
+      <h1 style={{margin:'20px 0'}} className="text-2xl font-bold mb-4">{t('organizer.dashboard.title', 'Organizer Dashboard')}</h1>
       <div className="grid grid-cols-4 gap-4">
-        <div className="card p-4">Total Packages<br/><span className="font-bold">{stats?.totalPackages}</span></div>
-        <div className="card p-4">Today's Packages<br/><span className="font-bold">{stats?.todaysPackages}</span></div>
-        <div className="card p-4">Trips Waiting<br/><span className="font-bold">{stats?.totalTripsWaiting}</span></div>
-        <div className="card p-4">Upcoming Departures<br/><span className="font-bold">{stats?.upcomingDepartures}</span></div>
+        <div className="card p-4">{t('organizer.dashboard.totalPackages', "Total Packages")}<br/><span className="font-bold">{stats?.totalPackages}</span></div>
+        <div className="card p-4">{t('organizer.dashboard.todaysPackages', "Today's Packages")}<br/><span className="font-bold">{stats?.todaysPackages}</span></div>
+        <div className="card p-4">{t('organizer.dashboard.tripsWaiting', "Trips Waiting")}<br/><span className="font-bold">{stats?.totalTripsWaiting}</span></div>
+        <div className="card p-4">{t('organizer.dashboard.upcomingDepartures', "Upcoming Departures")}<br/><span className="font-bold">{stats?.upcomingDepartures}</span></div>
       </div>
     </div>
   );

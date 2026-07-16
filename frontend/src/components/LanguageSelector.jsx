@@ -90,6 +90,7 @@ export default function LanguageSelector({ className = '' }) {
         className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium transition-all duration-200 border rounded-[var(--radius-sm)] bg-[var(--surface)] border-[var(--border-subtle)] text-[var(--charcoal)] focus:ring-2 focus:ring-[var(--forest)] focus:outline-none"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        style={{padding:"5px"}}
       >
         <div className="flex items-center gap-2">
           <span className="text-base" role="img" aria-hidden="true">{currentLangObj.flag}</span>
@@ -110,6 +111,7 @@ export default function LanguageSelector({ className = '' }) {
         <ul
           className="absolute z-50 w-full mt-1 border shadow-lg overflow-hidden focus:outline-none bg-[var(--surface)] border-[var(--border-subtle)] rounded-[var(--radius)]"
           role="listbox"
+          style={{padding:"5px"}}
         >
           {languages.map((language) => {
             const isSelected = language.code === selectedLanguage;

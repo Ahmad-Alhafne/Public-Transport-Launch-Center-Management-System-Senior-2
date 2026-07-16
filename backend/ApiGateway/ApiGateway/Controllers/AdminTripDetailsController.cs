@@ -64,8 +64,14 @@ public class AdminTripDetailsController : ControllerBase
             {
                 var routeContent = await routeResponse.Content.ReadAsStringAsync();
                 using var routeDoc = JsonDocument.Parse(routeContent);
-                routeSource = GetStringProperty(routeDoc.RootElement, "source") ?? "";
-                routeDestination = GetStringProperty(routeDoc.RootElement, "destination") ?? "";
+                routeSource =
+                    GetStringProperty(routeDoc.RootElement, "startLocation")
+                    ?? GetStringProperty(routeDoc.RootElement, "source")
+                    ?? "";
+                routeDestination =
+                    GetStringProperty(routeDoc.RootElement, "endLocation")
+                    ?? GetStringProperty(routeDoc.RootElement, "destination")
+                    ?? "";
             }
 
             // 3. Get bookings from BookingService

@@ -32,6 +32,16 @@ export default function ManageUsersDetails() {
     return Number.isNaN(date.getTime()) ? raw : date.toLocaleDateString();
   };
 
+  const normalizeRoleKey = (role) => {
+    if (!role) return '';
+    return String(role).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  };
+
+  const translateGender = (gender) => {
+    if (!gender) return '-';
+    return t(`profile.gender${gender}`, gender);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -61,12 +71,9 @@ export default function ManageUsersDetails() {
       {/* Header View Area */}
       <div className="flex items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--charcoal)]">
+          <h1 style={{margin:'20px 0'}} className="text-2xl font-bold text-[var(--charcoal)]">
             {t('generated.pages_admin_ManageUsersDetails_jsx_61_5addd7d6')}
           </h1>
-          <p className="text-muted text-sm mt-0.5">
-            {t('generated.pages_admin_ManageUsersDetails_jsx_62_d88ca017')}
-          </p>
         </div>
         <button
           onClick={() => navigate(-1)}
@@ -95,10 +102,10 @@ export default function ManageUsersDetails() {
               <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_83_daeea4d0')}</span> {user?.phoneNumber || '-'}
             </div>
             <div>
-              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_86_61e4c27b')}</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{user?.role || '-'}</span>
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_86_61e4c27b')}</span> <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">{user?.role ? t(`roles.${normalizeRoleKey(user.role)}`, user.role) : '-'}</span>
             </div>
             <div>
-              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_89_11dc9e19')}</span> {user?.accountStatus || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_89_11dc9e19')}</span> {user?.accountStatus ? t(`profile.status${user.accountStatus.charAt(0).toUpperCase()}${user.accountStatus.slice(1).toLowerCase()}`, user.accountStatus) : '-'}
             </div>
             <div>
               <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_92_0c78dab1')}</span> {formatDate(user?.createdAt)}
@@ -119,7 +126,7 @@ export default function ManageUsersDetails() {
               <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_104_3d9fa635')}</span> {user?.lastName || '-'}
             </div>
             <div>
-              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_107_525fa8d8')}</span> {user?.gender || '-'}
+              <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_107_525fa8d8')}</span> {user?.gender ? translateGender(user.gender) : '-'}
             </div>
             <div>
               <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_110_fb1cadcf')}</span> {formatDate(user?.dateOfBirth)}
@@ -145,18 +152,6 @@ export default function ManageUsersDetails() {
             <div className="space-y-3">
               <div>
                 <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_129_e9757a1e')}</span> <span className="font-mono bg-[var(--surface-muted)] px-1.5 py-0.5 border border-[rgba(66,129,119,0.08)] rounded text-xs font-semibold">{user?.nationalIdNumber || '-'}</span>
-              </div>
-              <div>
-                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_132_1fa8ddfe')}</span> {user?.cardNumber || '-'}
-              </div>
-              <div>
-                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_135_6f9ade97')}</span> {formatDate(user?.cardIssueDate)}
-              </div>
-              <div>
-                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_138_b3bed3d7')}</span> {user?.faceColor || '-'}
-              </div>
-              <div>
-                <span className="text-muted font-medium mr-1">{t('generated.pages_admin_ManageUsersDetails_jsx_141_a498d7e5')}</span> {user?.eyeColor || '-'}
               </div>
             </div>
 

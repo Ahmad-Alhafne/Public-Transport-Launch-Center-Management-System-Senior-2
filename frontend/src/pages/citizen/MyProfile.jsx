@@ -92,7 +92,7 @@ export default function MyProfile() {
     return (
         <div className="content-wrapper py-6">
             <div className="flex items-center justify-between gap-4 mb-6">
-                <h1 className="heading-lg font-bold text-[var(--charcoal)]">
+                <h1 style={{margin:'20px 0'}} className="heading-lg font-bold text-[var(--charcoal)]">
                     {t('generated.pages_citizen_MyProfile_jsx_93_9ba8d391')}
                 </h1>
                 {!editing ? (

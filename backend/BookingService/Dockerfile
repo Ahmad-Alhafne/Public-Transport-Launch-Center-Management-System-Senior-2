@@ -12,9 +12,9 @@ RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
 COPY . .
 WORKDIR "/src/BookingService.Api"
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet build -c Release -o /app/build
+    dotnet build -c Release -o /app/build --no-restore
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet publish -c Release -o /app/publish
+    dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app

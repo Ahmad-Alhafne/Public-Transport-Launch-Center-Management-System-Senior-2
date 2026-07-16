@@ -1,6 +1,7 @@
 {
   "citizen": {
     "trips": {
+      "reserveAndPay":"احجز وادفع",
       "title": "الرحلات المتاحة",
       "selectRoute": "اختر المسار",
       "selectDeparture": "اختر وقت المغادرة",
@@ -22,13 +23,29 @@
       "searchRouteName": "البحث باسم المسار",
       "startLocation": "نقطة الانطلاق",
       "statusDelayed": "متأخرة",
+      "status_Delayed": "متأخرة",
       "statusFinished": "منتهية",
+      "status_Finished": "منتهية",
       "status_Confirmed": "مؤكد",
       "status_Cancelled": "ملغاة",
       "statusScheduled": "مجدولة",
+      "status_Scheduled": "مجدولة",
       "statusStarted": "بدأت",
+      "status_Started": "بدأت",
       "toLabel": "إلى",
-      "tripsFor": "رحلات لـ"
+      "tripsFor": "رحلات لـ",
+      "totalAmount": "{{amount}} {{currency}}",
+      "paymentModalTitle": "تأكيد الحجز والدفع",
+      "paymentModalSubtitle": "أدخل تفاصيل الدفع لإكمال حجزك.",
+      "selectedTrip": "الرحلة المختارة",
+      "paymentSummary": "ملخص الدفع",
+      "seatCount": "المقاعد",
+      "cardNumber": "رقم البطاقة",
+      "expMonth": "شهر الانتهاء",
+      "expYear": "سنة الانتهاء",
+      "cvc": "CVC",
+      "processingPayment": "جاري معالجة الدفع...",
+      "payAndConfirm": "ادفع وأكد الحجز"
     },
     "bookButton": "احجز الآن",
     "selectRouteLabel": "اختر مساراً",
@@ -63,32 +80,54 @@
       "noMatches": "لا توجد رحلات مفضلة تطابق الفلاتر المحددة.",
       "confirmRemoveTitle": "تأكيد إزالة الرحلة المفضلة",
       "confirmRemoveMessage": "هل أنت متأكد أنك تريد إزالة هذه الرحلة من مفضلتك؟"
+    },
+    "myBookings":{
+      "reportEmergency":"الإبلاغ عن حالة طارئة"
+    },
+    "qr": {
+      "viewQr":" QR عرض رمز"
     }
   },
   "profile": {
     "language": "اللغة",
     "selectLanguage": "اختر اللغة",
     "save": "حفظ",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "actions": "الإجراءات",
     "languageSaved": "تم حفظ تفضيلات اللغة بنجاح.",
-    "editProfile": "تعديل الملف الشخصي"
+    "editProfile": "تعديل الملف الشخصي",
+    "role": "الدور",
+    "status": "حالة الحساب",
+    "createdAt": "تاريخ الإنشاء",
+    "nationalId": "الهوية الوطنية",
+    "dob": "تاريخ الميلاد",
+    "statusActive": "نشط",
+    "statusPending": "قيد الانتظار",
+    "statusSuspended": "معلق"
   },
+
   "nav": {
+    "violations":"المخالفات",
+    "queues":"الصفوف",
     "dashboard": "لوحة التحكم",
     "routes": "المسارات",
     "trips": "الرحلات",
     "vehicles": "المركبات",
     "drivers": "السائقين",
-    "auditors": "المدققون",
+    "auditors1": "المدققون",
     "users": "المستخدمين",
     "notifications": "الإشعارات",
     "settings": "الإعدادات",
+    "emergencies":"الطوارئ",
     "profile": "الملف الشخصي",
     "complaints": "الشكاوى",
     "favorites": "المفضلة",
     "bookings": "حجوزاتي",
     "logout": "تسجيل الخروج",
     "activeAudit": "التدقيق النشط",
-    "history": "السجل"
+    "history": "السجل",
+    "organizers":"المنظمين"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -140,7 +179,8 @@
     "driver": "سائق",
     "citizen": "مواطن",
     "auditor": "مدقق",
-    "organizer": "منظم الأدوار"
+    "organizer": "منظم الأدوار",
+    "queueorganizer": "منظم الطابور"
   },
   "auditor":{
     "manage":{
@@ -153,6 +193,8 @@
       "confirmDeleteMessage":"هل أنت متأكد أنك تريد حذف هذا المدقق؟"
     },
     "profile": {
+      "title": "ملفي الشخصي",
+      "account": "الحساب",
       "fullName":"الاسم الكامل",
       "email":"البريد الإلكتروني",
       "phone":"رقم الهاتف",
@@ -165,8 +207,221 @@
       "region":"المنطقة",
       "nationalIdNumber":"رقم الهوية الوطنية",
       "password":"كلمة المرور",
+      "passwordPlaceholder":"كلمة مرور جديدة",
       "save":"حفظ",
-      "cancel":"إلغاء"
+      "cancel":"إلغاء",
+      "select":"اختر"
+    }
+    ,
+    "available": {
+      "title": "الرحلات المتاحة",
+      "none": "لا توجد رحلات متاحة",
+      "pick": "تعيين",
+      "picked": "تم تعيين الرحلة لك",
+      "alreadyAssigned": "تمت تعيين الرحلة بالفعل",
+      "error": "تعذر اختيار الرحلة",
+      "confirmTitle": "تأكيد تعيين الرحلة",
+      "confirmMessage": "هل أنت متأكد أنك تريد تعيين هذه الرحلة للتدقيق؟"
+    },
+    "dashboard": {
+      "title": "لوحة المدقق",
+      "assignedTrips": "الرحلات المعينة",
+      "completedAudits": "عمليات التدقيق المكتملة",
+      "totalScanned": "إجمالي الماسحات"
+    },
+    "history": {
+      "title": "سجل التدقيق",
+      "empty": "لا توجد سجلات تدقيق."
+    },
+    "active": {
+      "noAssignment": "لا توجد رحلة نشطة معينة",
+      "title": "التدقيق النشط",
+      "scanner": "الماسح",
+      "statusError": "خطأ",
+      "validationFailed": "فشل التحقق"
+    }
+  },
+  "organizer": {
+    "manage": {
+      "title": "إدارة المنظمين",
+      "new": "إضافة منظم",
+      "created": "تم إنشاء المنظم",
+      "updated": "تم تحديث المنظم",
+      "deleted": "تم حذف المنظم",
+      "saveFailed": "فشل الحفظ",
+      "deleteFailed": "فشل الحذف",
+      "empty": "لا يوجد منظمين.",
+      "confirmDeleteTitle": "تأكيد الحذف",
+      "confirmDeleteMessage": "هل تريد حذف هذا المنظم؟"
+    },
+    "details": {
+      "title": "تفاصيل المنظم",
+      "subtitle": "معلومات الحساب والملف الشخصي للمنظم"
+    },
+    "live": {
+      "title": "لوحة تتبع مباشرة",
+      "filter": {
+        "tripNumber": "رقم الرحلة",
+        "driverName": "اسم السائق",
+        "vehiclePlate": "رقم اللوحة",
+        "route": "المسار",
+        "all": "الكل",
+        "active": "نشط",
+        "inactive": "غير نشط"
+      }
+    },
+    "dashboard": {
+      "title": "لوحة المنظم",
+      "totalPackages": "إجمالي الطرود",
+      "todaysPackages": "طرود اليوم",
+      "tripsWaiting": "الرحلات في الانتظار",
+      "upcomingDepartures": "المغادرات القادمة"
+    },
+    "profile": {
+      "title": "ملف المنظم",
+      "loading": "جارٍ التحميل...",
+      "noProfile": "لا يوجد ملف شخصي"
+    },
+    "queue": {
+      "title": "قوائم الانتظار",
+      "routeLabel": "المسار",
+      "autoGroup": "تجميع تلقائي اليوم",
+      "packages": "الطرود",
+      "loading": "جارٍ التحميل...",
+      "details": "تفاصيل الطرد",
+      "searchPlaceholder": "ابحث عن الرحلات بالمعرف أو الوجهة",
+      "addTrip": "إضافة رحلة",
+      "search": "بحث",
+      "selectPackage": "اختر طردًا لعرض التفاصيل",
+      "selectedPackage": "الطرد المحدد:",
+      "col": {
+        "pos": "الترتيب",
+        "tripId": "معرف الرحلة",
+        "actions": "الإجراءات"
+      }
+    },
+    "complaints": {
+      "title": "شكاواي",
+      "empty": "لا توجد شكاوى بعد"
+    },
+    "violations": {
+      "title": "تقاريري عن المخالفات",
+      "empty": "لا توجد تقارير مخالفات"
+    },
+    "tripDetails": {
+      "title": "تفاصيل تتبع الرحلة",
+      "info": "معلومات الرحلة",
+      "trip": "الرحلة",
+      "driver": "السائق",
+      "vehicle": "المركبة",
+      "speed": "السرعة",
+      "coordinates": "الإحداثيات",
+      "lastUpdate": "آخر تحديث",
+      "timeline": "خط زمني للتتبع",
+      "col": {
+        "time": "الوقت",
+        "latitude": "خط العرض",
+        "longitude": "خط الطول",
+        "speed": "السرعة"
+      }
+    }
+  },
+  "components": {
+    "activeTrips": {
+      "title": "الرحلات النشطة",
+      "col": {
+        "driverName": "اسم السائق",
+        "tripNumber": "رقم الرحلة",
+        "speed": "السرعة",
+        "reservedSeats": "المقاعد المحجوزة",
+        "emergency":"طارئة"
+      },
+      "track": "تتبع",
+      "kmh": "كم/س"
+    },
+    "liveMap": {
+      "reservedSeats": "المقاعد المحجوزة",
+      "speed": "السرعة",
+      "updated": "تم التحديث",
+      "selected": "المحدد"
+    }
+  },
+  "app": {
+    "logoAlt": "شعار مركز المغادرة"
+  },
+
+  "driver": {
+    "trips": {
+      "confirmStartMessage": "هل أنت متأكد أنك تريد بدء هذه الرحلة؟",
+      "confirmDelayMessage": "هل أنت متأكد أنك تريد تسجيل هذا التأخير؟",
+      "confirmFinishMessage": "هل أنت متأكد أنك تريد إنهاء هذه الرحلة؟",
+      "start": "بدء",
+      "submit": "إرسال",
+      "finish": "إنهاء",
+      "status_Scheduled": "مجدولة",
+      "status_Started": "بدأت",
+      "status_Delayed": "متأخرة",
+      "status_Finished": "مُنتهية",
+      "status_Cancelled": "ملغاة",
+      "reportEmergency": "الإبلاغ عن حالة طارئة",
+      "permission": {
+        "required": "يتطلب إذن الموقع.",
+        "blocked": "المتصفح حظر الوصول إلى موقعك. لتمكين التتبع المباشر:",
+        "step1": "انقر أيقونة القفل في شريط العنوان → إعدادات الموقع → الموقع → السماح.",
+        "step2": "تأكد من تفعيل خدمات الموقع في نظام التشغيل (Windows: الإعدادات → الخصوصية → الموقع).",
+        "step3": "بعد السماح، أعد تحميل هذه الصفحة واضغط",
+        "retryButton": "إعادة المحاولة",
+        "reloadButton": "إعادة تحميل الصفحة",
+        "openChrome": "افتح إعدادات الموقع في Chrome"
+      },
+      "reminder": {
+        "minutes": {
+          "30": "30 دقيقة",
+          "45": "45 دقيقة",
+          "60": "60 دقيقة",
+          "120": "120 دقيقة",
+          "360": "6 ساعات",
+          "1440": "1 يوم"
+        },
+        "updateFailed": "فشل تحديث التذكير",
+        "cancel": "🔔 إلغاء",
+        "set": "🔕 ضبط",
+        "button": {
+          "30": "أرسل 30م",
+          "45": "أرسل 45م",
+          "60": "أرسل 60م",
+          "custom": "مخصص"
+        }
+      },
+      "delay": {
+        "title": "تأجيل الرحلة",
+        "minutes": "الدقائق",
+        "recipientContact": "جهة الاتصال",
+        "justification": "مبرر التأخير",
+        "placeholder": "أدخل مبرر التأخير"
+      },
+      "empty": "لا توجد رحلات.",
+      "delayAction": "تأجيل",
+      "departure": "المغادرة",
+      "title": "رحلات السائق",
+      "tab": {
+        "active": "الرحلات النشطة",
+        "history": "السجل"
+      },
+      "filter": {
+        "busNumberPlaceholder": "ابحث برقم الحافلة",
+        "departurePlaceholder": "تصفية حسب تاريخ المغادرة",
+        "availableSeatsPlaceholder": "تصفية حسب المقاعد"
+      },
+      "confirmStartTitle": "تأكيد البدء",
+      "confirmFinishTitle": "تأكيد الإنهاء",
+      "confirmDelayTitle": "تأكيد التأجيل",
+      "loadFailed": "فشل في تحميل الرحلات.",
+      "operationFailed": "فشل العملية."
+    },
+    "profile":{
+      "successUpdate":"تم تحديث الملف الشخصي بنجاح.",
+      "updateFailed":"فشل التحديث."
     }
   },
 
@@ -254,6 +509,28 @@
       "updateSuccess": "تم تحديث بيانات السائق بنجاح.",
       "deleteSuccess": "تم حذف السائق بنجاح."
     },
+    "auditors": {
+      "detailsTitle": "تفاصيل المدقق",
+      "detailsSubtitle": "راجع الملف الشخصي ومعلومات الحساب الكاملة للمدقق.",
+      "account": "الحساب",
+      "fullName": "الاسم الكامل:",
+      "phoneNumber": "الهاتف:",
+      "role": "الدور:",
+      "status": "الحالة:",
+      "created": "تاريخ الإنشاء:",
+      "manage": {
+        "title": "إدارة المدققين",
+        "new": "مدقق جديد",
+        "updated": "تم تحديث المدقق",
+        "created": "تم إنشاء المدقق",
+        "deleted": "تم حذف المدقق",
+        "saveFailed": "فشل الحفظ",
+        "deleteFailed": "فشل الحذف",
+        "empty": "لم يتم العثور على مدققين.",
+        "confirmDeleteTitle": "تأكيد الحذف",
+        "confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف هذا المدقق؟"
+      }
+    },
     "vehicles": {
       "title": "إدارة المركبات",
       "newVehicle": "مركبة جديدة",
@@ -290,11 +567,41 @@
       "resolved": "تم الحل",
       "rejected": "مرفوضة"
     },
+    "emergencies": {
+      "title": "إدارة الطوارئ",
+      "subtitle": "راجع البلاغات الطارئة، صعّد الحوادث، وحدث حالة الاستجابة للرحلات الحرجة.",
+      "refresh": "تحديث",
+      "loadError": "تعذر تحميل حالات الطوارئ.",
+      "filterType": "تصفية حسب النوع",
+      "filterPriority": "تصفية حسب الأولوية",
+      "filterStatus": "تصفية حسب الحالة",
+      "searchPlaceholder": "ابحث في حالات الطوارئ...",
+      "table": {
+        "trip": "الرحلة",
+        "type": "النوع",
+        "priority": "الأولوية",
+        "status": "الحالة",
+        "reporter": "صاحب البلاغ",
+        "reportedAt": "وقت الإبلاغ",
+        "actions": "الإجراءات"
+      },
+      "noRecords": "لم يتم العثور على أي حالات طوارئ.",
+      "viewTrip": "عرض الرحلة",
+      "notUpdated": "لم يُحدّث بعد",
+      "detailsLink": "تفاصيل الرحلة",
+      "confirmTitle": "تأكيد تحديث الحالة",
+      "confirmMessage": "هل أنت متأكد أنك تريد تحديث حالة هذه الطوارئ؟",
+      "statusUpdated": "تم تحديث حالة الطوارئ.",
+      "statusUpdateError": "تعذر تحديث حالة الطوارئ."
+    },
     "citizen": {
       "trips": {
         "title": "الرحلات المتاحة",
         "selectRoute": "اختر المسار",
-        "selectDeparture": "اختر وقت المغادرة"
+        "selectDeparture": "اختر وقت المغادرة",
+        "paymentSuccess": "تمت عملية الدفع بنجاح. تم تأكيد الحجز.",
+        "paymentPending": "الدفع في انتظار المعالجة. تم إنشاء الحجز وسيتم معالجته قريباً.",
+        "paymentRequiresAction": "يتطلب الدفع مصادقة إضافية. يرجى التحقق من تنبيهات البنك."
       },
       "bookButton": "احجز الآن",
       "selectRouteLabel": "اختر مساراً",
@@ -417,25 +724,98 @@
     "viewAll": "عرض جميع الإشعارات",
     "complaintUpdatePrefix": "تحديث الشكوى:",
     "complaintResolvedAdminResponsePrefix": "تم حل شكواك. رد المسؤول:"
+    ,
+    "emergencyReported": {
+      "title": "تم الإبلاغ عن حالة طارئة: {{type}}",
+      "message": "الرحلة {{tripNumber}} ({{tripId}}) - {{type}} - الأولوية: {{priority}}. المبلغ: {{reporter}}."
+    },
+    "tripUpdate": {
+      "title": "تحديث الرحلة: {{tripNumber}}",
+      "message": "الرحلة {{tripNumber}} ({{tripId}}) تم تغيير حالتها إلى {{status}}. المغادرة: {{departure}}."
+    },
+    "emergencyUpdate": {
+      "title": "تحديث الطارئ: {{type}}",
+      "message": "الرحلة {{tripNumber}} ({{tripId}}) حالة الطوارئ الآن {{status}}."
+    },
+    "paymentSuccess": {
+      "title": "تمت عملية الدفع بنجاح",
+      "message": "تم إكمال دفعتك بقيمة {{amount}} بنجاح. شكراً لك."
+    },
+    "reminder": {
+      "title": "تذكير: {{text}}",
+      "message": "رحلتك من {{from}} إلى {{to}} تغادر في {{time}}."
+    },
+    "emergencyStatusUpdated": {
+      "title": "تحديث حالة الطوارئ: {{type}}",
+      "message": "الرحلة {{tripNumber}} ({{tripId}}) - {{type}} - تم تغيير حالة الطوارئ إلى {{status}}."
+    },
+    "newTripAssigned": {
+      "title": "تم تعيين رحلة جديدة: {{tripNumber}}",
+      "message": "تم تعيينك للرحلة {{tripNumber}} ({{tripId}}). المغادرة: {{departure}}."
+    },
+    "driverAssigned": {
+      "title": "تم تعيينك على الرحلة #{{tripNumber}}",
+      "message": "تم تعيينك على الرحلة #{{tripNumber}}. المغادرة: {{departure}}. المركبة: {{vehicle}}. المسار: {{route}}."
+    },
+    "driverReminder": {
+      "title": "تذكير: الرحلة #{{tripNumber}} تغادر قريباً",
+      "message": "الرحلة #{{tripNumber}} تغادر في {{time}}. المركبة: {{vehicle}}. المسار: {{route}}."
+    },
+    "complaintResponse": {
+      "title": "تم استلام رد على الشكوى",
+      "message": "شكواك '{{title}}' لديها رد: {{response}}."
+    },
+    "tripStatuses": {
+      "Scheduled": "مجدولة",
+      "Started": "بدأت",
+      "Delayed": "متأخرة",
+      "Finished": "منتهية",
+      "Cancelled": "ملغاة"
+    },
+    "emergencyStatuses": {
+      "Reported": "تم الإبلاغ",
+      "Acknowledged": "تم الاستلام",
+      "InProgress": "قيد المعالجة",
+      "Escalated": "تم التصعيد",
+      "Resolved": "تم الحل",
+      "Cancelled": "ملغاة"
+    },
+    "yourTrip": "رحلتك"
   },
-  "driver": {
-    "trips": {
-      "confirmStartMessage": "هل أنت متأكد أنك تريد بدء هذه الرحلة؟",
-      "confirmDelayMessage": "هل أنت متأكد أنك تريد تسجيل هذا التأخير؟",
-      "confirmFinishMessage": "هل أنت متأكد أنك تريد إنهاء هذه الرحلة؟",
-      "start": "بدء",
-      "submit": "إرسال",
-      "finish": "إنهاء",
-      "status_Scheduled": "مجدولة",
-      "status_Started": "بدأت",
-      "status_Delayed": "متأخرة",
-      "status_Finished": "مُنتهية",
-      "status_Cancelled": "ملغاة"
+
+  "emergency": {
+    "type": {
+      "Medical": "طبي",
+      "Mechanical": "ميكانيكي",
+      "Accident": "حادث",
+      "Security": "أمان",
+      "Traffic": "مرور",
+      "Other": "أخرى"
+    },
+    "status": {
+      "Reported": "تم الإبلاغ",
+      "Acknowledged": "تم الاستلام",
+      "InProgress": "قيد المعالجة",
+      "Escalated": "تم التصعيد",
+      "Resolved": "تم الحل",
+      "Cancelled": "ملغاة"
+    },
+    "priority": {
+      "Low": "منخفضة",
+      "Medium": "متوسطة",
+      "High": "عالية",
+      "Critical": "حرجة"
     }
   },
+
   "common": {
+    "close":"إغلاق",
+    "closeSymbol":"×",
+    "download":"تحميل",
+    "saved": "تم الحفظ",
     "saveChanges": "حفظ التغييرات",
     "back": "عودة",
+    "confirm": "تأكيد",
     "cancel": "إلغاء",
     "unknown": "غير معروف",
     "search": "بحث",
@@ -460,6 +840,9 @@
     "showDetails": "عرض التفاصيل",
     "start": "بدء",
     "finish": "إنهاء",
+    "route": "المسار",
+    "departure": "المغادرة",
+    "invalidDate": "تاريخ غير صالح",
     "submit": "إرسال",
     "confirmStartMessage": "هل أنت متأكد أنك تريد بدء هذه الرحلة؟",
     "confirmDelayMessage": "هل أنت متأكد أنك تريد تقديم هذا التأخير؟",
@@ -467,6 +850,8 @@
     "statusFinished": "منتهية"
   },
   "generated": {
+    "accountInfo": "معلومات الحساب",
+    "profileInfo": "الملف الشخصي",
     "components_ComplaintFormAndHistory_jsx_39_05ec66f5": "رد المسؤول",
     "components_ComplaintFormAndHistory_jsx_104_8d183dbd": "الموضوع",
     "components_ComplaintFormAndHistory_jsx_113_55f8ebc8": "الوصف",
@@ -537,6 +922,7 @@
     "pages_admin_ManageDriversDetails_jsx_128_6b73dc9d": "لون المركبة:",
     "pages_admin_ManageDriversDetails_jsx_131_ef775fbb": "انتهاء استمارة المركبة:",
     "pages_admin_ManageUsers_jsx_307_751f7d62": "إدارة المستخدمين",
+    "pages_admin_ManageUsers_jsx_316_7e1f3c9b":"معلومات الحساب",
     "pages_admin_ManageUsers_load_failed": "فشل تحميل المستخدم.",
     "pages_admin_ManageUsers_confirmUpdateMessage": "هل أنت متأكد أنك تريد تحديث معلومات هذا المستخدم؟",
     "pages_admin_ManageUsers_confirmDeleteMessage": "هل أنت متأكد أنك تريد حذف هذا المواطن؟ هذا الإجراء لا يمكن التراجع عنه.",
@@ -787,16 +1173,19 @@
     "pages_admin_ManageVehicles_jsx_84_411e8bf7": "لم يتم العثور على مركبات.",
     "pages_admin_ManageVehicles_jsx_120_4bd2bc5b": "تم تحديث المركبة.",
     "pages_admin_TripDetails_jsx_132_7dae1323": "الركاب ({{count}})",
-    "pages_citizen_CitizenTrips_booking_confirmed": "تم تأكيد الحجز! الرمز: {{code}}",
+    "pages_citizen_CitizenTrips_booking_confirmed": "تم تأكيد الحجز!",
     "pages_citizen_MyBookings_jsx_20_11e66235": "حجوزاتي النشطة",
     "pages_citizen_MyBookings_jsx_47_72cb6b26": "تم إلغاء الحجز بنجاح.",
     "pages_citizen_MyBookings_jsx_51_7d4ac1e7": "لم يتم العثور على حجوزات.",
     "pages_citizen_MyBookings_jsx_71_5825bc2c": "تم الحجز في",
     "pages_citizen_MyBookings_jsx_75_b5f97c79": "المغادرة في",
     "pages_citizen_MyBookings_jsx_179_b3e7c0ad": "لا يوجد حجوزات نشطة.",
-    "pages_citizen_MyBookings_jsx_183_5fcbc5e3": "الحالة",
-    "pages_citizen_MyBookings_jsx_183_5fcbc5e3_history": "التاريخ",
-    "pages_citizen_MyBookings_jsx_185_0b1fa2a4": "إلغاء الحجز",
+    "pages_citizen_MyBookings_jsx_179_b3e7c0ad1": "الغاء الحجز",
+    "pages_citizen_MyBookings_jsx_183_5fcbc5e3": "لا يوجد حجوزات نشطة.",
+    "pages_NotificationsPage_markAll":"وضع جميع الإشعارات كمقروءة",
+    "pages_citizen_MyBookings_jsx_183_5fcbc5e3_history": "لا يوجد حجوزات سابقة.",
+    "pages_citizen_MyBookings_jsx_185_0b1fa2a4": "الغاء الحجز",
+    "pages_citizen_MyBookings_jsx_185_0b1fa2a41": "لا يوجد حجوزات نشطة.",
     "pages_citizen_MyProfile_jsx_36_c1e9b2f8": "تم تحديث الملف الشخصي بنجاح.",
     "pages_citizen_MyProfile_jsx_64_3cc4f343": "فشل في التحديث.",
     "pages_citizen_MyProfile_jsx_74_87f3d2e0": "لم يتم العثور على الملف الشخصي.",
@@ -814,5 +1203,40 @@
   },
   "components_ComplaintFormAndHistory_load_failed": "فشل في تحميل الشكاوى.",
   "pages_admin_ManageUsersDetails_load_failed": "فشل في تحميل تفاصيل المستخدم.",
-  "auth-token-changed": "تغير رمز التحقق. الرجاء تسجيل الدخول مرة أخرى."
-}
+  "auth-token-changed": "تغير رمز التحقق. الرجاء تسجيل الدخول مرة أخرى.",
+  "emergency": {
+    "modal": {
+      "title": "الإبلاغ عن حالة طارئة",
+      "tripLabel": "تقرير حالة الطوارئ للرحلة",
+      "type": "نوع الطارئ",
+      "priority": "الأولوية",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف الحالة الطارئة بأكبر قدر ممكن من التفاصيل.",
+      "cancel": "إلغاء",
+      "submit": "إرسال البلاغ"
+    },
+    "type": {
+      "Medical": "طبي",
+      "Security": "أمني",
+      "Mechanical": "ميكانيكي",
+      "Fire": "حريق",
+      "Other": "أخرى"
+    },
+    "priority": {
+      "Low": "منخفض",
+      "Medium": "متوسط",
+      "High": "عالي",
+      "Critical": "حرج"
+    },
+    "status": {
+      "Reported": "تم الإبلاغ",
+      "Acknowledged": "تم الاستلام",
+      "InProgress": "قيد المعالجة",
+      "Escalated": "تم التصعيد",
+      "Resolved": "تم الحل",
+      "Cancelled": "ملغاة"
+    },
+    "success": "تم الإبلاغ عن الحالة الطارئة بنجاح.",
+    "failed": "تعذر الإبلاغ عن الحالة الطارئة. حاول مرة أخرى."
+  }
+} 

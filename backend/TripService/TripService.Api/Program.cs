@@ -19,18 +19,35 @@ builder.Services.AddScoped<ITripRepository, TripRepository>();
 builder.Services.AddHttpClient<IVehicleServiceClient, TripService.Infrastructure.Clients.VehicleServiceClient>();
 builder.Services.AddHttpClient<IRouteServiceClient, TripService.Infrastructure.Clients.RouteServiceClient>();
 builder.Services.AddHttpClient<IAuthServiceClient, TripService.Infrastructure.Clients.AuthServiceClient>();
+builder.Services.AddHttpClient<IBookingServiceClient, TripService.Infrastructure.Clients.BookingServiceClient>();
+
+// Register driver profile repo/service so DI can resolve it for TripManagementService
+builder.Services.AddScoped<IDriverProfileRepository, DriverProfileRepository>();
+builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
+
+// Construct TripManagementService explicitly, passing the driver repo and notification URL
 builder.Services.AddScoped<ITripService>(sp =>
-    new TripManagementService(
+    new TripService.Application.Services.TripManagementService(
         sp.GetRequiredService<ITripRepository>(),
         sp.GetRequiredService<IVehicleServiceClient>(),
         sp.GetRequiredService<IRouteServiceClient>(),
         sp.GetRequiredService<IAuthServiceClient>(),
+        sp.GetRequiredService<IDriverProfileRepository>(),
         builder.Configuration["ServiceUrls:NotificationService"] ?? "http://localhost:5010"
     )
 );
 
-builder.Services.AddScoped<IDriverProfileRepository, DriverProfileRepository>();
-builder.Services.AddScoped<IDriverProfileService, DriverProfileService>();
+// Emergency services and repo
+builder.Services.AddScoped<IEmergencyRepository, TripService.Infrastructure.Repositories.EmergencyRepository>();
+builder.Services.AddScoped<IEmergencyService>(sp =>
+    new TripService.Application.Services.EmergencyService(
+        sp.GetRequiredService<IEmergencyRepository>(),
+        sp.GetRequiredService<ITripRepository>(),
+        sp.GetRequiredService<IBookingServiceClient>(),
+        builder.Configuration["ServiceUrls:NotificationService"] ?? "http://localhost:5010",
+        sp.GetRequiredService<ILogger<TripService.Application.Services.EmergencyService>>()
+    )
+);
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

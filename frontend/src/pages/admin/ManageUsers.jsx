@@ -44,6 +44,16 @@ export default function ManageUsers() {
         gender: '',
         nationalIdNumber: ''
     });
+
+    const normalizeRoleKey = (role) => {
+        if (!role) return '';
+        return String(role).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    };
+
+    const translateAccountStatus = (status) => {
+        if (!status) return 'Unknown';
+        return t(`profile.status${status.charAt(0).toUpperCase()}${status.slice(1).toLowerCase()}`, status);
+    };
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -308,12 +318,9 @@ export default function ManageUsers() {
             {/* Header Area */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)' }}>
+                    <h1  className="text-3xl font-bold tracking-tight" style={{ color: 'var(--charcoal)',margin:'20px 0' }}>
                         {t('generated.pages_admin_ManageUsers_jsx_307_751f7d62')}
                     </h1>
-                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-                        {t('generated.pages_admin_ManageUsers_jsx_20_75f4b98c')}
-                    </p>
                 </div>
                 <button
                     onClick={openNewUserForm}
@@ -335,7 +342,7 @@ export default function ManageUsers() {
                         {/* Account Credentials Group */}
                         <div className="space-y-4">
                             <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--wheat-dark)' }}>
-                                Account Credentials
+                                {t('generated.pages_admin_ManageUsers_jsx_316_7e1f3c9b')}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <label className="flex flex-col gap-1.5">
@@ -666,7 +673,7 @@ export default function ManageUsers() {
                                 )}
                                 <div className="flex flex-wrap items-center gap-2 mt-2">
                                     <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full" style={{ backgroundColor: 'var(--wheat-light)', color: 'var(--charcoal-medium)' }}>
-                                        Role: {user.role}
+                                        {t('profile.role')}: {user.role ? t(`roles.${normalizeRoleKey(user.role)}`, user.role) : '-'}
                                     </span>
                                     <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" 
                                         style={{ 
@@ -674,11 +681,11 @@ export default function ManageUsers() {
                                             color: user.accountStatus === 'Active' ? 'var(--forest-dark)' : 'var(--umber)' 
                                         }}
                                     >
-                                        {user.accountStatus || 'Unknown'}
+                                        {translateAccountStatus(user.accountStatus)}
                                     </span>
                                 </div>
                                 {user.createdAt && (
-                                    <p className="text-xs mt-2" style={{ color: 'var(--wheat-dark)' }}>Created: {new Date(user.createdAt).toLocaleString()}</p>
+                                    <p className="text-xs mt-2" style={{ color: 'var(--wheat-dark)' }}>{t('profile.createdAt')}: {new Date(user.createdAt).toLocaleString()}</p>
                                 )}
                             </div>
                             

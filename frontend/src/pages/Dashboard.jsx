@@ -12,7 +12,7 @@ export default function Dashboard() {
 
     return (
         <div className="text-center py-20" >
-            <h1 className="text-3xl font-bold">{t('dashboard.welcome', { name: user?.fullName })}</h1>
+            <h1 style={{margin:'20px 0'}} className="text-3xl font-bold">{t('dashboard.welcome', { name: user?.fullName })}</h1>
             <p className="text-muted mt-2">{t('dashboard.selectOption')}</p>
         </div>
     );

@@ -25,6 +25,12 @@ export default function ActiveAudit() {
     load();
   }, []);
 
+  const formatDate = (raw) => {
+    if (!raw) return '-';
+    const d = new Date(raw);
+    return Number.isNaN(d.getTime()) ? t('common.invalidDate', 'Invalid date') : d.toLocaleString();
+  };
+
   useEffect(() => {
     if (!assigned) return;
     const scannerId = `html5qr-reader`;
@@ -89,7 +95,7 @@ export default function ActiveAudit() {
         }
       } catch (e) {
         console.error(e);
-        setResult({ status: 'Error', message: 'Validation failed' });
+        setResult({ status: t('auditor.active.statusError', 'Error'), message: t('auditor.active.validationFailed', 'Validation failed') });
       }
 
       // Auto-clear result and restart scanner after short delay
@@ -139,7 +145,7 @@ export default function ActiveAudit() {
       <h2 className="heading-md">{t('auditor.active.title', 'Active Audit')}</h2>
       <div className="card p-4 mt-4">
         <div className="font-semibold">{assigned.routeName}</div>
-        <div className="text-sm text-muted">{new Date(assigned.departureUtc).toLocaleString()}</div>
+        <div className="text-sm text-muted">{formatDate(assigned.departureUtc)}</div>
       </div>
 
       <div className="mt-6">

@@ -58,7 +58,7 @@ export default function VehicleDetails() {
         <div className="content-wrapper py-6">
             {/* Header Control Panel Section */}
             <div className="flex items-center justify-between mb-6 gap-4">
-                <h1 className="text-2xl font-bold text-[var(--charcoal)]">
+                <h1 style={{margin:'20px 0'}} className="text-2xl font-bold text-[var(--charcoal)]">
                     {t('generated.pages_admin_VehicleDetails_jsx_34_ef6dde72')}
                 </h1>
                 <button 
@@ -97,7 +97,7 @@ export default function VehicleDetails() {
                         <span className="text-muted text-xs font-semibold uppercase tracking-wider block">{t('generated.pages_admin_VehicleDetails_jsx_43_11dc9e19')}</span>
                         <p className="text-sm font-medium">
                             <span className="font-medium text-[var(--forest-dark)] bg-[var(--forest-100)] px-2 py-0.5 rounded text-xs uppercase tracking-wide">
-                                {vehicle.status}
+                                {vehicle.status ? t(`profile.status${vehicle.status.charAt(0).toUpperCase()}${vehicle.status.slice(1).toLowerCase()}`, vehicle.status) : '-'}
                             </span>
                         </p>
                     </div>
@@ -113,14 +113,6 @@ export default function VehicleDetails() {
                             <p className="text-[var(--charcoal-medium)] text-sm">{new Date(vehicle.updatedAt).toLocaleString()}</p>
                         </div>
                     )}
-
-                    <div className="space-y-1 sm:col-span-2 lg:col-span-3 pt-3 border-t border-[rgba(66,129,119,0.06)]">
-                        <span className="text-muted text-xs font-semibold uppercase tracking-wider block">{t('generated.pages_admin_VehicleDetails_jsx_46_1b376798')}</span>
-                        <p className="text-[var(--charcoal-medium)] text-sm leading-relaxed whitespace-pre-wrap">
-                            {vehicle.description || t('generated.pages_admin_VehicleDetails_no_additional_details')}
-                        </p>
-                    </div>
-
                 </div>
             </div>
         </div>

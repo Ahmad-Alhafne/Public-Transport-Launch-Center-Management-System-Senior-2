@@ -4,16 +4,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TripService.Application.DTOs;
 using TripService.Application.Interfaces;
+using TripService.Domain.Entities;
+using TripService.Domain.Enums;
 
 [ApiController]
 [Route("api/[controller]")]
 public class TripController : ControllerBase
 {
     private readonly ITripService _tripService;
+    private readonly TripService.Application.Interfaces.IDriverProfileRepository _driverProfileRepository;
 
-    public TripController(ITripService tripService)
+    public TripController(ITripService tripService, TripService.Application.Interfaces.IDriverProfileRepository driverProfileRepository)
     {
         _tripService = tripService;
+        _driverProfileRepository = driverProfileRepository;
     }
 
     [HttpGet]
@@ -84,6 +88,36 @@ public class TripController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(CreateTripDto request)
     {
+        // Validate driver's license before creating trip
+        if (request.DriverId != Guid.Empty)
+        {
+            var profile = await _driverProfileRepository.GetByDriverIdAsync(request.DriverId);
+            if (profile == null)
+            {
+                // Create a minimal driver profile fallback so admins can assign drivers
+                var fallback = new DriverProfile
+                {
+                    DriverId = request.DriverId,
+                    LicenseNumber = string.Empty,
+                    LicenseExpiryDate = DateTime.UtcNow.AddYears(1),
+                    LicenseCategory = LicenseCategory.Bus,
+                    IssuingAuthority = string.Empty,
+                    VehiclePlateNumber = string.Empty,
+                    VehicleModel = string.Empty,
+                    VehicleColor = string.Empty,
+                    RegistrationExpiryDate = DateTime.UtcNow.AddYears(1),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                await _driverProfileRepository.AddAsync(fallback);
+                await _driverProfileRepository.SaveChangesAsync();
+                profile = fallback;
+            }
+
+            if (profile.LicenseExpiryDate < DateTime.UtcNow.Date)
+                return BadRequest("Driver license has expired.");
+        }
+
         var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
         var trip = await _tripService.CreateTripAsync(request, token);
         return CreatedAtAction(nameof(GetById), new { id = trip.Id }, trip);
@@ -93,6 +127,35 @@ public class TripController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(Guid id, UpdateTripDto request)
     {
+        // If admin is assigning/changing driver, ensure license is valid
+        if (request.DriverId != Guid.Empty)
+        {
+            var profile = await _driverProfileRepository.GetByDriverIdAsync(request.DriverId);
+            if (profile == null)
+            {
+                var fallback = new DriverProfile
+                {
+                    DriverId = request.DriverId,
+                    LicenseNumber = string.Empty,
+                    LicenseExpiryDate = DateTime.UtcNow.AddYears(1),
+                    LicenseCategory = LicenseCategory.Bus,
+                    IssuingAuthority = string.Empty,
+                    VehiclePlateNumber = string.Empty,
+                    VehicleModel = string.Empty,
+                    VehicleColor = string.Empty,
+                    RegistrationExpiryDate = DateTime.UtcNow.AddYears(1),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                await _driverProfileRepository.AddAsync(fallback);
+                await _driverProfileRepository.SaveChangesAsync();
+                profile = fallback;
+            }
+
+            if (profile.LicenseExpiryDate < DateTime.UtcNow.Date)
+                return BadRequest("Driver license has expired.");
+        }
+
         var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
         var trip = await _tripService.UpdateTripAsync(id, request, token);
         return Ok(trip);

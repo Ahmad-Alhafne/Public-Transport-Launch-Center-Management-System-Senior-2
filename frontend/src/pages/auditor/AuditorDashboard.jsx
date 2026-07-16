@@ -31,7 +31,7 @@ export default function AuditorDashboard() {
 
   return (
     <div className="content-wrapper py-6">
-      <h1 className="heading-lg text-[var(--charcoal)]">{t('auditor.dashboard.title', 'Auditor Dashboard')}</h1>
+      <h1 style={{margin:'20px 0'}} className="heading-lg text-[var(--charcoal)]">{t('auditor.dashboard.title', 'Auditor Dashboard')}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
         <div className="card p-4">
           <div className="text-sm text-[var(--charcoal-medium)]">{t('auditor.dashboard.assignedTrips', 'Assigned Trips')}</div>

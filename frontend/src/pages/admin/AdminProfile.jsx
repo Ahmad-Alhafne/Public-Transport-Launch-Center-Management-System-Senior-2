@@ -41,6 +41,17 @@ export default function AdminProfile() {
         return date.toLocaleString();
     };
 
+    const translateEnumValue = (type, value) => {
+        if (!value) return '-';
+        const keyMap = {
+            gender: `admin.profile.gender${value}`,
+            accountStatus: `admin.profile.status${value}`,
+            adminLevel: `admin.profile.${value.charAt(0).toLowerCase()}${value.slice(1)}`,
+        };
+        const key = keyMap[type] || '';
+        return key ? t(key, value) : value;
+    };
+
     const fetchProfile = async () => {
         try {
             const { data } = await getMyProfile();
@@ -110,7 +121,7 @@ export default function AdminProfile() {
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold tracking-tight mb-6 text-[var(--charcoal)]">
+            <h1 style={{margin:'20px 0'}} className="text-3xl font-bold tracking-tight mb-6 text-[var(--charcoal)]">
                 {t('admin.profile.title')}
             </h1>
 
@@ -132,13 +143,13 @@ export default function AdminProfile() {
                         { label: t('admin.profile.phone'), val: profile.phoneNumber },
                         { label: t('admin.profile.firstName'), val: profile.firstName },
                         { label: t('admin.profile.lastName'), val: profile.lastName },
-                        { label: t('admin.profile.gender'), val: profile.gender },
+                        { label: t('admin.profile.gender'), val: translateEnumValue('gender', profile.gender) },
                         { label: t('admin.profile.dateOfBirth'), val: formatDateForDisplay(profile.dateOfBirth) },
                         { label: t('admin.profile.nationalId'), val: profile.nationalIdNumber, isMono: true },
                         { label: t('admin.profile.city'), val: profile.city },
                         { label: t('admin.profile.region'), val: profile.region },
-                        { label: t('admin.profile.accountStatus'), val: profile.accountStatus },
-                        { label: t('admin.profile.adminLevel'), val: profile.adminLevel },
+                        { label: t('admin.profile.accountStatus'), val: translateEnumValue('accountStatus', profile.accountStatus) },
+                        { label: t('admin.profile.adminLevel'), val: translateEnumValue('adminLevel', profile.adminLevel) },
                         { label: t('admin.profile.created'), val: formatDateForDisplay(profile.accountCreationDate) }
                     ].map((item, idx) => (
                         <div key={idx}>

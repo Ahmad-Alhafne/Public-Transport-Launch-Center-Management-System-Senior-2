@@ -10,6 +10,17 @@ export default function TripDetails() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    const startLocation =
+        trip?.startLocation ||
+        trip?.route?.startLocation ||
+        trip?.routeSource ||
+        t('citizen.favoriteTrips.notAvailable');
+    const endLocation =
+        trip?.endLocation ||
+        trip?.route?.endLocation ||
+        trip?.routeDestination ||
+        t('citizen.favoriteTrips.notAvailable');
+
     const statusLabels = {
         0: t('generated.pages_admin_TripDetails_status_scheduled'),
         1: t('generated.pages_admin_TripDetails_status_started'),
@@ -66,7 +77,7 @@ export default function TripDetails() {
 
     return (
         <div className="content-wrapper py-6">
-            <h1 className="text-2xl font-bold mb-6 text-[var(--charcoal)]">
+            <h1 style={{margin:'20px 0'}} className="text-2xl font-bold mb-6 text-[var(--charcoal)]">
                 {t('generated.pages_admin_TripDetails_jsx_45_6bb56d94')}
             </h1>
 
@@ -81,11 +92,11 @@ export default function TripDetails() {
                     <div className="grid gap-3.5 text-sm">
                         <div>
                             <span className="text-muted text-xs font-semibold uppercase tracking-wider block mb-0.5">{t('generated.pages_admin_TripDetails_jsx_54_f82a5fe0')}</span>
-                            <p className="text-[var(--charcoal)] font-medium">{trip.startLocation || t('citizen.favoriteTrips.notAvailable')}</p>
+                            <p className="text-[var(--charcoal)] font-medium">{startLocation}</p>
                         </div>
                         <div>
                             <span className="text-muted text-xs font-semibold uppercase tracking-wider block mb-0.5">{t('generated.pages_admin_TripDetails_jsx_58_7fbb1d78')}</span>
-                            <p className="text-[var(--charcoal)] font-medium">{trip.endLocation || t('citizen.favoriteTrips.notAvailable')}</p>
+                            <p className="text-[var(--charcoal)] font-medium">{endLocation}</p>
                         </div>
                         <div>
                             <span className="text-muted text-xs font-semibold uppercase tracking-wider block mb-0.5">{t('generated.pages_admin_TripDetails_jsx_62_5bdd70d3')}</span>

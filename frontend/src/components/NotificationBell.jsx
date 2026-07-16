@@ -2,6 +2,7 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import { NotificationContext } from '../context/NotificationContext';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatNotificationTitle, formatNotificationMessage } from '../utils/notificationFormatter';
 
 const NotificationBell = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useContext(NotificationContext);
@@ -32,33 +33,8 @@ const NotificationBell = () => {
     markAllAsRead();
   };
 
-  const formatNotificationTitle = (notification, t) => {
-    if (!notification) return '';
-    let title = notification.title || '';
-    try {
-      title = title.replace(/Complaint Update:/i, t('notifications.complaintUpdatePrefix'));
-      title = title.replace(/بلاغ:/i, t('notifications.complaintUpdatePrefix'));
-    } catch (e) {}
-    return title;
-  };
-
-  const formatNotificationMessage = (notification, t) => {
-    if (!notification) return '';
-    let msg = notification.message || '';
-    try {
-      msg = msg.replace(/Your complaint has been resolved\.\s*Admin response:/i, t('notifications.complaintResolvedAdminResponsePrefix'));
-      msg = msg.replace(/تم حل شكواك\.\s*رد المسؤول:/i, t('notifications.complaintResolvedAdminResponsePrefix'));
-      msg = msg.replace(/\bRead\b/g, t('generated.pages_NotificationsPage_status_read'));
-      msg = msg.replace(/\bUnread\b/g, t('generated.pages_NotificationsPage_status_unread'));
-      msg = msg.replace(/مقروء/g, t('generated.pages_NotificationsPage_status_read'));
-      msg = msg.replace(/غير مقروء/g, t('generated.pages_NotificationsPage_status_unread'));
-    } catch (e) {}
-    return msg;
-  };
-
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Notification Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all duration-200 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
@@ -84,11 +60,8 @@ const NotificationBell = () => {
         )}
       </button>
 
-      {/* Dropdown Panel */}
       {isOpen && (
         <div className="absolute left-1/2 -translate-x-1/2  mt-3 w-88 origin-top-right rounded-xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 shadow-xl shadow-black/5 dark:shadow-black/20 z-50 overflow-hidden transform transition-all duration-200">
-          
-          {/* Header */}
           <div className="px-4 py-3.5 border-b border-gray-100 dark:border-zinc-800 flex items-center justify-between bg-gray-50/50 dark:bg-zinc-900/50">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
               {t('notifications.title')}
@@ -103,7 +76,6 @@ const NotificationBell = () => {
             )}
           </div>
 
-          {/* List Content */}
           <div className="max-h-[380px] overflow-y-auto divide-y divide-gray-100 dark:divide-zinc-800/60">
             {recentNotifications.length > 0 ? (
               <ul className="divide-y divide-gray-100 dark:divide-zinc-800/60">
@@ -112,19 +84,18 @@ const NotificationBell = () => {
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`px-4 py-3.5 transition-colors duration-150 cursor-pointer select-none group relative ${
-                      notification.isRead 
-                        ? 'hover:bg-gray-50 dark:hover:bg-zinc-800/40' 
+                      notification.isRead
+                        ? 'hover:bg-gray-50 dark:hover:bg-zinc-800/40'
                         : 'bg-emerald-50/30 dark:bg-emerald-950/10 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20'
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      {/* Unread Status Dot indicator */}
                       {!notification.isRead && (
                         <div className="flex-shrink-0 mt-1.5">
                           <span className="block w-2 h-2 bg-emerald-500 rounded-full ring-4 ring-emerald-500/20"></span>
                         </div>
                       )}
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <p className={`text-sm truncate ${!notification.isRead ? 'font-semibold text-gray-900 dark:text-white' : 'font-medium text-gray-700 dark:text-gray-300'}`}>
@@ -143,7 +114,6 @@ const NotificationBell = () => {
                 ))}
               </ul>
             ) : (
-              /* Enhanced Empty State Layout */
               <div className="px-4 py-12 flex flex-col items-center justify-center text-center">
                 <div className="p-3 bg-gray-50 dark:bg-zinc-800 rounded-full mb-3 text-gray-400 dark:text-zinc-500">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +125,6 @@ const NotificationBell = () => {
             )}
           </div>
 
-          {/* Footer View All Action */}
           <div className="px-4 py-3 border-t border-gray-100 dark:border-zinc-800 bg-gray-50/30 dark:bg-zinc-900/30 text-center">
             <Link
               to="/notifications"

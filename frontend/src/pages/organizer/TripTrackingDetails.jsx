@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import LiveMap from '../../components/LiveMap';
 import { getTrackingHistory, getActiveTrackings } from '../../services/api';
 import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
 
 export default function TripTrackingDetails() {
+  const { t } = useTranslation();
   const { tripId } = useParams();
   const [history, setHistory] = useState([]);
   const [current, setCurrent] = useState(null);
@@ -31,16 +33,16 @@ export default function TripTrackingDetails() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Trip Tracking Details</h2>
+      <h2 style={{margin:'20px 0'}} className="text-xl font-bold mb-4">{t('organizer.tripDetails.title', 'Trip Tracking Details')}</h2>
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-1 bg-white p-4 rounded shadow">
-          <h3 className="font-semibold">Trip Info</h3>
-          <p><strong>Trip:</strong> {tripId}</p>
-          <p><strong>Driver:</strong> {current?.driverName || current?.driverId || '-'}</p>
-          <p><strong>Vehicle:</strong> {current?.vehiclePlate || current?.vehicleId || '-'}</p>
-          <p><strong>Speed:</strong> {current?.currentSpeed ?? '-'}</p>
-          <p><strong>Coordinates:</strong> {current ? `${current.currentLatitude}, ${current.currentLongitude}` : '-'}</p>
-          <p><strong>Last Update:</strong> {current?.lastUpdatedAt || '-'}</p>
+          <h3 className="font-semibold">{t('organizer.tripDetails.info','Trip Info')}</h3>
+          <p><strong>{t('organizer.tripDetails.trip','Trip')}:</strong> {tripId}</p>
+          <p><strong>{t('organizer.tripDetails.driver','Driver')}:</strong> {current?.driverName || current?.driverId || '-'}</p>
+          <p><strong>{t('organizer.tripDetails.vehicle','Vehicle')}:</strong> {current?.vehiclePlate || current?.vehicleId || '-'}</p>
+          <p><strong>{t('organizer.tripDetails.speed','Speed')}:</strong> {current?.currentSpeed ?? '-'}</p>
+          <p><strong>{t('organizer.tripDetails.coordinates','Coordinates')}:</strong> {current ? `${current.currentLatitude}, ${current.currentLongitude}` : '-'}</p>
+          <p><strong>{t('organizer.tripDetails.lastUpdate','Last Update')}:</strong> {current?.lastUpdatedAt || '-'}</p>
         </div>
 
         <div className="col-span-2 bg-white p-4 rounded shadow" style={{ height: '70vh' }}>
@@ -57,11 +59,11 @@ export default function TripTrackingDetails() {
       </div>
 
       <div className="mt-4 bg-white p-4 rounded shadow">
-        <h3 className="font-semibold mb-2">Tracking Timeline</h3>
+        <h3 className="font-semibold mb-2">{t('organizer.tripDetails.timeline','Tracking Timeline')}</h3>
         <div className="overflow-auto" style={{ maxHeight: 300 }}>
           <table className="w-full text-sm">
             <thead>
-              <tr><th>Time</th><th>Latitude</th><th>Longitude</th><th>Speed</th></tr>
+              <tr><th>{t('organizer.tripDetails.col.time','Time')}</th><th>{t('organizer.tripDetails.col.latitude','Latitude')}</th><th>{t('organizer.tripDetails.col.longitude','Longitude')}</th><th>{t('organizer.tripDetails.col.speed','Speed')}</th></tr>
             </thead>
             <tbody>
               {(history || []).map(h => (

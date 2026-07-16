@@ -58,7 +58,7 @@ export default function RouteDetails() {
         <div className="content-wrapper py-6">
             {/* Header Title and Control Panel */}
             <div className="flex items-center justify-between mb-6 gap-4">
-                <h1 className="text-2xl font-bold text-[var(--charcoal)]">
+                <h1 style={{margin:'20px 0'}} className="text-2xl font-bold text-[var(--charcoal)]">
                     {t('generated.pages_admin_RouteDetails_jsx_34_5be1fdd8')}
                 </h1>
                 <button
@@ -87,7 +87,7 @@ export default function RouteDetails() {
                             {t('generated.pages_admin_RouteDetails_jsx_50_f82a5fe0')}
                         </span>
                         <p className="text-[var(--charcoal-medium)] font-medium text-sm">
-                            📍 {route.startLocation}
+                             {route.startLocation}
                         </p>
                     </div>
 
@@ -96,7 +96,7 @@ export default function RouteDetails() {
                             {t('generated.pages_admin_RouteDetails_jsx_54_7fbb1d78')}
                         </span>
                         <p className="text-[var(--charcoal-medium)] font-medium text-sm">
-                            🏁 {route.endLocation}
+                             {route.endLocation}
                         </p>
                     </div>
 

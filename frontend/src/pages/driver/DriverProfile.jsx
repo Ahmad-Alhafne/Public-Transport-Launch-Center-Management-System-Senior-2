@@ -28,6 +28,12 @@ export default function DriverProfile() {
         try {
             const { data } = await getMyDriverProfile();
             setDriverProfile(data);
+            if (!editing) {
+                setForm({
+                    fullName: data.fullName || user?.fullName || '',
+                    phoneNumber: data.phoneNumber || user?.phoneNumber || ''
+                });
+            }
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
@@ -41,10 +47,10 @@ export default function DriverProfile() {
 
     useEffect(() => {
         if (user) {
-            setForm({
-                fullName: user.fullName || '',
-                phoneNumber: user.phoneNumber || ''
-            });
+            setForm((prev) => ({
+                fullName: prev.fullName || user.fullName || '',
+                phoneNumber: prev.phoneNumber || user.phoneNumber || ''
+            }));
         }
     }, [user]);
 
@@ -64,7 +70,7 @@ export default function DriverProfile() {
 
             const { data } = await updateMyProfile(payload);
 
-            setSuccess(t('generated.pages_driver_DriverProfile_jsx_59_03d89f70'));
+            setSuccess(t('driver.profile.successUpdate'));
             setEditing(false);
             setPassword('');
 
@@ -73,7 +79,7 @@ export default function DriverProfile() {
                 loginUser({ ...user, ...data, token });
             }
         } catch (err) {
-            setError(getErrorMessage(err) || t('generated.pages_driver_DriverProfile_jsx_68_7d3c6b35'));
+            setError(getErrorMessage(err));
         }
     };
 
@@ -108,7 +114,7 @@ export default function DriverProfile() {
         <div className="max-w-4xl mx-auto px-4 py-6">
             {/* Header Toolbar */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <h1 className="text-3xl font-bold tracking-tight text-[var(--charcoal)]"  style={{margin:'10px 0'}}>
+                <h1 className="text-3xl font-bold tracking-tight text-[var(--charcoal)]"  style={{margin:'20px 0'}}>
                     {t('generated.pages_driver_DriverProfile_jsx_89_5db8f62a')}
                 </h1>
                 {!editing ? (
