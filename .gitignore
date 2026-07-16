@@ -34,3 +34,6 @@ performance-test/results.json
 # Ignore system files
 .DS_Store
 Thumbs.db
+
+backend/PaymentService/out/
+
