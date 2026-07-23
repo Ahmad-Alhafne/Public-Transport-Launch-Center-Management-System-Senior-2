@@ -10,5 +10,4 @@ public class CreateScheduledReminderDto
     public string StartLocation { get; set; } = string.Empty;
     public string Destination { get; set; } = string.Empty;
     public int ReminderMinutesBeforeDeparture { get; set; }
-    public string? TargetRole { get; set; }
 }

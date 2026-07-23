@@ -5,12 +5,13 @@ using NotificationService.Domain.Entities;
 public interface INotificationRepository
 {
     Task<Notification?> GetByIdAsync(Guid id);
+    Task<Notification?> GetByIdForUserAsync(Guid id, Guid userId, string? role = null);
     Task<IEnumerable<Notification>> GetByUserIdAsync(Guid userId, string? role = null);
     Task<int> GetUnreadCountAsync(Guid userId, string? role = null);
     Task<IEnumerable<Notification>> GetAllAsync();
     Task AddAsync(Notification notification);
-    Task UpdateAsync(Notification notification);
-    Task DeleteAsync(Guid id);
+    Task MarkAsReadAsync(Notification notification, Guid userId);
+    Task DeleteAsync(Notification notification);
 
     Task<NotificationPreference?> GetPreferenceAsync(Guid userId, string role);
     Task AddOrUpdatePreferenceAsync(NotificationPreference preference);

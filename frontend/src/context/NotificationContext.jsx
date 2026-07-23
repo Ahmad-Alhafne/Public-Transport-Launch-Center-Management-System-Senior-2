@@ -109,6 +109,7 @@ export const NotificationProvider = ({ children }) => {
 
     // Cleanup on unmount
     useEffect(() => {
+        isMountedRef.current = true;
         return () => {
             isMountedRef.current = false;
         };

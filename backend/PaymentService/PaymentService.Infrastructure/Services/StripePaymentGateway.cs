@@ -144,6 +144,27 @@ public class StripePaymentGateway : IStripePaymentGateway
         return MapIntent(intent);
     }
 
+    public async Task<bool> RefundAsync(string paymentIntentId, long amountInCents)
+    {
+        try
+        {
+            var refundService = new RefundService();
+            var options = new RefundCreateOptions
+            {
+                PaymentIntent = paymentIntentId,
+                Amount = amountInCents
+            };
+
+            var refund = await refundService.CreateAsync(options);
+            return refund != null;
+        }
+        catch (StripeException ex)
+        {
+            _logger?.LogWarning(ex, "Stripe refund failed for PaymentIntent={paymentIntentId}", paymentIntentId);
+            throw;
+        }
+    }
+
     private static PaymentIntentResult MapIntent(PaymentIntent intent)
     {
         return new PaymentIntentResult

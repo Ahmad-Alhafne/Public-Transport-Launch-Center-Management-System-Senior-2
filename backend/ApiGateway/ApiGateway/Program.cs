@@ -32,7 +32,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 var accessToken = context.Request.Query["access_token"].FirstOrDefault();
                 var path = context.HttpContext.Request.Path;
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/api/hubs/live-tracking"))
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/api/hubs/live-tracking") || path.StartsWithSegments("/api/hubs/notifications")))
                 {
                     context.Token = accessToken;
                 }
@@ -63,6 +64,19 @@ app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.Use(async (context, next) =>
+{
+    if (HttpMethods.IsPost(context.Request.Method) &&
+        context.Request.Path.Equals("/api/notification", StringComparison.OrdinalIgnoreCase) &&
+        !(context.User.Identity?.IsAuthenticated == true && context.User.IsInRole("Admin")))
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return;
+    }
+
+    await next();
+});
 
 app.MapControllers();
 app.MapReverseProxy();

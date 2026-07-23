@@ -23,10 +23,14 @@ public class NotificationManagementService : INotificationManagementService
 
     public async Task<NotificationDto> CreateNotificationAsync(CreateNotificationDto dto)
     {
+        if (dto.UserId == Guid.Empty && string.IsNullOrWhiteSpace(dto.TargetRole))
+            throw new ArgumentException("A role notification requires TargetRole.");
+
         var notification = new Notification
         {
             UserId = dto.UserId,
-            TargetRole = dto.TargetRole,
+            // A concrete user always means a personal notification, regardless of legacy callers supplying a role.
+            TargetRole = dto.UserId == Guid.Empty ? dto.TargetRole : null,
             Title = dto.Title,
             Message = dto.Message,
             Type = dto.Type,
@@ -56,9 +60,9 @@ public class NotificationManagementService : INotificationManagementService
         return MapToDto(notification);
     }
 
-    public async Task<NotificationDto> GetNotificationByIdAsync(Guid id)
+    public async Task<NotificationDto> GetNotificationByIdAsync(Guid id, Guid userId, string? role = null)
     {
-        var notification = await _repository.GetByIdAsync(id);
+        var notification = await _repository.GetByIdForUserAsync(id, userId, role);
         if (notification == null)
             throw new Exception($"Notification with ID {id} not found.");
         return MapToDto(notification);
@@ -75,32 +79,35 @@ public class NotificationManagementService : INotificationManagementService
         return await _repository.GetUnreadCountAsync(userId, role);
     }
 
-    public async Task<NotificationDto> MarkAsReadAsync(Guid id)
+    public async Task<NotificationDto> MarkAsReadAsync(Guid id, Guid userId, string? role = null)
     {
-        var notification = await _repository.GetByIdAsync(id);
+        var notification = await _repository.GetByIdForUserAsync(id, userId, role);
         if (notification == null)
             throw new Exception($"Notification with ID {id} not found.");
 
-        notification.IsRead = true;
-        await _repository.UpdateAsync(notification);
+        await _repository.MarkAsReadAsync(notification, userId);
         await _repository.SaveChangesAsync();
+        notification.IsRead = true;
         return MapToDto(notification);
     }
 
-    public async Task MarkAllAsReadAsync(Guid userId)
+    public async Task MarkAllAsReadAsync(Guid userId, string? role = null)
     {
-        var notifications = await _repository.GetByUserIdAsync(userId);
+        var notifications = await _repository.GetByUserIdAsync(userId, role);
         foreach (var notification in notifications.Where(n => !n.IsRead))
         {
-            notification.IsRead = true;
-            await _repository.UpdateAsync(notification);
+            await _repository.MarkAsReadAsync(notification, userId);
         }
         await _repository.SaveChangesAsync();
     }
 
-    public async Task DeleteNotificationAsync(Guid id)
+    public async Task DeleteNotificationAsync(Guid id, Guid userId)
     {
-        await _repository.DeleteAsync(id);
+        var notification = await _repository.GetByIdForUserAsync(id, userId);
+        if (notification == null)
+            throw new Exception($"Notification with ID {id} not found.");
+
+        await _repository.DeleteAsync(notification);
         await _repository.SaveChangesAsync();
     }
 

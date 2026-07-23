@@ -57,7 +57,10 @@ namespace NotificationService.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", t =>
+                        {
+                            t.HasCheckConstraint("CK_Notifications_Recipient", "[UserId] = '00000000-0000-0000-0000-000000000000' OR [TargetRole] IS NULL");
+                        });
                 });
 
             modelBuilder.Entity("NotificationService.Domain.Entities.NotificationPreference", b =>
@@ -91,6 +94,24 @@ namespace NotificationService.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("NotificationPreferences");
+                });
+
+            modelBuilder.Entity("NotificationService.Domain.Entities.NotificationReadState", b =>
+                {
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("NotificationId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("NotificationReadStates");
                 });
 
             modelBuilder.Entity("NotificationService.Domain.Entities.NotificationTemplate", b =>
@@ -193,6 +214,22 @@ namespace NotificationService.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("ScheduledReminders");
+                });
+
+            modelBuilder.Entity("NotificationService.Domain.Entities.NotificationReadState", b =>
+                {
+                    b.HasOne("NotificationService.Domain.Entities.Notification", "Notification")
+                        .WithMany("ReadStates")
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Notification");
+                });
+
+            modelBuilder.Entity("NotificationService.Domain.Entities.Notification", b =>
+                {
+                    b.Navigation("ReadStates");
                 });
 #pragma warning restore 612, 618
         }

@@ -7,6 +7,7 @@ public interface IPaymentRepository
     Task AddAsync(Payment payment);
     Task<Payment?> GetByIdAsync(Guid id);
     Task<Payment?> GetByPaymentIntentIdAsync(string paymentIntentId);
+    Task<Payment?> GetByBookingIdAsync(Guid bookingId);
     Task UpdateAsync(Payment payment);
     Task SaveChangesAsync();
 }

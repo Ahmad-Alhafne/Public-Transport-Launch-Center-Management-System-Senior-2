@@ -18,12 +18,12 @@ public class InAppNotificationChannel : INotificationChannel
 
     public async Task SendAsync(Notification notification)
     {
-        if (notification.UserId == Guid.Empty)
+        var group = GetTargetGroup(notification);
+        if (group == null)
         {
             return;
         }
 
-        var group = NotificationHub.GetUserGroup(notification.UserId.ToString());
         await _hubContext.Clients.Group(group).ReceiveNotification(new NotificationService.Application.DTOs.NotificationDto
         {
             Id = notification.Id,
@@ -35,5 +35,17 @@ public class InAppNotificationChannel : INotificationChannel
             IsRead = notification.IsRead,
             CreatedAt = notification.CreatedAt
         });
+    }
+
+    public static string? GetTargetGroup(Notification notification)
+    {
+        if (notification.UserId != Guid.Empty)
+        {
+            return NotificationHub.GetUserGroup(notification.UserId.ToString());
+        }
+
+        return string.IsNullOrWhiteSpace(notification.TargetRole)
+            ? null
+            : NotificationHub.GetRoleGroup(notification.TargetRole);
     }
 }

@@ -7,17 +7,29 @@ using BookingService.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS to allow frontend to call APIs during development
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevCorsPolicy", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 builder.Services.AddDbContext<BookingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
         sqlOptions.EnableRetryOnFailure()));
 
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddHttpClient<ITripServiceClient, TripServiceClient>();
+    builder.Services.AddHttpClient<BookingService.Application.Interfaces.IPaymentServiceClient, BookingService.Infrastructure.HttpClients.PaymentServiceClient>();
 builder.Services.AddScoped<IBookingService, BookingManagementService>();
 
 builder.Services.AddControllers()
@@ -39,9 +51,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["JwtOptions:Issuer"],
             ValidAudience = builder.Configuration["JwtOptions:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtOptions:SecretKey"]!))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtOptions:SecretKey"]!)),
+            NameClaimType = ClaimTypes.NameIdentifier,
+            RoleClaimType = ClaimTypes.Role
         };
     });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

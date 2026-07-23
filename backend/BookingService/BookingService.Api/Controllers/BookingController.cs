@@ -63,7 +63,7 @@ public class BookingController : ControllerBase
     }
 
     [HttpGet("trip/{tripId:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Auditor")]
     public async Task<IActionResult> GetTripBookings(Guid tripId)
     {
         var bookings = await _bookingService.GetConfirmedBookingsByTripIdAsync(tripId);

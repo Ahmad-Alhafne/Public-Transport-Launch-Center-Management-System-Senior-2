@@ -13,6 +13,7 @@ public class NotificationDbContext : DbContext
     public DbSet<NotificationPreference> NotificationPreferences { get; set; }
     public DbSet<NotificationTemplate> NotificationTemplates { get; set; }
     public DbSet<ScheduledReminder> ScheduledReminders { get; set; }
+    public DbSet<NotificationReadState> NotificationReadStates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,6 +29,20 @@ public class NotificationDbContext : DbContext
             entity.Property(e => e.IsRead).IsRequired();
             entity.HasIndex(e => e.UserId);
             entity.HasIndex(e => e.TargetRole);
+            entity.ToTable(t => t.HasCheckConstraint(
+                "CK_Notifications_Recipient",
+                "[UserId] = '00000000-0000-0000-0000-000000000000' OR [TargetRole] IS NULL"));
+        });
+
+        modelBuilder.Entity<NotificationReadState>(entity =>
+        {
+            entity.HasKey(e => new { e.NotificationId, e.UserId });
+            entity.Property(e => e.ReadAt).IsRequired();
+            entity.HasOne(e => e.Notification)
+                .WithMany(n => n.ReadStates)
+                .HasForeignKey(e => e.NotificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.UserId);
         });
 
         modelBuilder.Entity<NotificationPreference>(entity =>

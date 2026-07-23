@@ -7,6 +7,7 @@ namespace AuditService.Application.Interfaces
     public interface ITripServiceClient
     {
         Task<IEnumerable<TripDto>?> GetAllTripsAsync(string? bearerToken = null);
+        Task<TripDto?> GetTripByIdAsync(Guid tripId, string? bearerToken = null);
     }
 
     public class TripDto

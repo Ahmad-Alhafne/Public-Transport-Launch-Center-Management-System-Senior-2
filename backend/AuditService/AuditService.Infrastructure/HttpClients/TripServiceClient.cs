@@ -38,5 +38,28 @@ namespace AuditService.Infrastructure.HttpClients
                 return null;
             }
         }
+
+        public async Task<TripDto?> GetTripByIdAsync(Guid tripId, string? bearerToken = null)
+        {
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, $"/api/trip/{tripId}");
+                if (!string.IsNullOrWhiteSpace(bearerToken))
+                {
+                    var value = bearerToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? bearerToken : $"Bearer {bearerToken}";
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", value.Replace("Bearer ", ""));
+                }
+
+                var resp = await _client.SendAsync(request);
+                if (!resp.IsSuccessStatusCode) return null;
+
+                var result = await resp.Content.ReadFromJsonAsync<TripDto?>();
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

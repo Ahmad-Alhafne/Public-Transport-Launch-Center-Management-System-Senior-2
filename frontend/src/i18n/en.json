@@ -44,6 +44,7 @@
       "selectedTrip": "Selected trip",
       "paymentSummary": "Payment summary",
       "seatCount": "Seats",
+      "seatCountRange": "Choose between 1 and {{count}} seats.",
       "cardNumber": "Card number",
       "expMonth": "Exp. month",
       "expYear": "Exp. year",
@@ -86,7 +87,9 @@
       "confirmRemoveMessage": "Are you sure you want to remove this trip from your favorites?"
     },
     "myBookings":{
-      "reportEmergency":"Report Emergency"
+      "reportEmergency":"Report Emergency",
+      "cancelReservationTitle":"Confirm Reservation Cancellation",
+      "cancelReservationMessage":"Are you sure you want to cancel this reservation?"
     }
     ,
     "qr": {
@@ -680,6 +683,11 @@
     "paymentSuccess": {
       "title": "Payment Successful",
       "message": "Your payment of {{amount}} has been successfully completed. Thank you."
+    },
+    "paymentRefund": {
+      "title": "Refund Processed",
+      "message": "Your refund of {{amount}} has been processed. It may take a few business days to appear in your account.",
+      "messageNoAmount": "Your refund has been processed. It may take a few business days to appear in your account."
     },
     "reminder": {
       "title": "Reminder: {{text}}",

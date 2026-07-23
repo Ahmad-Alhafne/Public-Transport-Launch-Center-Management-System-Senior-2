@@ -21,17 +21,35 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<IEnumerable<Notification>> GetByUserIdAsync(Guid userId, string? role = null)
     {
-        return await _context.Notifications
-            .Where(n => n.UserId == userId || (!string.IsNullOrEmpty(role) && n.TargetRole == role))
+        var notifications = await AccessibleNotifications(userId, role)
+            .AsNoTracking()
             .OrderByDescending(n => n.CreatedAt)
             .ToListAsync();
+
+        await ApplyReadStatesAsync(notifications, userId);
+        return notifications;
     }
 
     public async Task<int> GetUnreadCountAsync(Guid userId, string? role = null)
     {
-        return await _context.Notifications
-            .Where(n => !n.IsRead && (n.UserId == userId || (!string.IsNullOrEmpty(role) && n.TargetRole == role)))
-            .CountAsync();
+        return await AccessibleNotifications(userId, role)
+            .CountAsync(n => n.UserId == userId
+                ? !n.IsRead
+                : !_context.NotificationReadStates.Any(s => s.NotificationId == n.Id && s.UserId == userId));
+    }
+
+    public async Task<Notification?> GetByIdForUserAsync(Guid id, Guid userId, string? role = null)
+    {
+        var notification = await AccessibleNotifications(userId, role)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(n => n.Id == id);
+
+        if (notification != null)
+        {
+            await ApplyReadStatesAsync([notification], userId);
+        }
+
+        return notification;
     }
 
     public async Task<IEnumerable<Notification>> GetAllAsync()
@@ -44,19 +62,31 @@ public class NotificationRepository : INotificationRepository
         await _context.Notifications.AddAsync(notification);
     }
 
-    public async Task UpdateAsync(Notification notification)
+    public async Task MarkAsReadAsync(Notification notification, Guid userId)
     {
-        _context.Notifications.Update(notification);
-        await Task.CompletedTask;
+        if (notification.UserId == userId)
+        {
+            notification.IsRead = true;
+            _context.Notifications.Update(notification);
+            return;
+        }
+
+        var alreadyRead = await _context.NotificationReadStates
+            .AnyAsync(s => s.NotificationId == notification.Id && s.UserId == userId);
+        if (!alreadyRead)
+        {
+            await _context.NotificationReadStates.AddAsync(new NotificationReadState
+            {
+                NotificationId = notification.Id,
+                UserId = userId
+            });
+        }
     }
 
-    public async Task DeleteAsync(Guid id)
+    public Task DeleteAsync(Notification notification)
     {
-        var notification = await GetByIdAsync(id);
-        if (notification != null)
-        {
-            _context.Notifications.Remove(notification);
-        }
+        _context.Notifications.Remove(notification);
+        return Task.CompletedTask;
     }
 
     public async Task<NotificationPreference?> GetPreferenceAsync(Guid userId, string role)
@@ -129,5 +159,35 @@ public class NotificationRepository : INotificationRepository
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    private IQueryable<Notification> AccessibleNotifications(Guid userId, string? role)
+    {
+        return _context.Notifications.Where(n =>
+            n.UserId == userId ||
+            (n.UserId == Guid.Empty && !string.IsNullOrEmpty(role) && n.TargetRole == role));
+    }
+
+    private async Task ApplyReadStatesAsync(ICollection<Notification> notifications, Guid userId)
+    {
+        var roleNotificationIds = notifications
+            .Where(n => n.UserId == Guid.Empty)
+            .Select(n => n.Id)
+            .ToList();
+        if (roleNotificationIds.Count == 0)
+        {
+            return;
+        }
+
+        var readIdList = await _context.NotificationReadStates
+            .Where(s => s.UserId == userId && roleNotificationIds.Contains(s.NotificationId))
+            .Select(s => s.NotificationId)
+            .ToListAsync();
+        var readIds = readIdList.ToHashSet();
+
+        foreach (var notification in notifications.Where(n => n.UserId == Guid.Empty))
+        {
+            notification.IsRead = readIds.Contains(notification.Id);
+        }
     }
 }

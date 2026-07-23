@@ -147,25 +147,28 @@ public class EmergencyService : IEmergencyService
                 _logger?.LogWarning(ex, "Error notifying driver about emergency {EmergencyId}", r.Id);
             }
 
-            // Notify citizens via target role
-            try
+            // Emergency details are private to the reporting citizen; never broadcast trip-specific data to the role.
+            if (r.ReporterRole.Equals("Citizen", StringComparison.OrdinalIgnoreCase))
             {
-                using var http2 = new HttpClient();
-                http2.BaseAddress = new Uri(_notificationServiceUrl);
-                if (!string.IsNullOrEmpty(jwtToken)) http2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-
-                var title2 = $"Emergency Update: {r.Type}";
-                var message2 = $"Trip {trip.BusNumber} ({trip.Id}) emergency status is now {r.Status}.";
-                var payloadCitizens = new { UserId = Guid.Empty, TargetRole = "Citizen", Title = title2, Message = message2, Type = "AdminAnnouncement" };
-                var respC = await http2.PostAsJsonAsync("api/notification", payloadCitizens);
-                if (!respC.IsSuccessStatusCode)
+                try
                 {
-                    _logger?.LogWarning("Failed to notify citizens for emergency {EmergencyId}. Status: {Status}", r.Id, respC.StatusCode);
+                    using var http2 = new HttpClient();
+                    http2.BaseAddress = new Uri(_notificationServiceUrl);
+                    if (!string.IsNullOrEmpty(jwtToken)) http2.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+
+                    var title2 = $"Emergency Update: {r.Type}";
+                    var message2 = $"Trip {trip.BusNumber} ({trip.Id}) emergency status is now {r.Status}.";
+                    var payloadCitizen = new { UserId = r.ReporterId, TargetRole = (string?)null, Title = title2, Message = message2, Type = "AdminAnnouncement" };
+                    var respC = await http2.PostAsJsonAsync("api/notification", payloadCitizen);
+                    if (!respC.IsSuccessStatusCode)
+                    {
+                        _logger?.LogWarning("Failed to notify citizen for emergency {EmergencyId}. Status: {Status}", r.Id, respC.StatusCode);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogWarning(ex, "Error notifying citizens about emergency {EmergencyId}", r.Id);
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Error notifying citizen about emergency {EmergencyId}", r.Id);
+                }
             }
         }
 

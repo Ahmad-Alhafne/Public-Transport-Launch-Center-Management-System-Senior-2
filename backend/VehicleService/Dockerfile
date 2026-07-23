@@ -6,7 +6,7 @@ COPY ["VehicleService.Api/VehicleService.Api.csproj", "VehicleService.Api/"]
 COPY ["VehicleService.Application/VehicleService.Application.csproj", "VehicleService.Application/"]
 COPY ["VehicleService.Domain/VehicleService.Domain.csproj", "VehicleService.Domain/"]
 COPY ["VehicleService.Infrastructure/VehicleService.Infrastructure.csproj", "VehicleService.Infrastructure/"]
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+ RUN --mount=type=cache,id=nuget-vehicleservice,target=/root/.nuget/packages \
 	dotnet restore "VehicleService.Api/VehicleService.Api.csproj" \
 	--disable-parallel \
 	--verbosity minimal
@@ -14,9 +14,9 @@ RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
 # Copy the rest
 COPY . .
 WORKDIR "/src/VehicleService.Api"
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+ RUN --mount=type=cache,id=nuget-vehicleservice,target=/root/.nuget/packages \
 	dotnet build -c Release -o /app/build --no-restore
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+ RUN --mount=type=cache,id=nuget-vehicleservice,target=/root/.nuget/packages \
 	dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final

@@ -8,13 +8,14 @@ using PaymentService.Application.Interfaces;
 using PaymentService.Domain.Entities;
 using PaymentService.Domain.Enums;
 using PaymentService.Domain.Interfaces;
+using System;
+using System.Text.Json;
 
 public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentCommand, PaymentDto>
 {
     private readonly IPaymentRepository _repository;
     private readonly IStripePaymentGateway _stripePaymentGateway;
     private readonly IPaymentEventPublisher _eventPublisher;
-
     public ConfirmPaymentCommandHandler(
         IPaymentRepository repository,
         IStripePaymentGateway stripePaymentGateway,
@@ -62,7 +63,7 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
 
         if (payment.Status == PaymentStatus.Succeeded)
         {
-            await _eventPublisher.PublishAsync(new PaymentSuccessfulEvent
+            var evt = new PaymentSuccessfulEvent
             {
                 PaymentId = payment.Id,
                 BookingId = payment.BookingId,
@@ -70,7 +71,10 @@ public class ConfirmPaymentCommandHandler : IRequestHandler<ConfirmPaymentComman
                 Amount = payment.Amount,
                 Currency = payment.Currency,
                 PaymentIntentId = payment.PaymentIntentId
-            });
+            };
+
+            Console.WriteLine($"Publishing PaymentSuccessfulEvent: {JsonSerializer.Serialize(evt)}");
+            await _eventPublisher.PublishAsync(evt);
         }
 
         return MapToDto(payment);

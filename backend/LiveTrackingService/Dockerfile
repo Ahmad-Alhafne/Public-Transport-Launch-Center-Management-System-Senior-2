@@ -7,11 +7,11 @@ WORKDIR /src
 COPY . .
 WORKDIR /src/LiveTrackingService.Api
 ENV NUGET_HTTP_TIMEOUT=600
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+RUN --mount=type=cache,id=nuget-livetrackingservice,target=/root/.nuget/packages \
     dotnet restore "LiveTrackingService.Api.csproj" \
     --disable-parallel \
     --verbosity minimal
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+RUN --mount=type=cache,id=nuget-livetrackingservice,target=/root/.nuget/packages \
     dotnet publish -c Release -o /app/publish --no-restore
 
 FROM base AS final

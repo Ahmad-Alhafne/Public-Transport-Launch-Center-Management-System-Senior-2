@@ -1,7 +1,9 @@
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using NotificationService.Application.DTOs;
 using NotificationService.Application.Interfaces;
 using NotificationService.Application.IntegrationEvents;
+using NotificationService.Api.Clients;
 using NotificationService.Domain.Entities;
 using NotificationService.Domain.Enums;
 
@@ -13,17 +15,23 @@ public class NotificationIntegrationEventHandler
     private readonly INotificationPreferenceService _preferenceService;
     private readonly INotificationRepository _repository;
     private readonly INotificationTemplateService _templateService;
+    private readonly IAuthServiceClient _authServiceClient;
+    private readonly ILogger<NotificationIntegrationEventHandler> _logger;
 
     public NotificationIntegrationEventHandler(
         INotificationManagementService notificationService,
         INotificationPreferenceService preferenceService,
         INotificationRepository repository,
-        INotificationTemplateService templateService)
+        INotificationTemplateService templateService,
+        IAuthServiceClient authServiceClient,
+        ILogger<NotificationIntegrationEventHandler> logger)
     {
         _notificationService = notificationService;
         _preferenceService = preferenceService;
         _repository = repository;
         _templateService = templateService;
+        _authServiceClient = authServiceClient;
+        _logger = logger;
     }
 
     public async Task HandleAsync(string eventType, string payload)
@@ -33,22 +41,31 @@ public class NotificationIntegrationEventHandler
             return;
         }
 
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
         switch (eventType)
         {
             case nameof(TripBookedEvent):
-                await HandleTripBookedAsync(JsonSerializer.Deserialize<TripBookedEvent>(payload));
+                await HandleTripBookedAsync(JsonSerializer.Deserialize<TripBookedEvent>(payload, options));
                 break;
             case nameof(DriverAssignedEvent):
-                await HandleDriverAssignedAsync(JsonSerializer.Deserialize<DriverAssignedEvent>(payload));
+                await HandleDriverAssignedAsync(JsonSerializer.Deserialize<DriverAssignedEvent>(payload, options));
                 break;
             case nameof(ComplaintResponseEvent):
-                await HandleComplaintResponseAsync(JsonSerializer.Deserialize<ComplaintResponseEvent>(payload));
+                await HandleComplaintResponseAsync(JsonSerializer.Deserialize<ComplaintResponseEvent>(payload, options));
                 break;
             case nameof(FavoriteRouteMatchedEvent):
-                await HandleFavoriteRouteMatchedAsync(JsonSerializer.Deserialize<FavoriteRouteMatchedEvent>(payload));
+                await HandleFavoriteRouteMatchedAsync(JsonSerializer.Deserialize<FavoriteRouteMatchedEvent>(payload, options));
                 break;
             case nameof(PaymentSuccessfulEvent):
-                await HandlePaymentSuccessfulAsync(JsonSerializer.Deserialize<PaymentSuccessfulEvent>(payload));
+                var evt = JsonSerializer.Deserialize<PaymentSuccessfulEvent>(payload, options);
+                _logger.LogInformation("Received PaymentSuccessfulEvent payload: {PayloadJson}", payload);
+                await HandlePaymentSuccessfulAsync(evt);
+                break;
+            case nameof(PaymentRefundedEvent):
+                var refundEvt = JsonSerializer.Deserialize<PaymentRefundedEvent>(payload, options);
+                _logger.LogInformation("Received PaymentRefundedEvent payload: {PayloadJson}", payload);
+                await HandlePaymentRefundedAsync(refundEvt);
                 break;
         }
     }
@@ -82,7 +99,7 @@ public class NotificationIntegrationEventHandler
             TripId = eventPayload.TripId,
             UserId = eventPayload.CitizenId,
             Role = "Citizen",
-            TargetRole = "Citizen",
+            TargetRole = null,
             TripNumber = eventPayload.TripNumber,
             StartLocation = eventPayload.StartLocation,
             Destination = eventPayload.Destination,
@@ -114,7 +131,7 @@ public class NotificationIntegrationEventHandler
         await _notificationService.CreateNotificationAsync(new CreateNotificationDto
         {
             UserId = eventPayload.DriverId,
-            TargetRole = "Driver",
+            TargetRole = null,
             Title = title,
             Message = body,
             Type = NotificationType.TripUpdate
@@ -142,7 +159,7 @@ public class NotificationIntegrationEventHandler
             TripId = eventPayload.TripId,
             UserId = eventPayload.DriverId,
             Role = "Driver",
-            TargetRole = "Driver",
+            TargetRole = null,
             TripNumber = eventPayload.TripNumber,
             StartLocation = string.Empty,
             Destination = string.Empty,
@@ -174,7 +191,7 @@ public class NotificationIntegrationEventHandler
         await _notificationService.CreateNotificationAsync(new CreateNotificationDto
         {
             UserId = eventPayload.OwnerId,
-            TargetRole = eventPayload.OwnerRole,
+            TargetRole = null,
             Title = title,
             Message = body,
             Type = NotificationType.ComplaintUpdate
@@ -200,7 +217,7 @@ public class NotificationIntegrationEventHandler
         await _notificationService.CreateNotificationAsync(new CreateNotificationDto
         {
             UserId = eventPayload.CitizenId,
-            TargetRole = "Citizen",
+            TargetRole = null,
             Title = title,
             Message = body,
             Type = NotificationType.BookingUpdate
@@ -214,22 +231,71 @@ public class NotificationIntegrationEventHandler
             return;
         }
 
+        _logger.LogInformation("HandlePaymentSuccessfulAsync received: PaymentId={PaymentId} Amount={Amount} Currency={Currency}", eventPayload.PaymentId, eventPayload.Amount, eventPayload.Currency);
+
+        var language = await GetUserLanguagePreferenceAsync(eventPayload.UserId);
+        var isArabic = string.Equals(language, "ar", StringComparison.OrdinalIgnoreCase);
+
         var amountText = eventPayload.Amount > 0
             ? $"{eventPayload.Currency.ToUpperInvariant()} {eventPayload.Amount:F2}"
             : string.Empty;
 
-        var message = !string.IsNullOrWhiteSpace(amountText)
+        var englishMessage = !string.IsNullOrWhiteSpace(amountText)
             ? $"Your payment of {amountText} has been successfully completed. Thank you."
             : "Your payment has been successfully completed. Thank you.";
+
+        var arabicMessage = !string.IsNullOrWhiteSpace(amountText)
+            ? $"تمت عملية الدفع بمبلغ {amountText} بنجاح. شكراً لك."
+            : "تمت عملية الدفع بنجاح. شكراً لك.";
 
         await _notificationService.CreateNotificationAsync(new CreateNotificationDto
         {
             UserId = eventPayload.UserId,
-            TargetRole = "Citizen",
-            Title = "Payment Successful",
-            Message = message,
+            TargetRole = null,
+            Title = isArabic ? "نجاح الدفع" : "Payment Successful",
+            Message = isArabic ? arabicMessage : englishMessage,
             Type = NotificationType.PaymentUpdate
         });
+    }
+
+    private async Task HandlePaymentRefundedAsync(PaymentRefundedEvent? eventPayload)
+    {
+        if (eventPayload == null)
+        {
+            return;
+        }
+
+        _logger.LogInformation("HandlePaymentRefundedAsync received: PaymentId={PaymentId} Amount={Amount} Currency={Currency}", eventPayload.PaymentId, eventPayload.Amount, eventPayload.Currency);
+
+        var language = await GetUserLanguagePreferenceAsync(eventPayload.UserId);
+        var isArabic = string.Equals(language, "ar", StringComparison.OrdinalIgnoreCase);
+
+        var amountText = eventPayload.Amount > 0
+            ? $"{eventPayload.Currency.ToUpperInvariant()} {eventPayload.Amount:F2}"
+            : string.Empty;
+
+        var englishMessage = !string.IsNullOrWhiteSpace(amountText)
+            ? $"Your refund of {amountText} has been processed. It may take a few business days to appear in your account."
+            : "Your refund has been processed. It may take a few business days to appear in your account.";
+
+        var arabicMessage = !string.IsNullOrWhiteSpace(amountText)
+            ? $"تمت معالجة استرداد المبلغ {amountText}. قد يستغرق ظهور المبلغ في حسابك عدة أيام عمل."
+            : "تمت معالجة الاسترداد. قد يستغرق ظهور المبلغ في حسابك عدة أيام عمل.";
+
+        await _notificationService.CreateNotificationAsync(new CreateNotificationDto
+        {
+            UserId = eventPayload.UserId,
+            TargetRole = null,
+            Title = isArabic ? "تمت معالجة الاسترداد" : "Refund Processed",
+            Message = isArabic ? arabicMessage : englishMessage,
+            Type = NotificationType.PaymentUpdate
+        });
+    }
+
+    private async Task<string> GetUserLanguagePreferenceAsync(Guid userId)
+    {
+        var language = await _authServiceClient.GetUserLanguagePreferenceAsync(userId);
+        return string.IsNullOrWhiteSpace(language) ? "en" : language.Trim().ToLowerInvariant();
     }
 
     private async Task<(string title, string body)> RenderTemplateAsync(string key, IDictionary<string, string> values)

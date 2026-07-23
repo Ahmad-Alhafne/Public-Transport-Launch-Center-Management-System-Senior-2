@@ -191,6 +191,10 @@ export const formatNotificationTitle = (notification, t) => {
   m = raw.match(/^Driver assigned to Trip\s*#(\d+)/i) || raw.match(/^تم تعيينك على الرحلة\s*#(\d+)/i);
   if (m) return t('notifications.driverAssigned.title', { tripNumber: m[1] });
 
+  if (/Refund Processed/i.test(raw) || /تمت معالجة الاسترداد/i.test(raw)) {
+    return t('notifications.paymentRefund.title');
+  }
+
   if (/Payment Successful/i.test(raw) || /تمت عملية الدفع بنجاح/i.test(raw)) {
     return t('notifications.paymentSuccess.title');
   }
@@ -285,6 +289,13 @@ export const formatNotificationMessage = (notification, t) => {
       vehicle,
       route,
     });
+  }
+
+  if (/Refund Processed/i.test(combined) || /تمت معالجة الاسترداد/i.test(combined) || /Your refund of/i.test(combined) || /Your refund has been processed/i.test(combined) || /تمت معالجة استرداد المبلغ/i.test(combined)) {
+    if (amount && amount !== '0.00') {
+      return t('notifications.paymentRefund.message', { amount });
+    }
+    return t('notifications.paymentRefund.messageNoAmount');
   }
 
   if (/Payment Successful/i.test(combined) || /تمت عملية الدفع بنجاح/i.test(combined) || /Your payment of/i.test(combined)) {

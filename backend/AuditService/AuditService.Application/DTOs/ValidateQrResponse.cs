@@ -12,5 +12,7 @@ namespace AuditService.Application.DTOs
         public AuditResult Result { get; set; }
         public string? Message { get; set; }
         public string? PassengerName { get; set; }
+        public string? ExpectedVehicle { get; set; }
     }
 }
+

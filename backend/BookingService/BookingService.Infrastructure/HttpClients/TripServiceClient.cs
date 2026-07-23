@@ -51,7 +51,8 @@ public class TripServiceClient : ITripServiceClient
             {
                 DepartureTime = trip.DepartureTime,
                 Status = trip.Status,
-                DelayMinutes = trip.DelayMinutes
+                DelayMinutes = trip.DelayMinutes,
+                AvailableSeats = trip.AvailableSeats
             };
     }
 
@@ -60,5 +61,6 @@ public class TripServiceClient : ITripServiceClient
         public DateTime DepartureTime { get; set; }
         public string Status { get; set; } = string.Empty;
         public int? DelayMinutes { get; set; }
+        public int AvailableSeats { get; set; }
     }
 }

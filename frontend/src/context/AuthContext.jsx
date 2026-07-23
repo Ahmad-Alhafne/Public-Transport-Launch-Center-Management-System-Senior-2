@@ -30,6 +30,21 @@ export function AuthProvider({ children }) {
         return () => window.removeEventListener('auth-error', handleAuthError);
     }, []);
 
+    useEffect(() => {
+        const handleStorageChange = (event) => {
+            if (event.key !== 'token' && event.key !== 'user') return;
+
+            const savedToken = localStorage.getItem('token');
+            const savedUser = localStorage.getItem('user');
+            const isValidToken = savedToken && savedToken !== 'undefined' && savedToken !== 'null';
+            setToken(isValidToken ? savedToken : null);
+            setUser(isValidToken && savedUser ? JSON.parse(savedUser) : null);
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
     const loginUser = (userData) => {
         // Normalize token property name (API may return "Token" or "token")
         const tokenValue = userData?.token ?? userData?.Token ?? null;

@@ -49,6 +49,11 @@ namespace AuditService.Infrastructure.Repositories
             return await _db.AuditRecords.Where(r => r.TripId == tripId).ToListAsync();
         }
 
+        public async Task<IEnumerable<AuditRecord>> GetAuditRecordsForAuditorAsync(Guid auditorId)
+        {
+            return await _db.AuditRecords.Where(r => r.AuditorId == auditorId).OrderByDescending(r => r.ScanTime).ToListAsync();
+        }
+
         public async Task UpdateTripAuditAsync(TripAudit tripAudit)
         {
             _db.TripAudits.Update(tripAudit);

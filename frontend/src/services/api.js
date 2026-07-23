@@ -208,8 +208,10 @@ export const getTripDetails = (tripId) => api.get(`/admin/trips/${tripId}/detail
 // AuditService (Auditor)
 export const getAvailableAuditTrips = () => api.get('/audit/available-trips');
 export const pickAuditTrip = (tripId) => api.post(`/audit/pick-trip?tripId=${tripId}`);
-export const getAssignedAuditTrip = () => api.get('/audit/assigned-trip');
-export const validateQr = (token) => api.post('/audit/validate', { token });
+export const getAssignedAuditTrips = () => api.get('/audit/assigned-trip');
+export const getAssignedAuditTrip = getAssignedAuditTrips;
+export const getTripBookings = (tripId) => api.get(`/booking/trip/${tripId}`, { skipAuthRedirect: true });
+export const validateQr = (token, selectedTripId) => api.post('/audit/validate', { token, selectedTripId });
 export const recordScan = (data) => api.post('/audit/scan', data);
 export const getAuditHistory = (query) => api.get(`/audit/history${query ? `?${query}` : ''}`);
 export const getAuditStats = (query) => api.get(`/audit/stats${query ? `?${query}` : ''}`);

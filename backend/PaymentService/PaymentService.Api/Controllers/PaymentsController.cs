@@ -45,11 +45,33 @@ public class PaymentsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("refund")]
+    [Authorize(Roles = "Citizen")]
+    public async Task<IActionResult> Refund([FromBody] RefundPaymentRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var result = await _mediator.Send(new RefundPaymentCommand(request.BookingId, userId, request.Amount, request.Currency));
+        return Ok(result);
+    }
+
     [HttpGet("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _mediator.Send(new GetPaymentByIdQuery(id));
+        return Ok(result);
+    }
+
+    [HttpGet("booking/{bookingId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> GetByBookingId(Guid bookingId)
+    {
+        var result = await _mediator.Send(new GetPaymentByBookingIdQuery(bookingId));
+        if (result == null)
+            return NotFound();
         return Ok(result);
     }
 

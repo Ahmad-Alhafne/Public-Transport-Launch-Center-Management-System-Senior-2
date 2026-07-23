@@ -6,16 +6,16 @@ COPY ["AuthService.Api/AuthService.Api.csproj", "AuthService.Api/"]
 COPY ["AuthService.Application/AuthService.Application.csproj", "AuthService.Application/"]
 COPY ["AuthService.Domain/AuthService.Domain.csproj", "AuthService.Domain/"]
 COPY ["AuthService.Infrastructure/AuthService.Infrastructure.csproj", "AuthService.Infrastructure/"]
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+ RUN --mount=type=cache,id=nuget-authservice,target=/root/.nuget/packages \
     dotnet restore "AuthService.Api/AuthService.Api.csproj" \
     --disable-parallel \
     --verbosity minimal
 # Copy the rest
 COPY . .
 WORKDIR "/src/AuthService.Api"
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+ RUN --mount=type=cache,id=nuget-authservice,target=/root/.nuget/packages \
     dotnet build -c Release -o /app/build --no-restore
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+ RUN --mount=type=cache,id=nuget-authservice,target=/root/.nuget/packages \
     dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final

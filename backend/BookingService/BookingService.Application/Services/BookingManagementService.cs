@@ -12,12 +12,14 @@ public class BookingManagementService : IBookingService
     private readonly IBookingRepository _repository;
     private readonly ITripServiceClient _tripClient;
     private readonly IConfiguration _configuration;
+    private readonly BookingService.Application.Interfaces.IPaymentServiceClient _paymentClient;
 
-    public BookingManagementService(IBookingRepository repository, ITripServiceClient tripClient, IConfiguration configuration)
+    public BookingManagementService(IBookingRepository repository, ITripServiceClient tripClient, IConfiguration configuration, BookingService.Application.Interfaces.IPaymentServiceClient paymentClient)
     {
         _repository = repository;
         _tripClient = tripClient;
         _configuration = configuration;
+        _paymentClient = paymentClient;
     }
 
     public async Task<IEnumerable<BookingDto>> GetAllBookingsAsync()
@@ -63,6 +65,9 @@ public class BookingManagementService : IBookingService
         {
             throw new Exception("Cannot book a trip that is no longer open for reservations.");
         }
+
+        if (dto.SeatCount > tripInfo.AvailableSeats)
+            throw new Exception($"Only {tripInfo.AvailableSeats} seats are available for this trip.");
 
         // Call TripService to decrement available seat
         var seatReserved = await _tripClient.DecrementSeatAsync(dto.TripId, dto.SeatCount, jwtToken);
@@ -129,6 +134,48 @@ public class BookingManagementService : IBookingService
 
         if (tripInfo.Status == "Started")
             throw new Exception("You can't cancel the reservation after the trip has started.");
+
+        // Determine refund amount based on time before departure
+        var minutesUntilDeparture = (tripInfo.DepartureTime - DateTime.UtcNow).TotalMinutes;
+
+        // Retrieve payment info for this booking
+        var paymentInfo = await _paymentClient.GetPaymentByBookingIdAsync(booking.Id, jwtToken);
+
+        if (paymentInfo != null)
+        {
+            decimal refundAmount;
+
+            if (minutesUntilDeparture <= 30)
+            {
+                // Already guarded above but keep defensive
+                throw new Exception("You can't cancel the reservation now. Too late.");
+            }
+            else if (minutesUntilDeparture <= 60)
+            {
+                // Within 1 hour (<=60) but more than 30 minutes: charge 50%, refund 50%
+                refundAmount = Math.Round(paymentInfo.Amount * 0.5m, 2);
+            }
+            else
+            {
+                // More than 1 hour before departure: full refund
+                refundAmount = paymentInfo.Amount;
+            }
+
+            // Attempt refund via PaymentService and give clearer error context
+            try
+            {
+                var refunded = await _paymentClient.RefundAsync(booking.Id, refundAmount, jwtToken, paymentInfo.Currency);
+                if (!refunded)
+                {
+                    throw new Exception("Payment service returned unsuccessful status.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Surface the underlying refund failure as a clearer message to callers
+                throw new Exception($"Refund failed: {ex.Message}");
+            }
+        }
 
         booking.Status = BookingStatus.Cancelled;
         await _repository.UpdateAsync(booking);

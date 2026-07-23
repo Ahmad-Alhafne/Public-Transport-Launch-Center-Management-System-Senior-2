@@ -11,6 +11,7 @@ using AuditService.Application.Interfaces;
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace AuditService.Api.Controllers
 {
@@ -118,12 +119,45 @@ namespace AuditService.Api.Controllers
 
             try
             {
+                var authHeader = Request.Headers["Authorization"].ToString();
+                var bearerToken = string.IsNullOrWhiteSpace(authHeader) ? null : authHeader;
+
                 var audits = await _auditRepo.GetAssignedTripsForAuditorAsync(auditorId);
                 var result = new List<object>();
+
                 foreach (var a in audits)
                 {
-                    result.Add(new { id = a.Id, tripId = a.TripId, assignedAt = a.AssignedAt, status = a.Status });
+                    var trip = await _tripClient.GetTripByIdAsync(a.TripId, bearerToken);
+                    var bookings = await _bookingClient.GetBookingsByTripIdAsync(a.TripId, bearerToken);
+                    var passengerList = new List<object>();
+
+                    if (bookings != null)
+                    {
+                        foreach (var booking in bookings.Where(b => string.Equals(b.Status, "Confirmed", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            passengerList.Add(new
+                            {
+                                bookingId = booking.Id,
+                                citizenId = booking.PassengerId,
+                                passengerName = booking.PassengerName,
+                                bookingStatus = booking.Status,
+                                seatCount = 1
+                            });
+                        }
+                    }
+
+                    result.Add(new
+                    {
+                        id = a.Id,
+                        tripId = a.TripId,
+                        assignedAt = a.AssignedAt,
+                        status = a.Status,
+                        routeName = trip?.BusNumber ?? $"Trip {a.TripId}",
+                        departureUtc = trip?.DepartureTime,
+                        passengers = passengerList
+                    });
                 }
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -155,7 +189,104 @@ namespace AuditService.Api.Controllers
 
             await _auditService.AddRecordAsync(record);
 
+            // After saving the audit record, check whether all confirmed bookings have approved scans
+            try
+            {
+                var authHeader = Request.Headers["Authorization"].ToString();
+                var bearerToken = string.IsNullOrWhiteSpace(authHeader) ? null : authHeader;
+
+                var bookings = await _bookingClient.GetBookingsByTripIdAsync(record.TripId, bearerToken);
+                var confirmedCount = bookings?.Count(b => string.Equals(b.Status, "Confirmed", StringComparison.OrdinalIgnoreCase)) ?? 0;
+
+                var records = await _auditRepo.GetAuditRecordsForTripAsync(record.TripId);
+                var approvedCount = records?.Where(r => r.Result == AuditResult.Approved).Select(r => r.BookingId).Distinct().Count() ?? 0;
+
+                if (confirmedCount > 0 && approvedCount >= confirmedCount)
+                {
+                    var tripAudit = await _auditRepo.GetTripAuditForTripAsync(record.TripId);
+                    if (tripAudit != null)
+                    {
+                        tripAudit.Status = AuditStatus.Completed;
+                        tripAudit.CompletedAt = DateTime.UtcNow;
+                        await _auditRepo.UpdateTripAuditAsync(tripAudit);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "Post-scan completion check failed for TripId={TripId}", record.TripId);
+            }
+
             return Ok(new { message = "Recorded", id = record.Id });
+        }
+
+        [HttpGet("history")]
+        [Authorize(Roles = "Auditor")]
+        public async Task<IActionResult> GetAuditHistory()
+        {
+            var auditorIdClaim = User.FindFirst("sub")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (auditorIdClaim == null) return Unauthorized();
+            if (!Guid.TryParse(auditorIdClaim, out var auditorId)) return Unauthorized();
+
+            try
+            {
+                var authHeader = Request.Headers["Authorization"].ToString();
+                var bearerToken = string.IsNullOrWhiteSpace(authHeader) ? null : authHeader;
+
+                var records = await _auditRepo.GetAuditRecordsForAuditorAsync(auditorId);
+                var history = new List<object>();
+                var tripCache = new Dictionary<Guid, TripDto?>();
+                var bookingCache = new Dictionary<Guid, BookingSummary?>();
+
+                foreach (var tripGroup in records.GroupBy(r => r.TripId))
+                {
+                    if (!tripCache.ContainsKey(tripGroup.Key))
+                    {
+                        tripCache[tripGroup.Key] = await _tripClient.GetTripByIdAsync(tripGroup.Key, bearerToken);
+                    }
+                    var trip = tripCache[tripGroup.Key];
+
+                    var uniqueScans = tripGroup
+                        .GroupBy(r => r.BookingId)
+                        .Select(g => g.OrderByDescending(r => r.ScanTime).First())
+                        .OrderByDescending(r => r.ScanTime)
+                        .ToList();
+
+                    var tripRecords = new List<object>();
+                    foreach (var recordItem in uniqueScans)
+                    {
+                        if (!bookingCache.ContainsKey(recordItem.BookingId))
+                        {
+                            bookingCache[recordItem.BookingId] = await _bookingClient.GetBookingAsync(recordItem.BookingId);
+                        }
+                        var booking = bookingCache[recordItem.BookingId];
+                        tripRecords.Add(new
+                        {
+                            bookingId = recordItem.BookingId,
+                            citizenName = booking?.PassengerName ?? recordItem.CitizenId.ToString(),
+                            status = recordItem.Result.ToString(),
+                            scanTime = recordItem.ScanTime
+                        });
+                    }
+
+                    history.Add(new
+                    {
+                        tripId = tripGroup.Key,
+                        tripRoute = trip?.BusNumber ?? $"Trip {tripGroup.Key}",
+                        departureUtc = trip?.DepartureTime,
+                        scanCount = uniqueScans.Count,
+                        lastScanTime = uniqueScans.Max(r => r.ScanTime),
+                        records = tripRecords
+                    });
+                }
+
+                return Ok(history);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fetch audit history for auditor {AuditorId}", auditorId);
+                return StatusCode(500, new { message = "Failed to fetch audit history" });
+            }
         }
 
         [HttpPost("validate")]
@@ -205,6 +336,9 @@ namespace AuditService.Api.Controllers
             var secret = _configuration["QrOptions:Secret"] ?? _configuration["JwtOptions:SecretKey"] ?? string.Empty;
             if (string.IsNullOrEmpty(secret)) return StatusCode(500, new { message = "Server misconfigured for QR validation" });
 
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var bearerToken = string.IsNullOrWhiteSpace(authHeader) ? null : authHeader;
+
             using var hmac = new System.Security.Cryptography.HMACSHA256(System.Text.Encoding.UTF8.GetBytes(secret));
             var expected = hmac.ComputeHash(payloadBytes);
 
@@ -225,6 +359,21 @@ namespace AuditService.Api.Controllers
             if (booking.PassengerId != citizenId)
             {
                 return Ok(new ValidateQrResponse { BookingId = bookingId, CitizenId = citizenId, Result = AuditResult.WrongTrip, Message = "QR belongs to another passenger" });
+            }
+
+            var expectedSelectedTrip = request.SelectedTripId;
+            if (expectedSelectedTrip != null && booking.TripId != expectedSelectedTrip)
+            {
+                var expectedTrip = await _tripClient.GetTripByIdAsync(booking.TripId, bearerToken);
+                var vehicleInfo = expectedTrip?.BusNumber ?? "unknown vehicle";
+                return Ok(new ValidateQrResponse
+                {
+                    BookingId = bookingId,
+                    TripId = tripId,
+                    Result = AuditResult.WrongTrip,
+                    Message = $"This QR is for another trip. The passenger should be on vehicle {vehicleInfo}.",
+                    ExpectedVehicle = vehicleInfo
+                });
             }
 
             if (booking.TripId != tripId)

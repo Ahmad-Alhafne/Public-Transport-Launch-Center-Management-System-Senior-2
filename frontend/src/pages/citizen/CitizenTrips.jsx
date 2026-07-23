@@ -165,12 +165,12 @@ export default function CitizenTrips() {
         setError('');
         setSuccess('');
         setPaymentProcessing(true);
-        let createdBookingId = null;
+        let createdBookingCancellationCode = null;
 
         try {
             const trip = trips.find(t => t.id === bookingTripId);
             if (!trip) throw new Error(t('generated.pages_citizen_CitizenTrips_trip_not_found'));
-            if (bookingSeatCount <= 0) {
+            if (!Number.isInteger(bookingSeatCount) || bookingSeatCount < 1) {
                 setError(t('generated.pages_citizen_CitizenTrips_seat_count_min'));
                 return;
             }
@@ -197,7 +197,7 @@ export default function CitizenTrips() {
                 seatCount: bookingSeatCount
             });
 
-            createdBookingId = data.id;
+            createdBookingCancellationCode = data.cancellationCode;
             const paymentAmount = Number((bookingSeatCount * TICKET_PRICE).toFixed(2));
             const paymentIntentResponse = await createPaymentIntent({
                 bookingId: data.id,
@@ -267,9 +267,9 @@ export default function CitizenTrips() {
             });
 
         } catch (err) {
-            if (createdBookingId) {
+            if (createdBookingCancellationCode) {
                 try {
-                    await cancelBooking({ bookingId: createdBookingId });
+                    await cancelBooking({ cancellationCode: createdBookingCancellationCode });
                 } catch {
                     // ignore cancellation failure, show payment error instead
                 }
@@ -629,7 +629,7 @@ export default function CitizenTrips() {
                             </div>
 
                             <form onSubmit={handleBook} className="grid gap-4">
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                     <div>
                                         <label className="form-label">{t('citizen.trips.bookingFullName')}</label>
                                         <input
@@ -639,6 +639,25 @@ export default function CitizenTrips() {
                                             required
                                             className="input-field"
                                         />
+                                    </div>
+                                    <div>
+                                        <label className="form-label">{t('citizen.trips.seatCount', 'Seats')}</label>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            max={bookingTrip.availableSeats}
+                                            step={1}
+                                            value={bookingSeatCount}
+                                            onChange={e => setBookingSeatCount(Number(e.target.value))}
+                                            required
+                                            className="input-field"
+                                        />
+                                        <p className="mt-1 text-xs text-[var(--charcoal-medium)]">
+                                            {t('citizen.trips.seatCountRange', {
+                                                count: bookingTrip.availableSeats,
+                                                defaultValue: 'Choose between 1 and {{count}} seats.'
+                                            })}
+                                        </p>
                                     </div>
                                     <div>
                                         <label className="form-label">{t('citizen.trips.cardNumber', 'Card number')}</label>

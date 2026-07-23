@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
@@ -43,6 +43,7 @@ import OrganizerComplaints from './pages/organizer/OrganizerComplaints';
 import OrganizerViolations from './pages/organizer/OrganizerViolations';
 import LiveTrackingDashboard from './pages/organizer/LiveTrackingDashboard';
 import TripTrackingDetails from './pages/organizer/TripTrackingDetails';
+import { getNotificationAccountKey } from './utils/notificationAccountKey';
 
 export default function App() {
   useEffect(() => {
@@ -61,7 +62,7 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <NotificationProvider>
+      <AccountNotificationProvider>
         <BrowserRouter>
           <Routes>
           {/* Public routes */}
@@ -195,7 +196,17 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
-      </NotificationProvider>
+      </AccountNotificationProvider>
     </AuthProvider>
+  );
+}
+
+function AccountNotificationProvider({ children }) {
+  const { user, token } = useAuth();
+
+  return (
+    <NotificationProvider key={getNotificationAccountKey(user, token)}>
+      {children}
+    </NotificationProvider>
   );
 }

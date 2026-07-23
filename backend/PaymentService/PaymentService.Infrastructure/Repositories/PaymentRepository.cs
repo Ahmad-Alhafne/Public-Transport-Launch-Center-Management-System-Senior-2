@@ -29,6 +29,11 @@ public class PaymentRepository : IPaymentRepository
         return await _dbContext.Payments.FirstOrDefaultAsync(p => p.PaymentIntentId == paymentIntentId);
     }
 
+    public async Task<Payment?> GetByBookingIdAsync(Guid bookingId)
+    {
+        return await _dbContext.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefaultAsync(p => p.BookingId == bookingId);
+    }
+
     public Task UpdateAsync(Payment payment)
     {
         _dbContext.Payments.Update(payment);

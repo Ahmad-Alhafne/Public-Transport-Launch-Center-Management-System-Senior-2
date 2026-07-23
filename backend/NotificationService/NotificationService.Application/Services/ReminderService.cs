@@ -2,9 +2,6 @@ namespace NotificationService.Application.Services;
 
 using NotificationService.Application.DTOs;
 using NotificationService.Application.Interfaces;
-using NotificationService.Application.Interfaces;
-using NotificationService.Application.Interfaces;
-using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 
 public class ReminderService : IReminderService
@@ -34,7 +31,7 @@ public class ReminderService : IReminderService
                 TripId = dto.TripId,
                 UserId = userId,
                 Role = role,
-                TargetRole = dto.TargetRole,
+                TargetRole = null,
                 TripNumber = dto.TripNumber,
                 StartLocation = dto.StartLocation,
                 Destination = dto.Destination,
@@ -57,7 +54,7 @@ public class ReminderService : IReminderService
             existing.RouteInfo = dto.RouteInfo;
             existing.StartLocation = dto.StartLocation;
             existing.Destination = dto.Destination;
-            existing.TargetRole = dto.TargetRole;
+            existing.TargetRole = null;
             await _repository.UpdateScheduledReminderAsync(existing);
             await _repository.SaveChangesAsync();
             return Map(existing);

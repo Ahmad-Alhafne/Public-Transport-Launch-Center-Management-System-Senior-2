@@ -62,7 +62,7 @@ public class TripReminderBackgroundService : BackgroundService
             await notificationService.CreateNotificationAsync(new CreateNotificationDto
             {
                 UserId = reminder.UserId,
-                TargetRole = reminder.TargetRole,
+                TargetRole = null,
                 Title = title,
                 Message = body,
                 Type = NotificationType.TripUpdate

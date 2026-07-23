@@ -12,4 +12,5 @@ public class Notification
     public NotificationType Type { get; set; }
     public bool IsRead { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public ICollection<NotificationReadState> ReadStates { get; set; } = new List<NotificationReadState>();
 }

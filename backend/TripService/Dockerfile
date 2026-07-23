@@ -1,20 +1,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+ENV NUGET_ENHANCED_MAX_NETWORK_TRY_COUNT=12 \
+    NUGET_ENHANCED_NETWORK_RETRY_DELAY_MILLISECONDS=2000 \
+    NUGET_ENHANCED_NETWORK_RETRY_DELAY_MAX_MILLISECONDS=30000
 
 COPY ["TripService.Api/TripService.Api.csproj", "TripService.Api/"]
 COPY ["TripService.Application/TripService.Application.csproj", "TripService.Application/"]
 COPY ["TripService.Domain/TripService.Domain.csproj", "TripService.Domain/"]
 COPY ["TripService.Infrastructure/TripService.Infrastructure.csproj", "TripService.Infrastructure/"]
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet restore "TripService.Api/TripService.Api.csproj" \
+RUN dotnet restore "TripService.Api/TripService.Api.csproj" \
     --disable-parallel \
     --verbosity minimal
 COPY . .
 WORKDIR "/src/TripService.Api"
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet build -c Release -o /app/build --no-restore
-RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet build -c Release -o /app/build --no-restore
+RUN dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app

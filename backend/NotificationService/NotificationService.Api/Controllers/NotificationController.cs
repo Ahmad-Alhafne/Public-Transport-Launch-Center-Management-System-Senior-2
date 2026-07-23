@@ -31,7 +31,9 @@ public class NotificationController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var notification = await _notificationService.GetNotificationByIdAsync(id);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var role = User.FindFirstValue(ClaimTypes.Role);
+        var notification = await _notificationService.GetNotificationByIdAsync(id, userId, role);
         return Ok(notification);
     }
 
@@ -39,7 +41,9 @@ public class NotificationController : ControllerBase
     [Authorize]
     public async Task<IActionResult> MarkAsRead(Guid id)
     {
-        var notification = await _notificationService.MarkAsReadAsync(id);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var role = User.FindFirstValue(ClaimTypes.Role);
+        var notification = await _notificationService.MarkAsReadAsync(id, userId, role);
         return Ok(notification);
     }
 
@@ -58,7 +62,8 @@ public class NotificationController : ControllerBase
     public async Task<IActionResult> MarkAllAsRead()
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        await _notificationService.MarkAllAsReadAsync(userId);
+        var role = User.FindFirstValue(ClaimTypes.Role);
+        await _notificationService.MarkAllAsReadAsync(userId, role);
         return NoContent();
     }
 
@@ -66,7 +71,8 @@ public class NotificationController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Delete(Guid id)
     {
-        await _notificationService.DeleteNotificationAsync(id);
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        await _notificationService.DeleteNotificationAsync(id, userId);
         return NoContent();
     }
 

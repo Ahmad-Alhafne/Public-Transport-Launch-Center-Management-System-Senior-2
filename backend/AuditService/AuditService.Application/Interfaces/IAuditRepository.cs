@@ -12,6 +12,7 @@ namespace AuditService.Application.Interfaces
         Task<bool> TryAssignTripAsync(Guid tripId, Guid auditorId);
         Task AddAuditRecordAsync(AuditRecord record);
         Task<IEnumerable<AuditRecord>> GetAuditRecordsForTripAsync(Guid tripId);
+        Task<IEnumerable<AuditRecord>> GetAuditRecordsForAuditorAsync(Guid auditorId);
         Task CreateTripAuditAsync(TripAudit tripAudit);
         Task UpdateTripAuditAsync(TripAudit tripAudit);
     }

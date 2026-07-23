@@ -12,5 +12,6 @@ public interface ITripServiceClient
         public DateTime DepartureTime { get; set; }
         public string Status { get; set; } = string.Empty;
         public int? DelayMinutes { get; set; }
+        public int AvailableSeats { get; set; }
     }
 }

@@ -35,6 +35,13 @@ builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenc
 builder.Services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
 builder.Services.AddScoped<IReminderService, ReminderService>();
 
+// AuthService client for user language lookup
+builder.Services.AddHttpClient<NotificationService.Api.Clients.IAuthServiceClient, NotificationService.Api.Clients.AuthServiceClient>(client =>
+{
+    var authUrl = builder.Configuration["ServiceUrls:AuthService"] ?? builder.Configuration["AuthServiceUrl"] ?? "http://localhost:5104";
+    client.BaseAddress = new Uri(authUrl.TrimEnd('/') + "/");
+});
+
 // Channels
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<INotificationChannel, InAppNotificationChannel>();
@@ -83,6 +90,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["JwtOptions:Issuer"],
             ValidAudience = builder.Configuration["JwtOptions:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtOptions:SecretKey"]!))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(accessToken) && context.HttpContext.Request.Path.StartsWithSegments("/hubs/notifications"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 

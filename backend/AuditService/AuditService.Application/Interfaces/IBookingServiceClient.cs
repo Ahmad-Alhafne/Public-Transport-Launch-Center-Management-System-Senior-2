@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace AuditService.Application.Interfaces
@@ -6,6 +7,7 @@ namespace AuditService.Application.Interfaces
     public interface IBookingServiceClient
     {
         Task<BookingSummary?> GetBookingAsync(Guid bookingId);
+        Task<IEnumerable<BookingSummary>?> GetBookingsByTripIdAsync(Guid tripId, string? bearerToken = null);
     }
 
     public class BookingSummary

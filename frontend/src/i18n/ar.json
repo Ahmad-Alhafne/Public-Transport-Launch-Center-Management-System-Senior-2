@@ -40,6 +40,7 @@
       "selectedTrip": "الرحلة المختارة",
       "paymentSummary": "ملخص الدفع",
       "seatCount": "المقاعد",
+      "seatCountRange": "اختر بين مقعد واحد و{{count}} مقاعد.",
       "cardNumber": "رقم البطاقة",
       "expMonth": "شهر الانتهاء",
       "expYear": "سنة الانتهاء",
@@ -82,7 +83,9 @@
       "confirmRemoveMessage": "هل أنت متأكد أنك تريد إزالة هذه الرحلة من مفضلتك؟"
     },
     "myBookings":{
-      "reportEmergency":"الإبلاغ عن حالة طارئة"
+      "reportEmergency":"الإبلاغ عن حالة طارئة",
+      "cancelReservationTitle":"تأكيد إلغاء الحجز",
+      "cancelReservationMessage":"هل أنت متأكد أنك تريد إلغاء هذا الحجز؟"
     },
     "qr": {
       "viewQr":" QR عرض رمز"
@@ -740,6 +743,11 @@
     "paymentSuccess": {
       "title": "تمت عملية الدفع بنجاح",
       "message": "تم إكمال دفعتك بقيمة {{amount}} بنجاح. شكراً لك."
+    },
+    "paymentRefund": {
+      "title": "تمت معالجة الاسترداد",
+      "message": "تمت معالجة استرداد المبلغ {{amount}}. قد يستغرق ظهور المبلغ في حسابك عدة أيام عمل.",
+      "messageNoAmount": "تمت معالجة الاسترداد. قد يستغرق ظهور المبلغ في حسابك عدة أيام عمل."
     },
     "reminder": {
       "title": "تذكير: {{text}}",
